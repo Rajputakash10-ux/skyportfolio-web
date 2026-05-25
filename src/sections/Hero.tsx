@@ -2,15 +2,6 @@
 import { motion } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
 
-const floatingIcons = [
-  { icon: "🐍", label: "Python",   delay: 0,   x: "8%",  y: "22%" },
-  { icon: "🤖", label: "AI/ML",    delay: 1.2, x: "84%", y: "18%" },
-  { icon: "📊", label: "Data",     delay: 0.6, x: "6%",  y: "68%" },
-  { icon: "🧠", label: "NLP",      delay: 1.8, x: "87%", y: "62%" },
-  { icon: "⚡", label: "TensorFlow",delay: 2.4, x: "48%", y: "88%" },
-  { icon: "🔬", label: "Research", delay: 0.9, x: "18%", y: "48%" },
-];
-
 const stagger = (i: number) => ({
   initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
@@ -49,22 +40,6 @@ export default function Hero() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-[#EC4899] rounded-full blur-[120px]"
         />
       </div>
-
-      {/* Floating tech icons */}
-      {floatingIcons.map((item) => (
-        <motion.div
-          key={item.label}
-          className="absolute hidden lg:flex flex-col items-center gap-1.5 pointer-events-none"
-          style={{ left: item.x, top: item.y }}
-          animate={{ y: [0, -14, 0] }}
-          transition={{ duration: 5 + item.delay, repeat: Infinity, ease: "easeInOut", delay: item.delay }}
-        >
-          <div className="glass rounded-2xl p-3.5 text-2xl border border-white/10 shadow-xl">
-            {item.icon}
-          </div>
-          <span className="text-[10px] text-[#9CA3AF] font-medium tracking-wide">{item.label}</span>
-        </motion.div>
-      ))}
 
       {/* Main content */}
       <div className="relative z-10 text-center px-5 max-w-4xl mx-auto w-full">
