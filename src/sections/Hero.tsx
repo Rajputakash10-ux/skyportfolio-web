@@ -111,7 +111,7 @@ export default function Hero() {
             Download Resume
           </a>
           <a
-            href="https://github.com/akashsingh"
+            href="https://github.com/Rajputakash10-ux"
             target="_blank"
             rel="noopener noreferrer"
             className="px-8 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:scale-105 transition-all duration-200 flex items-center gap-2"
@@ -120,7 +120,7 @@ export default function Hero() {
             GitHub
           </a>
           <a
-            href="https://linkedin.com/in/akashsingh"
+            href="https://www.linkedin.com/in/akash-rajput-9433aa368/"
             target="_blank"
             rel="noopener noreferrer"
             className="px-8 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:scale-105 transition-all duration-200 flex items-center gap-2"

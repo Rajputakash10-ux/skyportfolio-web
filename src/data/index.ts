@@ -46,7 +46,7 @@ export const projects = [
     features: ["Intent recognition", "Tokenization", "Text preprocessing", "Real-time responses"],
     gradient: "from-blue-600 to-purple-700",
     icon: "🤖",
-    github: "https://github.com/akashsingh",
+    github: "https://github.com/Rajputakash10-ux",
   },
   {
     title: "Stock Talks",
@@ -56,7 +56,7 @@ export const projects = [
     features: ["Stock prediction", "Technical indicators", "Risk analytics", "Predictive dashboard"],
     gradient: "from-green-600 to-cyan-700",
     icon: "📈",
-    github: "https://github.com/akashsingh",
+    github: "https://github.com/Rajputakash10-ux",
   },
   {
     title: "ML Pipeline & Predictive Models",
@@ -66,7 +66,7 @@ export const projects = [
     features: ["Regression models", "Classification models", "Feature engineering", "Hyperparameter tuning"],
     gradient: "from-purple-600 to-pink-700",
     icon: "🔬",
-    github: "https://github.com/akashsingh",
+    github: "https://github.com/Rajputakash10-ux",
   },
 ];
 
