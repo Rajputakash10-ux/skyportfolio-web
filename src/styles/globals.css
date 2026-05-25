@@ -13,20 +13,29 @@
   --muted: #9CA3AF;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  background-color: #0B0F19;
-  color: #F9FAFB;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
+/* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0B0F19; }
-::-webkit-scrollbar-thumb { background: linear-gradient(#3B82F6, #8B5CF6); border-radius: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: linear-gradient(var(--blue), var(--purple)); border-radius: 3px; }
 
+/* Gradient text utility */
 .gradient-text {
   background: linear-gradient(135deg, #3B82F6, #8B5CF6, #EC4899);
   -webkit-background-clip: text;
@@ -34,6 +43,7 @@ body {
   background-clip: text;
 }
 
+/* Glassmorphism card */
 .glass {
   background: rgba(17, 24, 39, 0.7);
   backdrop-filter: blur(16px);
@@ -41,12 +51,14 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Glow effects */
 .glow-blue { box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
 .glow-purple { box-shadow: 0 0 30px rgba(139, 92, 246, 0.3); }
 
+/* Animated gradient border */
 .gradient-border {
   position: relative;
-  background: #111827;
+  background: var(--card);
   border-radius: 12px;
 }
 .gradient-border::before {
@@ -60,6 +72,17 @@ body {
   transition: opacity 0.3s ease;
 }
 .gradient-border:hover::before { opacity: 1; }
+
+/* Scroll progress bar */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
@@ -81,8 +104,4 @@ body {
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient-shift 4s ease infinite;
-}
-
-@layer utilities {
-  .text-balance { text-wrap: balance; }
 }
