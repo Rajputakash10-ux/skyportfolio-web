@@ -16,14 +16,14 @@ const contactInfo = [
   {
     icon: "💼",
     label: "LinkedIn",
-    value: "linkedin.com/in/akashsingh",
+    value: "linkedin.com/in/akash-rajput",
     href: "https://www.linkedin.com/in/akash-rajput-9433aa368/",
     color: "from-blue-600 to-blue-400",
   },
   {
     icon: "🐙",
     label: "GitHub",
-    value: "github.com/akashsingh",
+    value: "github.com/Rajputakash10-ux",
     href: "https://github.com/Rajputakash10-ux",
     color: "from-gray-600 to-gray-400",
   },
