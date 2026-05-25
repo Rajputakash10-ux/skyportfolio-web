@@ -2,44 +2,59 @@
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
-import { learning } from "@/data";
+
+const learning = [
+  { title: "Deep Learning",  icon: "🧬", desc: "Neural architectures & optimization",  progress: 70 },
+  { title: "CNNs",           icon: "👁️", desc: "Vision tasks & image recognition",      progress: 60 },
+  { title: "RNNs",           icon: "🔄", desc: "Sequential data & time series",         progress: 55 },
+  { title: "Transformers",   icon: "⚡", desc: "BERT, GPT & attention mechanisms",      progress: 65 },
+  { title: "MLOps",          icon: "🚀", desc: "Deployment, monitoring & CI/CD",        progress: 50 },
+  { title: "PyTorch",        icon: "🔥", desc: "Dynamic graphs & research",             progress: 60 },
+];
 
 export default function Learning() {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
   return (
     <SectionWrapper id="learning">
-      <SectionTitle
-        title="Currently Learning"
-        subtitle="Continuously expanding my AI/ML expertise"
-      />
-      <div ref={ref} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <SectionTitle title="Currently Learning" subtitle="Continuously expanding my AI/ML expertise" />
+      <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {learning.map((item, i) => (
           <motion.div
             key={item.title}
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            initial={{ opacity: 0, y: 24, scale: 0.95 }}
             animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="glass rounded-2xl p-5 text-center gradient-border group hover:scale-105 transition-transform duration-300 cursor-default"
+            transition={{ duration: 0.45, delay: i * 0.09 }}
+            className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-300"
           >
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 3 + i * 0.5, repeat: Infinity, ease: "easeInOut" }}
-              className="text-4xl mb-3"
-            >
-              {item.icon}
-            </motion.div>
-            <h4 className="font-sora font-semibold text-white text-sm mb-2">{item.title}</h4>
-            <p className="text-[#9CA3AF] text-xs leading-relaxed hidden sm:block">{item.desc}</p>
+            <div className="flex items-center gap-3 mb-3">
+              <motion.span
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
+                className="text-3xl"
+              >
+                {item.icon}
+              </motion.span>
+              <div>
+                <h4 className="font-sora font-semibold text-white text-sm">{item.title}</h4>
+                <p className="text-[#9CA3AF] text-xs">{item.desc}</p>
+              </div>
+            </div>
 
-            {/* Progress indicator */}
-            <div className="mt-3 h-1 rounded-full bg-white/5 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={inView ? { width: `${60 + i * 5}%` } : {}}
-                transition={{ duration: 1, delay: 0.5 + i * 0.1 }}
-                className="h-full rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6]"
-              />
+            {/* Progress bar */}
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-[10px] text-[#9CA3AF] uppercase tracking-wider">Progress</span>
+                <span className="text-[10px] font-bold text-[#60a5fa]">{item.progress}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={inView ? { width: `${item.progress}%` } : {}}
+                  transition={{ duration: 1.2, delay: 0.4 + i * 0.1, ease: "easeOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6]"
+                />
+              </div>
             </div>
           </motion.div>
         ))}

@@ -15,8 +15,8 @@ const config: Config = {
         accent: { blue: "#3B82F6", purple: "#8B5CF6" },
       },
       fontFamily: {
-        inter: ["Inter", "sans-serif"],
-        sora: ["Sora", "sans-serif"],
+        inter: ["var(--font-inter)", "sans-serif"],
+        sora: ["var(--font-sora)", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
       },
       animation: {

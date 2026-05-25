@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
+import { Inter, Sora } from "next/font/google";
 import "./globals.css";
+import type { ReactNode } from "react";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["300","400","600","700","800"] });
 
 export const metadata: Metadata = {
   title: "Akash Singh | Data Scientist & AI/ML Engineer",
@@ -23,9 +28,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className={`scroll-smooth ${inter.variable} ${sora.variable}`}>
       <body className="bg-[#0B0F19] text-[#F9FAFB] font-inter antialiased">{children}</body>
     </html>
   );

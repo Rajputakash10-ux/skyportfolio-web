@@ -6,47 +6,20 @@ import emailjs from "@emailjs/browser";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
 
 const contactInfo = [
-  {
-    icon: "✉️",
-    label: "Email",
-    value: "rajputakash1656@gmail.com",
-    href: "mailto:rajputakash1656@gmail.com",
-    color: "from-blue-500 to-purple-500",
-  },
-  {
-    icon: "💼",
-    label: "LinkedIn",
-    value: "linkedin.com/in/akash-rajput",
-    href: "https://www.linkedin.com/in/akash-rajput-9433aa368/",
-    color: "from-blue-600 to-blue-400",
-  },
-  {
-    icon: "🐙",
-    label: "GitHub",
-    value: "github.com/Rajputakash10-ux",
-    href: "https://github.com/Rajputakash10-ux",
-    color: "from-gray-600 to-gray-400",
-  },
-  {
-    icon: "📍",
-    label: "Location",
-    value: "India",
-    href: "#",
-    color: "from-green-500 to-teal-500",
-  },
+  { icon: "✉️", label: "Email",    value: "rajputakash1656@gmail.com",        href: "mailto:rajputakash1656@gmail.com",                  color: "from-blue-500 to-purple-500" },
+  { icon: "💼", label: "LinkedIn", value: "linkedin.com/in/akash-rajput",      href: "https://www.linkedin.com/in/akash-rajput-9433aa368/", color: "from-blue-600 to-cyan-500" },
+  { icon: "🐙", label: "GitHub",   value: "github.com/Rajputakash10-ux",       href: "https://github.com/Rajputakash10-ux",                color: "from-gray-600 to-gray-400" },
+  { icon: "📍", label: "Location", value: "India",                             href: "#",                                                  color: "from-green-500 to-teal-500" },
 ];
 
 export default function Contact() {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSending(true);
-    setError(false);
+    setStatus("sending");
     try {
       await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
@@ -54,32 +27,35 @@ export default function Contact() {
         { from_name: form.name, from_email: form.email, message: form.message },
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
-      setSent(true);
+      setStatus("sent");
       setForm({ name: "", email: "", message: "" });
-      setTimeout(() => setSent(false), 4000);
+      setTimeout(() => setStatus("idle"), 5000);
     } catch {
-      setError(true);
-      setTimeout(() => setError(false), 4000);
-    } finally {
-      setSending(false);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 4000);
     }
   };
 
   return (
     <SectionWrapper id="contact">
       <SectionTitle title="Get In Touch" subtitle="Let's build something intelligent together" />
-      <div ref={ref} className="grid lg:grid-cols-2 gap-12">
-        {/* Contact info */}
+      <div ref={ref} className="grid lg:grid-cols-2 gap-10">
+
+        {/* Left — info */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
+          initial={{ opacity: 0, x: -28 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6 }}
           className="space-y-4"
         >
-          <p className="text-[#9CA3AF] text-base leading-relaxed mb-8">
-            I&apos;m actively looking for opportunities in Data Science, AI/ML Engineering, and Python Development.
+          <p className="text-[#9CA3AF] text-base leading-relaxed mb-6">
+            I&apos;m actively looking for opportunities in{" "}
+            <span className="text-white font-medium">Data Science</span>,{" "}
+            <span className="text-white font-medium">AI/ML Engineering</span>, and{" "}
+            <span className="text-white font-medium">Python Development</span>.
             Feel free to reach out — I&apos;d love to connect!
           </p>
+
           {contactInfo.map((info, i) => (
             <motion.a
               key={info.label}
@@ -88,66 +64,61 @@ export default function Contact() {
               rel="noopener noreferrer"
               initial={{ opacity: 0, x: -20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.45, delay: 0.15 + i * 0.1 }}
               className="flex items-center gap-4 glass rounded-xl p-4 gradient-border hover:scale-[1.02] transition-transform duration-200 group"
             >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-xl flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-lg flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
                 {info.icon}
               </div>
-              <div>
-                <p className="text-xs text-[#9CA3AF] font-medium uppercase tracking-wider">{info.label}</p>
-                <p className="text-white font-medium text-sm">{info.value}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-widest">{info.label}</p>
+                <p className="text-white font-medium text-sm truncate">{info.value}</p>
               </div>
-              <svg className="ml-auto text-[#9CA3AF] group-hover:text-[#3B82F6] transition-colors" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+              <svg className="text-[#9CA3AF] group-hover:text-[#3B82F6] transition-colors flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
             </motion.a>
           ))}
         </motion.div>
 
-        {/* Contact form */}
+        {/* Right — form */}
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
+          initial={{ opacity: 0, x: 28 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.7, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
         >
-          <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 gradient-border space-y-5">
+          <form onSubmit={handleSubmit} className="glass rounded-2xl p-7 gradient-border space-y-5">
             <div>
-              <label className="block text-sm font-medium text-[#9CA3AF] mb-2">Name</label>
+              <label className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Name</label>
               <input
-                type="text"
-                required
-                value={form.name}
+                type="text" required value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Your name"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/50 focus:bg-white/8 transition-all text-sm"
+                placeholder="Your full name"
+                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/8 transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#9CA3AF] mb-2">Email</label>
+              <label className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Email</label>
               <input
-                type="email"
-                required
-                value={form.email}
+                type="email" required value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="your@email.com"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/50 focus:bg-white/8 transition-all text-sm"
+                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/8 transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#9CA3AF] mb-2">Message</label>
+              <label className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Message</label>
               <textarea
-                required
-                rows={5}
-                value={form.message}
+                required rows={5} value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 placeholder="Tell me about the opportunity..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/50 focus:bg-white/8 transition-all text-sm resize-none"
+                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/8 transition-all resize-none"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:opacity-90 hover:scale-[1.02] transition-all duration-200 shadow-lg"
+              disabled={status === "sending"}
+              className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] hover:scale-[1.02] disabled:opacity-60 transition-all duration-200 shadow-lg shadow-blue-500/20"
             >
-              {sending ? "Sending..." : sent ? "✅ Message Sent!" : error ? "❌ Failed, try again" : "Send Message"}
+              {status === "sending" ? "Sending..." : status === "sent" ? "✅ Message Sent!" : status === "error" ? "❌ Failed — Try Again" : "Send Message →"}
             </button>
           </form>
         </motion.div>

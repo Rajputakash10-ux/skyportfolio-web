@@ -3,131 +3,169 @@ import { motion } from "framer-motion";
 import { TypeAnimation } from "react-type-animation";
 
 const floatingIcons = [
-  { icon: "🐍", label: "Python", delay: 0, x: "10%", y: "20%" },
-  { icon: "🤖", label: "AI", delay: 1, x: "85%", y: "15%" },
-  { icon: "📊", label: "Data", delay: 2, x: "8%", y: "70%" },
-  { icon: "🧠", label: "ML", delay: 0.5, x: "88%", y: "65%" },
-  { icon: "⚡", label: "NLP", delay: 1.5, x: "50%", y: "85%" },
-  { icon: "🔬", label: "Research", delay: 2.5, x: "20%", y: "45%" },
+  { icon: "🐍", label: "Python",   delay: 0,   x: "8%",  y: "22%" },
+  { icon: "🤖", label: "AI/ML",    delay: 1.2, x: "84%", y: "18%" },
+  { icon: "📊", label: "Data",     delay: 0.6, x: "6%",  y: "68%" },
+  { icon: "🧠", label: "NLP",      delay: 1.8, x: "87%", y: "62%" },
+  { icon: "⚡", label: "TensorFlow",delay: 2.4, x: "48%", y: "88%" },
+  { icon: "🔬", label: "Research", delay: 0.9, x: "18%", y: "48%" },
 ];
+
+const stagger = (i: number) => ({
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.65, delay: 0.1 + i * 0.12, ease: "easeOut" } as import("framer-motion").Transition,
+});
 
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Animated gradient orbs */}
+
+      {/* Grid background */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      {/* Gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#3B82F6]/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#8B5CF6]/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#EC4899]/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "2s" }} />
+        <motion.div
+          animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#3B82F6] rounded-full blur-[140px]"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.2, 0.12] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#8B5CF6] rounded-full blur-[140px]"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.14, 0.08] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-[#EC4899] rounded-full blur-[120px]"
+        />
       </div>
 
       {/* Floating tech icons */}
       {floatingIcons.map((item) => (
         <motion.div
           key={item.label}
-          className="absolute hidden lg:flex flex-col items-center gap-1 pointer-events-none"
+          className="absolute hidden lg:flex flex-col items-center gap-1.5 pointer-events-none"
           style={{ left: item.x, top: item.y }}
-          animate={{ y: [0, -15, 0] }}
-          transition={{ duration: 4 + item.delay, repeat: Infinity, ease: "easeInOut", delay: item.delay }}
+          animate={{ y: [0, -14, 0] }}
+          transition={{ duration: 5 + item.delay, repeat: Infinity, ease: "easeInOut", delay: item.delay }}
         >
-          <div className="glass rounded-xl p-3 text-2xl shadow-lg border border-white/10">
+          <div className="glass rounded-2xl p-3.5 text-2xl border border-white/10 shadow-xl">
             {item.icon}
           </div>
-          <span className="text-xs text-[#9CA3AF] font-medium">{item.label}</span>
+          <span className="text-[10px] text-[#9CA3AF] font-medium tracking-wide">{item.label}</span>
         </motion.div>
       ))}
 
       {/* Main content */}
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-[#3B82F6]/30 text-sm text-[#9CA3AF] mb-8"
-        >
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          Open to opportunities
+      <div className="relative z-10 text-center px-5 max-w-4xl mx-auto w-full">
+
+        {/* Status badge */}
+        <motion.div {...stagger(0)} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass border border-[#3B82F6]/25 text-sm text-[#9CA3AF] mb-8 shimmer">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+          </span>
+          Available for new opportunities
         </motion.div>
 
         {/* Name */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="font-sora font-extrabold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl mb-4 leading-tight"
+          {...stagger(1)}
+          className="font-sora font-extrabold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-[1.05] mb-5"
         >
-          <span className="gradient-text">Akash Singh</span>
+          <span className="gradient-text animate-gradient">Akash Singh</span>
         </motion.h1>
 
-        {/* Typing animation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="text-xl sm:text-2xl lg:text-3xl font-poppins text-[#9CA3AF] mb-6 h-10"
-        >
+        {/* Typing role */}
+        <motion.div {...stagger(2)} className="text-xl sm:text-2xl lg:text-3xl font-sora font-semibold text-[#9CA3AF] mb-5 h-10 flex items-center justify-center gap-2">
+          <span className="text-white/40">{">"}</span>
           <TypeAnimation
             sequence={[
-              "Aspiring Data Scientist",
-              2000,
-              "AI / ML Engineer",
-              2000,
-              "NLP Engineer",
-              2000,
-              "Python Developer",
-              2000,
+              "Aspiring Data Scientist", 2200,
+              "AI / ML Engineer",        2200,
+              "NLP Engineer",            2200,
+              "Python Developer",        2200,
             ]}
             wrapper="span"
-            speed={50}
+            speed={55}
             repeat={Infinity}
-            className="text-[#3B82F6] font-semibold"
+            className="text-[#60a5fa]"
           />
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 0.8, repeat: Infinity }}
+            className="text-[#8B5CF6] font-light"
+          >|</motion.span>
         </motion.div>
 
         {/* Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.6 }}
-          className="text-[#9CA3AF] text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
-        >
-          Building intelligent systems that solve real-world problems through Data Science, Machine Learning, and NLP.
+        <motion.p {...stagger(3)} className="text-[#9CA3AF] text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+          Building intelligent systems that solve real-world problems through{" "}
+          <span className="text-white font-medium">Data Science</span>,{" "}
+          <span className="text-white font-medium">Machine Learning</span>, and{" "}
+          <span className="text-white font-medium">NLP</span>.
         </motion.p>
 
         {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.8 }}
-          className="flex flex-wrap items-center justify-center gap-4"
-        >
+        <motion.div {...stagger(4)} className="flex flex-wrap items-center justify-center gap-3 mb-16">
           <a
             href="/resume.pdf"
             download
-            className="px-8 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-lg animate-pulse-glow flex items-center gap-2"
+            className="group px-7 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] hover:scale-105 transition-all duration-200 shadow-lg shadow-blue-500/20 animate-pulse-glow flex items-center gap-2"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
             Download Resume
           </a>
+          <button
+            onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-7 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5 hover:scale-105 transition-all duration-200"
+          >
+            View Projects
+          </button>
           <a
             href="https://github.com/Rajputakash10-ux"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            target="_blank" rel="noopener noreferrer"
+            className="px-5 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-white/25 hover:scale-105 transition-all duration-200 flex items-center gap-2 text-[#9CA3AF] hover:text-white"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
             GitHub
           </a>
           <a
             href="https://www.linkedin.com/in/akash-rajput-9433aa368/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:scale-105 transition-all duration-200 flex items-center gap-2"
+            target="_blank" rel="noopener noreferrer"
+            className="px-5 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:scale-105 transition-all duration-200 flex items-center gap-2 text-[#9CA3AF] hover:text-white"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             LinkedIn
           </a>
+        </motion.div>
+
+        {/* Stats row */}
+        <motion.div
+          {...stagger(5)}
+          className="flex flex-wrap items-center justify-center gap-8 sm:gap-12"
+        >
+          {[
+            { value: "5+", label: "Years Experience" },
+            { value: "3+", label: "AI/ML Projects" },
+            { value: "5+", label: "Companies" },
+            { value: "10+", label: "Technologies" },
+          ].map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="font-sora font-extrabold text-3xl gradient-text">{s.value}</div>
+              <div className="text-[#9CA3AF] text-xs mt-1 tracking-wide">{s.label}</div>
+            </div>
+          ))}
         </motion.div>
       </div>
 
@@ -135,16 +173,16 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
+        transition={{ delay: 2 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
-        <span className="text-xs text-[#9CA3AF]">Scroll down</span>
+        <span className="text-[10px] text-[#9CA3AF] tracking-widest uppercase">Scroll</span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 rounded-full border-2 border-[#9CA3AF]/40 flex items-start justify-center pt-2"
+          animate={{ y: [0, 7, 0] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          className="w-5 h-9 rounded-full border border-[#9CA3AF]/30 flex items-start justify-center pt-1.5"
         >
-          <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6]" />
+          <div className="w-1 h-1.5 rounded-full bg-[#3B82F6]" />
         </motion.div>
       </motion.div>
     </section>

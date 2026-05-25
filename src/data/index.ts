@@ -108,11 +108,4 @@ export const experience = [
   },
 ];
 
-export const learning = [
-  { title: "Deep Learning", icon: "🧬", desc: "Neural network architectures & optimization" },
-  { title: "CNNs", icon: "👁️", desc: "Convolutional networks for vision tasks" },
-  { title: "RNNs", icon: "🔄", desc: "Recurrent networks for sequential data" },
-  { title: "Transformers", icon: "⚡", desc: "Attention mechanisms & BERT/GPT models" },
-  { title: "MLOps", icon: "🚀", desc: "Model deployment, monitoring & CI/CD" },
-  { title: "PyTorch", icon: "🔥", desc: "Dynamic computation graphs & research" },
-];
+
