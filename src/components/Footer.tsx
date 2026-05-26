@@ -25,7 +25,7 @@ export default function Footer() {
           </a>
         </div>
 
-        <p className="text-[#6B7280] text-xs">© {new Date().getFullYear()} Akash Singh · Built with Next.js</p>
+        <p className="text-[#9CA3AF] text-xs">© {new Date().getFullYear()} Akash Singh · Built with Next.js</p>
       </div>
     </footer>
   );
