@@ -2,11 +2,7 @@
 const nextConfig = {
   experimental: {
     optimizeCss: true,
-  },
-  compiler: {
-    // Target modern browsers to eliminate legacy polyfills (~12 KiB)
-    // Array.prototype.at/flat/flatMap, Object.fromEntries/hasOwn,
-    // String.prototype.trimStart/trimEnd, class/spread transforms
+    optimizePackageImports: ["framer-motion"],
   },
   async headers() {
     return [

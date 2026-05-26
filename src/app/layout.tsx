@@ -37,6 +37,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable} ${sora.variable}`}>
+      <head>
+        {/* Preconnect to Google Fonts CDN to eliminate font round-trip latency */}
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className="bg-[#0B0F19] text-[#F9FAFB] font-inter antialiased">{children}</body>
     </html>
   );
