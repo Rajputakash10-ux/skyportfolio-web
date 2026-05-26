@@ -84,14 +84,16 @@ export default function Hero() {
           <a
             href="/resume.pdf"
             download
-            className="group px-7 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] hover:scale-105 transition-all duration-200 shadow-lg shadow-blue-500/20 animate-pulse-glow flex items-center gap-2"
+            aria-label="Download resume PDF"
+            className="group px-7 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] hover:scale-105 transition-all duration-200 shadow-lg shadow-blue-500/20 animate-pulse-glow flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
             Download Resume
           </a>
           <button
             onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-7 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5 hover:scale-105 transition-all duration-200"
+            aria-label="Scroll to projects section"
+            className="px-7 py-3.5 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5 hover:scale-105 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
           >
             View Projects
           </button>
@@ -139,16 +141,17 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
+        aria-hidden="true"
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       >
         <span className="text-[10px] text-[#9CA3AF] tracking-widest uppercase">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 7, 0] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className="w-5 h-9 rounded-full border border-[#9CA3AF]/30 flex items-start justify-center pt-1.5"
-        >
-          <div className="w-1 h-1.5 rounded-full bg-[#3B82F6]" />
-        </motion.div>
+        <div className="w-5 h-9 rounded-full border border-[#9CA3AF]/30 flex items-start justify-center pt-1.5">
+          <motion.div
+            animate={{ translateY: [0, 14, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            className="w-1 h-1.5 rounded-full bg-[#3B82F6] will-change-transform"
+          />
+        </div>
       </motion.div>
     </section>
   );

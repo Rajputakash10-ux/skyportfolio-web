@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import type { ReactNode } from "react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["300","400","600","700","800"], display: "swap" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["400","600","700","800"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Akash Singh | Data Scientist & AI/ML Engineer",
@@ -26,6 +26,12 @@ export const metadata: Metadata = {
     description: "Premium portfolio showcasing AI/ML projects, NLP systems, and data science expertise.",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0B0F19",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

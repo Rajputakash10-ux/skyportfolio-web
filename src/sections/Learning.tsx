@@ -29,19 +29,20 @@ export default function Learning() {
           >
             <div className="flex items-center gap-3 mb-3">
               <motion.span
-                animate={{ y: [0, -5, 0] }}
+                animate={{ translateY: [0, -5, 0] }}
                 transition={{ duration: 3.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
-                className="text-3xl"
+                className="text-3xl will-change-transform"
+                aria-hidden="true"
               >
                 {item.icon}
               </motion.span>
               <div>
-                <h4 className="font-sora font-semibold text-white text-sm">{item.title}</h4>
+                <h3 className="font-sora font-semibold text-white text-sm">{item.title}</h3>
                 <p className="text-[#9CA3AF] text-xs">{item.desc}</p>
               </div>
             </div>
 
-            {/* Progress bar */}
+            {/* Progress bar — scaleX avoids width layout thrash */}
             <div className="mt-3">
               <div className="flex justify-between items-center mb-1.5">
                 <span className="text-[10px] text-[#9CA3AF] uppercase tracking-wider">Progress</span>
@@ -49,10 +50,11 @@ export default function Learning() {
               </div>
               <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                 <motion.div
-                  initial={{ width: 0 }}
-                  animate={inView ? { width: `${item.progress}%` } : {}}
+                  initial={{ scaleX: 0 }}
+                  animate={inView ? { scaleX: 1 } : {}}
                   transition={{ duration: 1.2, delay: 0.4 + i * 0.1, ease: "easeOut" }}
-                  className="h-full rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6]"
+                  style={{ transformOrigin: "left", width: `${item.progress}%` }}
+                  className="h-full rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] will-change-transform"
                 />
               </div>
             </div>

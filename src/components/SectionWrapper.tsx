@@ -14,8 +14,8 @@ export default function SectionWrapper({
     <motion.section
       id={id}
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      initial={{ opacity: 0, translateY: 32 }}
+      animate={inView ? { opacity: 1, translateY: 0 } : {}}
       transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
       className={`py-24 px-5 sm:px-8 max-w-6xl mx-auto ${className}`}
     >

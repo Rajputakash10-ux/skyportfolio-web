@@ -32,7 +32,8 @@ export default function Navbar() {
         {/* Logo */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="font-sora font-bold text-xl gradient-text"
+          aria-label="Scroll to top"
+          className="font-sora font-bold text-xl gradient-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] rounded"
         >
           AS
         </button>
@@ -43,7 +44,7 @@ export default function Navbar() {
             <button
               key={link}
               onClick={() => scrollTo(link)}
-              className="text-sm text-[#9CA3AF] hover:text-white transition-colors duration-200 hover:text-[#3B82F6] font-medium"
+              className="text-sm text-[#9CA3AF] hover:text-[#3B82F6] transition-colors duration-200 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] rounded px-1"
             >
               {link}
             </button>
@@ -59,9 +60,11 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden flex flex-col gap-1.5 p-2"
+          className="md:hidden flex flex-col gap-1.5 p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] rounded"
           onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
         >
           <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${open ? "rotate-45 translate-y-2" : ""}`} />
           <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${open ? "opacity-0" : ""}`} />
@@ -73,6 +76,7 @@ export default function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}

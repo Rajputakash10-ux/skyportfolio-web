@@ -68,7 +68,7 @@ export default function About() {
                   transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
                   className="flex items-center gap-3 text-sm text-[#9CA3AF]"
                 >
-                  <span className="text-base flex-shrink-0">{h.icon}</span>
+                  <span className="text-base flex-shrink-0" aria-hidden="true">{h.icon}</span>
                   <span>{h.text}</span>
                 </motion.div>
               ))}

@@ -62,10 +62,11 @@ export default function Contact() {
               href={info.href}
               target={info.href.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
+              aria-label={`${info.label}: ${info.value}`}
               initial={{ opacity: 0, x: -20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.45, delay: 0.15 + i * 0.1 }}
-              className="flex items-center gap-4 glass rounded-xl p-4 gradient-border hover:scale-[1.02] transition-transform duration-200 group"
+              className="flex items-center gap-4 glass rounded-xl p-4 gradient-border hover:scale-[1.02] transition-transform duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
             >
               <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-lg flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
                 {info.icon}
@@ -87,30 +88,33 @@ export default function Contact() {
         >
           <form onSubmit={handleSubmit} className="glass rounded-2xl p-7 gradient-border space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Name</label>
+              <label htmlFor="contact-name" className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Name</label>
               <input
+                id="contact-name"
                 type="text" required value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Your full name"
-                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/8 transition-all"
+                className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/[0.08] transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Email</label>
+              <label htmlFor="contact-email" className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Email</label>
               <input
+                id="contact-email"
                 type="email" required value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="your@email.com"
-                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/8 transition-all"
+                className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/[0.08] transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Message</label>
+              <label htmlFor="contact-message" className="block text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider mb-2">Message</label>
               <textarea
+                id="contact-message"
                 required rows={5} value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 placeholder="Tell me about the opportunity..."
-                className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/8 transition-all resize-none"
+                className="w-full bg-white/5 border border-white/[0.08] rounded-xl px-4 py-3 text-white text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#3B82F6]/60 focus:bg-white/[0.08] transition-all resize-none"
               />
             </div>
             <button
