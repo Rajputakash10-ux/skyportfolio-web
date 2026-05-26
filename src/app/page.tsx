@@ -11,12 +11,13 @@ import Experience from "@/sections/Experience";
 import Education from "@/sections/Education";
 import Learning from "@/sections/Learning";
 import Contact from "@/sections/Contact";
+import MotionProvider from "@/components/MotionProvider";
 
 const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), { ssr: false });
 
 export default function Home() {
   return (
-    <>
+    <MotionProvider>
       <ScrollProgress />
       <ParticleBackground />
       <Navbar />
@@ -32,6 +33,6 @@ export default function Home() {
       </main>
       <Footer />
       <BackToTop />
-    </>
+    </MotionProvider>
   );
 }

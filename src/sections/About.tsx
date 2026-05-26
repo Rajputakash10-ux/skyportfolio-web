@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
 
@@ -26,24 +26,22 @@ export default function About() {
       <SectionTitle title="About Me" subtitle="Passionate about building intelligent systems" />
       <div ref={ref} className="grid lg:grid-cols-5 gap-10 items-start">
 
-        {/* Left — bio */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: -30 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="lg:col-span-3 space-y-6"
         >
           <div className="glass rounded-2xl p-7 gradient-border">
-            {/* Avatar row */}
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] flex items-center justify-center text-2xl shadow-lg shadow-blue-500/20 flex-shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] flex items-center justify-center text-2xl shadow-lg shadow-blue-500/20 flex-shrink-0" aria-hidden="true">
                 👨‍💻
               </div>
               <div>
                 <h3 className="font-sora font-bold text-white text-lg">Akash Singh</h3>
                 <p className="text-[#9CA3AF] text-sm">Computer Science Graduate · India</p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" aria-hidden="true" />
                   <span className="text-green-400 text-xs font-medium">Open to Work</span>
                 </div>
               </div>
@@ -58,10 +56,9 @@ export default function About() {
               intelligent systems and solving real-world problems through Data Science.
             </p>
 
-            {/* Highlights */}
             <div className="space-y-3">
               {highlights.map((h, i) => (
-                <motion.div
+                <m.div
                   key={i}
                   initial={{ opacity: 0, x: -16 }}
                   animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -70,35 +67,33 @@ export default function About() {
                 >
                   <span className="text-base flex-shrink-0" aria-hidden="true">{h.icon}</span>
                   <span>{h.text}</span>
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
-        {/* Right — stats */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: 30 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="lg:col-span-2 grid grid-cols-2 gap-4"
         >
           {stats.map((s, i) => (
-            <motion.div
+            <m.div
               key={s.label}
               initial={{ opacity: 0, scale: 0.85 }}
               animate={inView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.45, delay: 0.35 + i * 0.1 }}
               className="glass rounded-2xl p-5 text-center gradient-border group hover:scale-105 transition-transform duration-300"
             >
-              <div className="text-2xl mb-2">{s.icon}</div>
+              <div className="text-2xl mb-2" aria-hidden="true">{s.icon}</div>
               <div className="font-sora font-extrabold text-3xl gradient-text mb-1">{s.value}</div>
               <div className="text-[#9CA3AF] text-xs leading-tight">{s.label}</div>
-            </motion.div>
+            </m.div>
           ))}
 
-          {/* Currently learning card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.45, delay: 0.75 }}
@@ -112,8 +107,8 @@ export default function About() {
                 </span>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </SectionWrapper>
   );

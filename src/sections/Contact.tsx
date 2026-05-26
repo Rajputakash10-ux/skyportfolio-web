@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import emailjs from "@emailjs/browser";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
 
 const contactInfo = [
@@ -21,6 +20,8 @@ export default function Contact() {
     e.preventDefault();
     setStatus("sending");
     try {
+      // Lazy-load emailjs only on submit — keeps it out of the initial JS bundle
+      const emailjs = (await import("@emailjs/browser")).default;
       await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
@@ -41,8 +42,7 @@ export default function Contact() {
       <SectionTitle title="Get In Touch" subtitle="Let's build something intelligent together" />
       <div ref={ref} className="grid lg:grid-cols-2 gap-10">
 
-        {/* Left — info */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: -28 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6 }}
@@ -57,7 +57,7 @@ export default function Contact() {
           </p>
 
           {contactInfo.map((info, i) => (
-            <motion.a
+            <m.a
               key={info.label}
               href={info.href}
               target={info.href.startsWith("http") ? "_blank" : undefined}
@@ -68,20 +68,19 @@ export default function Contact() {
               transition={{ duration: 0.45, delay: 0.15 + i * 0.1 }}
               className="flex items-center gap-4 glass rounded-xl p-4 gradient-border hover:scale-[1.02] transition-transform duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
             >
-              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-lg flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200`}>
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${info.color} flex items-center justify-center text-lg flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-200`} aria-hidden="true">
                 {info.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-[#9CA3AF] font-semibold uppercase tracking-widest">{info.label}</p>
                 <p className="text-white font-medium text-sm truncate">{info.value}</p>
               </div>
-              <svg className="text-[#9CA3AF] group-hover:text-[#3B82F6] transition-colors flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
-            </motion.a>
+              <svg className="text-[#9CA3AF] group-hover:text-[#3B82F6] transition-colors flex-shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </m.a>
           ))}
-        </motion.div>
+        </m.div>
 
-        {/* Right — form */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: 28 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.15 }}
@@ -125,7 +124,7 @@ export default function Contact() {
               {status === "sending" ? "Sending..." : status === "sent" ? "✅ Message Sent!" : status === "error" ? "❌ Failed — Try Again" : "Send Message →"}
             </button>
           </form>
-        </motion.div>
+        </m.div>
       </div>
     </SectionWrapper>
   );

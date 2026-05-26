@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
 import { projects } from "@/data";
@@ -13,79 +13,69 @@ export default function Projects() {
 
       <div ref={ref} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {projects.map((project, i) => (
-          <motion.div
+          <m.div
             key={project.title}
-            initial={{ opacity: 0, y: 36 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            initial={{ opacity: 0, translateY: 36 }}
+            animate={inView ? { opacity: 1, translateY: 0 } : {}}
             transition={{ duration: 0.55, delay: i * 0.14 }}
             className="glass rounded-2xl overflow-hidden gradient-border group flex flex-col"
           >
-            {/* Visual header */}
             <div className={`relative bg-gradient-to-br ${project.gradient} p-10 flex items-center justify-center overflow-hidden`}>
-              {/* Mesh pattern */}
               <div
                 className="absolute inset-0 opacity-20"
+                aria-hidden="true"
                 style={{
                   backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%),
                                     radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 40%)`,
                 }}
               />
-              {/* Grid lines */}
               <div
                 className="absolute inset-0 opacity-10"
+                aria-hidden="true"
                 style={{
                   backgroundImage: `linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px),
                                     linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)`,
                   backgroundSize: "20px 20px",
                 }}
               />
-              <motion.span
-                className="text-6xl relative z-10 drop-shadow-2xl"
-                whileHover={{ scale: 1.15, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
+              {/* CSS hover scale instead of whileHover — no gesture JS needed */}
+              <span className="text-6xl relative z-10 drop-shadow-2xl transition-transform duration-200 group-hover:scale-110" aria-hidden="true">
                 {project.icon}
-              </motion.span>
-
-              {/* Project number */}
-              <div className="absolute top-3 right-4 font-sora font-bold text-white/20 text-4xl">
+              </span>
+              <div className="absolute top-3 right-4 font-sora font-bold text-white/20 text-4xl" aria-hidden="true">
                 0{i + 1}
               </div>
             </div>
 
-            {/* Card body */}
             <div className="p-6 flex flex-col flex-1">
               <h3 className="font-sora font-bold text-lg text-white mb-2 group-hover:text-[#60a5fa] transition-colors duration-200">
                 {project.title}
               </h3>
               <p className="text-[#9CA3AF] text-sm leading-relaxed mb-5">{project.description}</p>
 
-              {/* Features */}
               <div className="mb-5 flex-1">
                 <p className="text-[10px] font-bold text-[#3B82F6] uppercase tracking-widest mb-3">Key Features</p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {project.features.map((f) => (
                     <div key={f} className="flex items-center gap-1.5 text-xs text-[#9CA3AF]">
-                      <span className="w-1 h-1 rounded-full bg-[#8B5CF6] flex-shrink-0" />
+                      <span className="w-1 h-1 rounded-full bg-[#8B5CF6] flex-shrink-0" aria-hidden="true" />
                       {f}
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Tech stack */}
               <div className="flex flex-wrap gap-1.5 mb-5">
                 {project.tech.map((t) => (
                   <span
                     key={t}
-                    className="px-2.5 py-1 rounded-md text-xs font-medium bg-white/5 text-[#9CA3AF] border border-white/8 group-hover:border-white/15 transition-colors"
+                    className="px-2.5 py-1 rounded-md text-xs font-medium bg-white/5 text-[#9CA3AF] border border-white/[0.08] group-hover:border-white/[0.15] transition-colors"
                   >
                     {t}
                   </span>
                 ))}
               </div>
 
-              {/* GitHub CTA */}
               <a
                 href={project.github}
                 target="_blank"
@@ -98,7 +88,7 @@ export default function Projects() {
                 <svg className="group-hover/btn:translate-x-0.5 transition-transform" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
               </a>
             </div>
-          </motion.div>
+          </m.div>
         ))}
       </div>
     </SectionWrapper>

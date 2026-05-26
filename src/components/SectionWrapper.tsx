@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
 export default function SectionWrapper({
@@ -11,7 +11,7 @@ export default function SectionWrapper({
 }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.07 });
   return (
-    <motion.section
+    <m.section
       id={id}
       ref={ref}
       initial={{ opacity: 0, translateY: 32 }}
@@ -20,7 +20,7 @@ export default function SectionWrapper({
       className={`py-24 px-5 sm:px-8 max-w-6xl mx-auto ${className}`}
     >
       {children}
-    </motion.section>
+    </m.section>
   );
 }
 

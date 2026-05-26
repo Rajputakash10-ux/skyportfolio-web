@@ -1,18 +1,16 @@
 "use client";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import dynamic from "next/dynamic";
 
 const TypeAnimation = dynamic(
-  () => import("react-type-animation").then((m) => m.TypeAnimation),
+  () => import("react-type-animation").then((mod) => mod.TypeAnimation),
   { ssr: false, loading: () => <span className="text-[#60a5fa]">Aspiring Data Scientist</span> }
 );
 
-// Only animate elements that are NOT the LCP candidate
-// Stats row and h1 render with full opacity immediately (no initial:opacity:0)
 const fadeUp = (delay: number) => ({
   initial: { opacity: 0, translateY: 20 },
   animate: { opacity: 1, translateY: 0 },
-  transition: { duration: 0.6, delay, ease: "easeOut" } as import("framer-motion").Transition,
+  transition: { duration: 0.6, delay, ease: "easeOut" } as const,
 });
 
 export default function Hero() {
@@ -30,7 +28,7 @@ export default function Hero() {
         }}
       />
 
-      {/* Gradient orbs — animate wrapper, not the blurred element, to stay composited */}
+      {/* Gradient orbs — wrapper animates, blurred inner div is static */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="orb-blue absolute top-1/4 left-1/4">
           <div className="w-[500px] h-[500px] bg-[#3B82F6] rounded-full blur-[140px] opacity-[0.18]" />
@@ -47,21 +45,21 @@ export default function Hero() {
       <div className="relative z-10 text-center px-5 max-w-4xl mx-auto w-full">
 
         {/* Status badge */}
-        <motion.div {...fadeUp(0.1)} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass border border-[#3B82F6]/25 text-sm text-[#9CA3AF] mb-8 shimmer">
+        <m.div {...fadeUp(0.1)} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass border border-[#3B82F6]/25 text-sm text-[#9CA3AF] mb-8 shimmer">
           <span className="relative flex h-2 w-2" aria-hidden="true">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
           </span>
           Available for new opportunities
-        </motion.div>
+        </m.div>
 
-        {/* Name — h1 renders immediately, no opacity:0 on server */}
+        {/* Name — plain h1, no opacity:0, renders immediately for LCP */}
         <h1 className="font-sora font-extrabold text-5xl sm:text-6xl lg:text-7xl xl:text-8xl leading-[1.05] mb-5">
           <span className="gradient-text animate-gradient">Akash Singh</span>
         </h1>
 
         {/* Typing role */}
-        <motion.div {...fadeUp(0.3)} className="text-xl sm:text-2xl lg:text-3xl font-sora font-semibold text-[#9CA3AF] mb-5 h-10 flex items-center justify-center gap-2">
+        <m.div {...fadeUp(0.3)} className="text-xl sm:text-2xl lg:text-3xl font-sora font-semibold text-[#9CA3AF] mb-5 h-10 flex items-center justify-center gap-2">
           <span className="text-white/60" aria-hidden="true">{">"}</span>
           <TypeAnimation
             sequence={[
@@ -75,24 +73,24 @@ export default function Hero() {
             repeat={Infinity}
             className="text-[#60a5fa]"
           />
-          <motion.span
+          <m.span
             animate={{ opacity: [1, 0, 1] }}
             transition={{ duration: 0.8, repeat: Infinity }}
             className="text-[#8B5CF6] font-light"
             aria-hidden="true"
-          >|</motion.span>
-        </motion.div>
+          >|</m.span>
+        </m.div>
 
         {/* Description */}
-        <motion.p {...fadeUp(0.45)} className="text-[#9CA3AF] text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+        <m.p {...fadeUp(0.45)} className="text-[#9CA3AF] text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
           Building intelligent systems that solve real-world problems through{" "}
           <span className="text-white font-medium">Data Science</span>,{" "}
           <span className="text-white font-medium">Machine Learning</span>, and{" "}
           <span className="text-white font-medium">NLP</span>.
-        </motion.p>
+        </m.p>
 
         {/* CTA Buttons */}
-        <motion.div {...fadeUp(0.55)} className="flex flex-wrap items-center justify-center gap-3 mb-16">
+        <m.div {...fadeUp(0.55)} className="flex flex-wrap items-center justify-center gap-3 mb-16">
           <a
             href="/resume.pdf"
             download
@@ -127,9 +125,9 @@ export default function Hero() {
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             LinkedIn
           </a>
-        </motion.div>
+        </m.div>
 
-        {/* Stats row — plain HTML, no animation, renders immediately as LCP candidate */}
+        {/* Stats row — plain HTML, no animation, renders immediately */}
         <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
           {[
             { value: "5+", label: "Years Experience" },
@@ -146,7 +144,7 @@ export default function Hero() {
       </div>
 
       {/* Scroll indicator */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
@@ -155,13 +153,13 @@ export default function Hero() {
       >
         <span className="text-[10px] text-[#9CA3AF] tracking-widest uppercase">Scroll</span>
         <div className="w-5 h-9 rounded-full border border-[#9CA3AF]/30 flex items-start justify-center pt-1.5">
-          <motion.div
+          <m.div
             animate={{ translateY: [0, 14, 0] }}
             transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
             className="w-1 h-1.5 rounded-full bg-[#3B82F6] will-change-transform"
           />
         </div>
-      </motion.div>
+      </m.div>
     </section>
   );
 }

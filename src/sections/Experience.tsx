@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
 import { experience } from "@/data";
@@ -26,41 +26,39 @@ function TimelineItem({ item, index }: { item: typeof experience[0]; index: numb
 
   return (
     <div ref={ref} className="relative flex items-center justify-center">
-      {/* Desktop alternating */}
       <div className="hidden md:grid md:grid-cols-2 md:gap-10 w-full items-center">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, x: -32 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.55 }}
           className={isLeft ? "flex justify-end" : ""}
         >
           {isLeft && card}
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           initial={{ opacity: 0, x: 32 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.55 }}
         >
           {!isLeft && card}
-        </motion.div>
+        </m.div>
       </div>
 
-      {/* Mobile */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
+      <m.div
+        initial={{ opacity: 0, translateY: 20 }}
+        animate={inView ? { opacity: 1, translateY: 0 } : {}}
         transition={{ duration: 0.45 }}
         className="md:hidden w-full"
       >
         {card}
-      </motion.div>
+      </m.div>
 
-      {/* Center dot */}
-      <motion.div
+      <m.div
         initial={{ scale: 0 }}
         animate={inView ? { scale: 1 } : {}}
         transition={{ duration: 0.3, delay: 0.2 }}
         className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] border-[3px] border-[#0B0F19] z-10 shadow-lg shadow-blue-500/30"
+        aria-hidden="true"
       />
     </div>
   );
@@ -71,8 +69,7 @@ export default function Experience() {
     <SectionWrapper id="experience">
       <SectionTitle title="Work Experience" subtitle="My professional journey across industries" />
       <div className="relative">
-        {/* Gradient vertical line */}
-        <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 bottom-2 w-px bg-gradient-to-b from-[#3B82F6] via-[#8B5CF6] to-transparent opacity-40" />
+        <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 bottom-2 w-px bg-gradient-to-b from-[#3B82F6] via-[#8B5CF6] to-transparent opacity-40" aria-hidden="true" />
         <div className="flex flex-col gap-8">
           {experience.map((item, i) => (
             <TimelineItem key={item.company} item={item} index={i} />

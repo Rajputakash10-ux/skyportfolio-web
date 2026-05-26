@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 const links = ["About", "Skills", "Projects", "Experience", "Education", "Contact"];
 
@@ -10,7 +10,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -20,16 +20,13 @@ export default function Navbar() {
   };
 
   return (
-    <motion.nav
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    // CSS animation instead of motion.nav — saves JS for above-fold element
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 animate-nav-in ${
         scrolled ? "glass border-b border-white/5 shadow-lg" : "bg-transparent"
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-        {/* Logo */}
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Scroll to top"
@@ -38,7 +35,6 @@ export default function Navbar() {
           AS
         </button>
 
-        {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
           {links.map((link) => (
             <button
@@ -52,13 +48,12 @@ export default function Navbar() {
           <a
             href="/resume.pdf"
             download
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white hover:opacity-90 transition-opacity"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             Resume
           </a>
         </div>
 
-        {/* Mobile hamburger */}
         <button
           className="md:hidden flex flex-col gap-1.5 p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] rounded"
           onClick={() => setOpen(!open)}
@@ -72,10 +67,9 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -100,9 +94,9 @@ export default function Navbar() {
                 Download Resume
               </a>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </nav>
   );
 }
