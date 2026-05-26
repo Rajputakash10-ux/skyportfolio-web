@@ -3,8 +3,8 @@ import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import type { ReactNode } from "react";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["300","400","600","700","800"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["300","400","600","700","800"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Akash Singh | Data Scientist & AI/ML Engineer",
