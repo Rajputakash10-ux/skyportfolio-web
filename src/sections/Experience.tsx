@@ -10,16 +10,17 @@ function TimelineItem({ item, index }: { item: typeof experience[0]; index: numb
 
   const card = (
     <div className="glass rounded-2xl p-6 gradient-border hover:scale-[1.02] transition-transform duration-300 group">
-      <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="flex items-start justify-between gap-3 mb-2">
         <div>
           <h3 className="font-sora font-bold text-white text-base group-hover:text-[#60a5fa] transition-colors">{item.company}</h3>
           <p className="text-[#3B82F6] text-sm font-semibold mt-0.5">{item.role}</p>
+          <p className="text-[#6B7280] text-xs mt-0.5">{item.type}</p>
         </div>
         <span className={`flex-shrink-0 px-3 py-1 rounded-full text-[10px] font-bold bg-gradient-to-r ${item.color} text-white shadow-sm`}>
           {item.period}
         </span>
       </div>
-      <p className="text-[#9CA3AF] text-sm leading-relaxed">{item.description}</p>
+      <p className="text-[#9CA3AF] text-sm leading-relaxed mt-3">{item.description}</p>
     </div>
   );
 
