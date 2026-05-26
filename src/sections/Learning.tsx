@@ -22,8 +22,8 @@ export default function Learning() {
         {learning.map((item, i) => (
           <motion.div
             key={item.title}
-            initial={{ opacity: 0, y: 24, scale: 0.95 }}
-            animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+            initial={{ opacity: 0, translateY: 24, scale: 0.95 }}
+            animate={inView ? { opacity: 1, translateY: 0, scale: 1 } : {}}
             transition={{ duration: 0.45, delay: i * 0.09 }}
             className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-300"
           >

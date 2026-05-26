@@ -17,8 +17,8 @@ export default function Skills() {
         {skills.map((skill, i) => (
           <motion.div
             key={skill.category}
-            initial={{ opacity: 0, y: 28 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            initial={{ opacity: 0, translateY: 28 }}
+            animate={inView ? { opacity: 1, translateY: 0 } : {}}
             transition={{ duration: 0.5, delay: i * 0.09 }}
             className="glass rounded-2xl p-6 gradient-border group hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden"
           >
@@ -59,8 +59,8 @@ export default function Skills() {
 
       {/* All skills pill cloud */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
+        initial={{ opacity: 0, translateY: 20 }}
+        animate={inView ? { opacity: 1, translateY: 0 } : {}}
         transition={{ duration: 0.6, delay: 0.65 }}
         className="mt-12"
       >

@@ -1,10 +1,15 @@
 "use client";
 import { motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
+import dynamic from "next/dynamic";
+
+const TypeAnimation = dynamic(
+  () => import("react-type-animation").then((m) => m.TypeAnimation),
+  { ssr: false, loading: () => <span className="text-[#60a5fa]">Aspiring Data Scientist</span> }
+);
 
 const stagger = (i: number) => ({
-  initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0, translateY: 24 },
+  animate: { opacity: 1, translateY: 0 },
   transition: { duration: 0.65, delay: 0.1 + i * 0.12, ease: "easeOut" } as import("framer-motion").Transition,
 });
 
@@ -51,7 +56,7 @@ export default function Hero() {
 
         {/* Typing role */}
         <motion.div {...stagger(2)} className="text-xl sm:text-2xl lg:text-3xl font-sora font-semibold text-[#9CA3AF] mb-5 h-10 flex items-center justify-center gap-2">
-          <span className="text-white/40">{">"}</span>
+          <span className="text-white/60" aria-hidden="true">{">"}</span>
           <TypeAnimation
             sequence={[
               "Aspiring Data Scientist", 2200,
@@ -117,11 +122,8 @@ export default function Hero() {
           </a>
         </motion.div>
 
-        {/* Stats row */}
-        <motion.div
-          {...stagger(5)}
-          className="flex flex-wrap items-center justify-center gap-8 sm:gap-12"
-        >
+        {/* Stats row — no animation delay so it doesn't become LCP bottleneck */}
+        <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
           {[
             { value: "5+", label: "Years Experience" },
             { value: "3+", label: "AI/ML Projects" },
@@ -133,7 +135,7 @@ export default function Hero() {
               <div className="text-[#9CA3AF] text-xs mt-1 tracking-wide">{s.label}</div>
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll indicator */}
