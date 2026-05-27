@@ -1,79 +1,148 @@
 "use client";
-import { m } from "framer-motion";
+import { useState } from "react";
+import { m, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import SectionWrapper, { SectionTitle } from "@/components/SectionWrapper";
 import { skills } from "@/data";
 
-const allSkills = ["Python", "SQL", "TensorFlow", "Scikit-Learn", "NLP", "Pandas", "NumPy", "Flask", "REST APIs", "Power BI", "Git", "GitHub", "Streamlit", "VS Code"];
+const learning = [
+  { title: "Deep Learning",  icon: "🧬", desc: "Neural architectures & optimization",  progress: 70 },
+  { title: "CNNs",           icon: "👁️", desc: "Vision tasks & image recognition",      progress: 60 },
+  { title: "RNNs",           icon: "🔄", desc: "Sequential data & time series",         progress: 55 },
+  { title: "Transformers",   icon: "⚡", desc: "BERT, GPT & attention mechanisms",      progress: 65 },
+  { title: "MLOps",          icon: "🚀", desc: "Deployment, monitoring & CI/CD",        progress: 50 },
+  { title: "PyTorch",        icon: "🔥", desc: "Dynamic graphs & research",             progress: 60 },
+];
 
 export default function Skills() {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+  const [tab, setTab] = useState<"skills" | "learning">("skills");
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.08 });
 
   return (
     <SectionWrapper id="skills">
-      <SectionTitle title="Skills & Expertise" subtitle="Technologies I work with to build intelligent systems" />
+      <SectionTitle title="Skills & Learning" subtitle="Technologies I use and currently mastering" />
 
-      <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {skills.map((skill, i) => (
-          <m.div
-            key={skill.category}
-            initial={{ opacity: 0, translateY: 28 }}
-            animate={inView ? { opacity: 1, translateY: 0 } : {}}
-            transition={{ duration: 0.5, delay: i * 0.09 }}
-            className="glass rounded-2xl p-6 gradient-border group hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden"
-          >
-            <div className={`absolute inset-0 bg-gradient-to-br ${skill.color} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-300 rounded-2xl`} aria-hidden="true" />
-
-            <div className="flex items-center gap-3 mb-5 relative z-10">
-              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center text-xl shadow-lg flex-shrink-0`} aria-hidden="true">
-                {skill.icon}
-              </div>
-              <h3 className="font-sora font-semibold text-white text-sm">{skill.category}</h3>
-            </div>
-
-            <div className="flex flex-wrap gap-2 relative z-10">
-              {skill.items.map((item) => (
-                <span
-                  key={item}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-[#9CA3AF] border border-white/[0.08] group-hover:border-white/[0.15] group-hover:text-white/80 transition-all duration-200"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-
-            <m.div
-              initial={{ scaleX: 0 }}
-              animate={inView ? { scaleX: 1 } : {}}
-              transition={{ duration: 0.8, delay: 0.4 + i * 0.09 }}
-              style={{ transformOrigin: "left" }}
-              className={`mt-5 h-[2px] rounded-full bg-gradient-to-r ${skill.color} opacity-50 relative z-10`}
-            />
-          </m.div>
-        ))}
-      </div>
-
-      <m.div
-        initial={{ opacity: 0, translateY: 20 }}
-        animate={inView ? { opacity: 1, translateY: 0 } : {}}
-        transition={{ duration: 0.6, delay: 0.65 }}
-        className="mt-12"
-      >
-        <p className="text-center text-xs font-semibold text-[#9CA3AF] uppercase tracking-widest mb-5">All Technologies</p>
-        <div className="flex flex-wrap justify-center gap-2.5">
-          {allSkills.map((s, i) => (
-            <m.span
-              key={s}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={inView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.3, delay: 0.7 + i * 0.04 }}
-              className="px-4 py-2 rounded-full text-sm font-medium glass border border-white/[0.08] text-[#9CA3AF] hover:text-white hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5 transition-all duration-200 cursor-default"
+      {/* Tab switcher */}
+      <div className="flex justify-center mb-8">
+        <div className="glass rounded-xl p-1 flex gap-1 border border-white/[0.08]">
+          {(["skills", "learning"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] ${
+                tab === t
+                  ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white shadow-lg"
+                  : "text-[#9CA3AF] hover:text-white"
+              }`}
             >
-              {s}
-            </m.span>
+              {t === "skills" ? "🛠 Skills" : "📚 Learning"}
+            </button>
           ))}
         </div>
-      </m.div>
+      </div>
+
+      <div ref={ref}>
+        <AnimatePresence mode="wait">
+          {tab === "skills" ? (
+            <m.div
+              key="skills"
+              initial={{ opacity: 0, translateY: 12 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              exit={{ opacity: 0, translateY: -12 }}
+              transition={{ duration: 0.25 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {skills.map((skill, i) => (
+                <m.div
+                  key={skill.category}
+                  initial={{ opacity: 0, translateY: 20 }}
+                  animate={inView ? { opacity: 1, translateY: 0 } : {}}
+                  transition={{ duration: 0.4, delay: i * 0.07 }}
+                  className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-200 relative overflow-hidden cursor-default"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${skill.color} opacity-0 group-hover:opacity-[0.06] transition-opacity duration-300 rounded-2xl`} aria-hidden="true" />
+
+                  <div className="flex items-center gap-3 mb-4 relative z-10">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center text-lg shadow-lg flex-shrink-0`} aria-hidden="true">
+                      {skill.icon}
+                    </div>
+                    <h3 className="font-sora font-semibold text-white text-sm">{skill.category}</h3>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 relative z-10">
+                    {skill.items.map((item) => (
+                      <span
+                        key={item}
+                        className="px-2.5 py-1 rounded-lg text-xs font-medium bg-white/5 text-[#9CA3AF] border border-white/[0.08] group-hover:border-white/[0.18] group-hover:text-white/85 transition-all duration-200"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+
+                  <m.div
+                    initial={{ scaleX: 0 }}
+                    animate={inView ? { scaleX: 1 } : {}}
+                    transition={{ duration: 0.7, delay: 0.3 + i * 0.07 }}
+                    style={{ transformOrigin: "left" }}
+                    className={`mt-4 h-[2px] rounded-full bg-gradient-to-r ${skill.color} opacity-40 relative z-10`}
+                  />
+                </m.div>
+              ))}
+            </m.div>
+          ) : (
+            <m.div
+              key="learning"
+              initial={{ opacity: 0, translateY: 12 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              exit={{ opacity: 0, translateY: -12 }}
+              transition={{ duration: 0.25 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {learning.map((item, i) => (
+                <m.div
+                  key={item.title}
+                  initial={{ opacity: 0, translateY: 20, scale: 0.96 }}
+                  animate={{ opacity: 1, translateY: 0, scale: 1 }}
+                  transition={{ duration: 0.35, delay: i * 0.07 }}
+                  className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-200"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <m.span
+                      animate={{ translateY: [0, -4, 0] }}
+                      transition={{ duration: 3 + i * 0.3, repeat: Infinity, ease: "easeInOut" }}
+                      className="text-2xl will-change-transform"
+                      aria-hidden="true"
+                    >
+                      {item.icon}
+                    </m.span>
+                    <div>
+                      <h3 className="font-sora font-semibold text-white text-sm">{item.title}</h3>
+                      <p className="text-[#9CA3AF] text-xs">{item.desc}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="text-[10px] text-[#9CA3AF] uppercase tracking-wider">Progress</span>
+                      <span className="text-[10px] font-bold text-[#60a5fa]">{item.progress}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                      <m.div
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ duration: 1, delay: 0.2 + i * 0.08, ease: "easeOut" }}
+                        style={{ transformOrigin: "left", width: `${item.progress}%` }}
+                        className="h-full rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] will-change-transform"
+                      />
+                    </div>
+                  </div>
+                </m.div>
+              ))}
+            </m.div>
+          )}
+        </AnimatePresence>
+      </div>
     </SectionWrapper>
   );
 }

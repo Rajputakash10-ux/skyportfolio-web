@@ -4,18 +4,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MotionProvider from "@/components/MotionProvider";
 
-// Above-fold: eager
-const ScrollProgress = dynamic(() => import("@/components/ScrollProgress"), { ssr: false });
+const ScrollProgress  = dynamic(() => import("@/components/ScrollProgress"),  { ssr: false });
 const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), { ssr: false });
-const BackToTop = dynamic(() => import("@/components/BackToTop"), { ssr: false });
+const BackToTop       = dynamic(() => import("@/components/BackToTop"),        { ssr: false });
+const ChatWidget      = dynamic(() => import("@/components/ChatWidget"),       { ssr: false });
 
-// Below-fold: lazy — each becomes its own chunk, parsed only when needed
 const About      = dynamic(() => import("@/sections/About"));
 const Skills     = dynamic(() => import("@/sections/Skills"));
 const Projects   = dynamic(() => import("@/sections/Projects"));
 const Experience = dynamic(() => import("@/sections/Experience"));
-const Education  = dynamic(() => import("@/sections/Education"));
-const Learning   = dynamic(() => import("@/sections/Learning"));
 const Contact    = dynamic(() => import("@/sections/Contact"));
 
 export default function Home() {
@@ -30,12 +27,11 @@ export default function Home() {
         <Skills />
         <Projects />
         <Experience />
-        <Education />
-        <Learning />
         <Contact />
       </main>
       <Footer />
       <BackToTop />
+      <ChatWidget />
     </MotionProvider>
   );
 }
