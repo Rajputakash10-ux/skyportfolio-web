@@ -47,7 +47,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-/* Gradient border on hover */
+/* Gradient border on hover — opacity-only transition = GPU composited */
 .gradient-border {
   position: relative;
   border-radius: 16px;
@@ -61,7 +61,9 @@ body {
   background: linear-gradient(135deg, #3B82F6, #8B5CF6, #EC4899);
   z-index: -1;
   opacity: 0;
+  /* Only transition opacity — composited, no layout/paint cost */
   transition: opacity 0.35s ease;
+  will-change: opacity;
 }
 .gradient-border:hover::before { opacity: 1; }
 
@@ -88,10 +90,13 @@ body {
 .animate-float { animation: float 7s ease-in-out infinite; }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(59,130,246,0.35), 0 0 40px rgba(59,130,246,0.1); }
-  50%       { box-shadow: 0 0 30px rgba(139,92,246,0.5), 0 0 60px rgba(139,92,246,0.2); }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
 }
-.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+  box-shadow: 0 0 24px rgba(59,130,246,0.4), 0 0 48px rgba(139,92,246,0.15);
+}
 
 @keyframes gradient-shift {
   0%   { background-position: 0% 50%; }
@@ -117,6 +122,7 @@ body {
   inset: 0;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
   animation: shimmer 2.5s infinite;
+  will-change: transform; /* promote to own layer — GPU composited */
 }
 
 @keyframes border-spin {
@@ -142,15 +148,17 @@ body {
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.1); }
 }
+/* scale() is GPU-composited; will-change promotes each orb to its own layer */
 .orb-blue   { will-change: transform; animation: orb-pulse-blue   8s ease-in-out infinite; }
 .orb-purple { will-change: transform; animation: orb-pulse-purple 10s ease-in-out infinite 2s; }
 .orb-pink   { will-change: transform; animation: orb-pulse-pink    6s ease-in-out infinite 1s; }
 
+/* translateY + opacity — both GPU composited, no layout triggers */
 @keyframes nav-in {
   from { opacity: 0; transform: translateY(-100%); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-nav-in { animation: nav-in 0.6s ease-out forwards; }
+.animate-nav-in { animation: nav-in 0.6s ease-out forwards; will-change: transform, opacity; }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }

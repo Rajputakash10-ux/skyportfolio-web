@@ -46,17 +46,17 @@ export default function Skills() {
           {tab === "skills" ? (
             <m.div
               key="skills"
-              initial={{ opacity: 0, translateY: 12 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -12 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               {skills.map((skill, i) => (
                 <m.div
                   key={skill.category}
-                  initial={{ opacity: 0, translateY: 20 }}
-                  animate={inView ? { opacity: 1, translateY: 0 } : {}}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.4, delay: i * 0.07 }}
                   className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-200 relative overflow-hidden cursor-default"
                 >
@@ -93,23 +93,23 @@ export default function Skills() {
           ) : (
             <m.div
               key="learning"
-              initial={{ opacity: 0, translateY: 12 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -12 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               {learning.map((item, i) => (
                 <m.div
                   key={item.title}
-                  initial={{ opacity: 0, translateY: 20, scale: 0.96 }}
-                  animate={{ opacity: 1, translateY: 0, scale: 1 }}
+                  initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.35, delay: i * 0.07 }}
                   className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-200"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <m.span
-                      animate={{ translateY: [0, -4, 0] }}
+                      animate={{ y: [0, -4, 0] }}
                       transition={{ duration: 3 + i * 0.3, repeat: Infinity, ease: "easeInOut" }}
                       className="text-2xl will-change-transform"
                       aria-hidden="true"

@@ -15,8 +15,8 @@ export default function Projects() {
         {projects.map((project, i) => (
           <m.div
             key={project.title}
-            initial={{ opacity: 0, translateY: 36 }}
-            animate={inView ? { opacity: 1, translateY: 0 } : {}}
+            initial={{ opacity: 0, y: 36 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.55, delay: i * 0.14 }}
             className="glass rounded-2xl overflow-hidden gradient-border group flex flex-col"
           >

@@ -22,14 +22,14 @@ export default function Learning() {
         {learning.map((item, i) => (
           <m.div
             key={item.title}
-            initial={{ opacity: 0, translateY: 24, scale: 0.95 }}
-            animate={inView ? { opacity: 1, translateY: 0, scale: 1 } : {}}
+            initial={{ opacity: 0, y: 24, scale: 0.95 }}
+            animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
             transition={{ duration: 0.45, delay: i * 0.09 }}
             className="glass rounded-2xl p-5 gradient-border group hover:scale-[1.03] transition-transform duration-300"
           >
             <div className="flex items-center gap-3 mb-3">
               <m.span
-                animate={{ translateY: [0, -5, 0] }}
+                animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 3.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
                 className="text-3xl will-change-transform"
                 aria-hidden="true"

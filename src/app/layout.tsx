@@ -38,8 +38,27 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable} ${sora.variable}`}>
       <head>
-        {/* Preconnect to Google Fonts CDN to eliminate font round-trip latency */}
+        {/* Preconnect to Google Fonts CDN — reduces font TTFB */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        {/* Preconnect to EmailJS — warms TCP before contact form submit */}
+        <link rel="dns-prefetch" href="https://api.emailjs.com" />
+        {/* Preload Sora 800 (h1 — LCP element). Eliminates render-blocking font swap. */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/sora/v12/xMQOuFFYT72X5wkB_18qmnndmSdSn3-KIwNhBti0.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        {/* Preload Inter 400 — body text, prevents FOUT on first paint */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className="bg-[#0B0F19] text-[#F9FAFB] font-inter antialiased">{children}</body>
     </html>

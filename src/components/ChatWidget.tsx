@@ -51,9 +51,9 @@ export default function ChatWidget() {
       <AnimatePresence>
         {open && (
           <m.div
-            initial={{ opacity: 0, translateY: 16, scale: 0.95 }}
-            animate={{ opacity: 1, translateY: 0, scale: 1 }}
-            exit={{ opacity: 0, translateY: 16, scale: 0.95 }}
+            initial={{ opacity: 0, y: 16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className="mb-3 w-[320px] glass rounded-2xl border border-white/[0.1] shadow-2xl overflow-hidden"
           >

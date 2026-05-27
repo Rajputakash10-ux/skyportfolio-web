@@ -13,8 +13,8 @@ export default function Education() {
       <SectionTitle title="Education" subtitle="Academic foundation in Computer Science" />
       <div ref={ref} className="flex justify-center">
         <m.div
-          initial={{ opacity: 0, translateY: 24 }}
-          animate={inView ? { opacity: 1, translateY: 0 } : {}}
+          initial={{ opacity: 0, y: 24 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="glass rounded-2xl p-8 max-w-2xl w-full gradient-border hover:scale-[1.01] transition-transform duration-300"
         >

@@ -2,7 +2,41 @@
 const nextConfig = {
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ["framer-motion"],
+    // Tree-shake framer-motion & react-intersection-observer to only import used exports
+    optimizePackageImports: ["framer-motion", "react-intersection-observer"],
+    // Target modern browsers via .browserslistrc — eliminates
+    // Array.prototype.at/flat, Object.fromEntries, Array.prototype.at polyfills
+    browsersListForSwc: true,
+  },
+  // SWC-only (no Babel) — prevents legacy class/spread/optional-chaining transforms
+  swcMinify: true,
+  compiler: {
+    // Strip data-testid and React dev props in production
+    reactRemoveProperties: process.env.NODE_ENV === "production",
+  },
+  // Split large vendor chunks so each route only loads what it needs
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks?.cacheGroups,
+          framerMotion: {
+            test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+            name: "framer-motion",
+            chunks: "all",
+            priority: 30,
+          },
+          emailjs: {
+            test: /[\\/]node_modules[\\/]@emailjs[\\/]/,
+            name: "emailjs",
+            chunks: "async",   // only loaded when contact form submits
+            priority: 20,
+          },
+        },
+      };
+    }
+    return config;
   },
   async headers() {
     return [

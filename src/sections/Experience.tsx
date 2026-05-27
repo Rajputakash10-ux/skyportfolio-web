@@ -16,8 +16,8 @@ export default function Experience() {
         {experience.map((item, i) => (
           <m.div
             key={item.company}
-            initial={{ opacity: 0, translateY: 16 }}
-            animate={inView ? { opacity: 1, translateY: 0 } : {}}
+            initial={{ opacity: 0, y: 16 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.4, delay: i * 0.07 }}
             className="glass rounded-2xl gradient-border overflow-hidden"
           >

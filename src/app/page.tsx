@@ -1,14 +1,18 @@
 import dynamic from "next/dynamic";
 import Hero from "@/sections/Hero";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import MotionProvider from "@/components/MotionProvider";
 
-const ScrollProgress  = dynamic(() => import("@/components/ScrollProgress"),  { ssr: false });
-const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), { ssr: false });
-const BackToTop       = dynamic(() => import("@/components/BackToTop"),        { ssr: false });
-const ChatWidget      = dynamic(() => import("@/components/ChatWidget"),       { ssr: false });
+// Navbar SSR'd but JS deferred — renders HTML immediately, hydrates after
+const Navbar  = dynamic(() => import("@/components/Navbar"),  { ssr: true });
+const Footer  = dynamic(() => import("@/components/Footer"),  { ssr: true });
 
+// Client-only, non-critical — fully deferred
+const ScrollProgress     = dynamic(() => import("@/components/ScrollProgress"),     { ssr: false });
+const ParticleBackground = dynamic(() => import("@/components/ParticleBackground"), { ssr: false });
+const BackToTop          = dynamic(() => import("@/components/BackToTop"),          { ssr: false });
+const ChatWidget         = dynamic(() => import("@/components/ChatWidget"),         { ssr: false });
+
+// Below-fold sections — each is its own chunk, parsed on demand
 const About      = dynamic(() => import("@/sections/About"));
 const Skills     = dynamic(() => import("@/sections/Skills"));
 const Projects   = dynamic(() => import("@/sections/Projects"));
