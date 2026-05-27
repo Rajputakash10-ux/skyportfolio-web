@@ -1,5 +1,9 @@
-import HeroAnimated from "./HeroAnimated";
+import dynamic from "next/dynamic";
 import HeroStats from "./HeroStats";
+
+// Defer framer-motion + TypeAnimation to a separate async chunk.
+// Hero shell (h1 + stats) renders as static HTML immediately.
+const HeroAnimated = dynamic(() => import("./HeroAnimated"), { ssr: false });
 
 export default function Hero() {
   return (

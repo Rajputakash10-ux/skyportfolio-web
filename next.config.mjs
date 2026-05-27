@@ -1,36 +1,51 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     optimizeCss: true,
-    // Tree-shake framer-motion & react-intersection-observer to only import used exports
-    optimizePackageImports: ["framer-motion", "react-intersection-observer"],
-    // Target modern browsers via .browserslistrc — eliminates
-    // Array.prototype.at/flat, Object.fromEntries, Array.prototype.at polyfills
+    // Tree-shake to only the exports actually imported
+    optimizePackageImports: [
+      "framer-motion",
+      "react-intersection-observer",
+      "react-type-animation",
+    ],
+    // Target last 2 modern browsers — eliminates Array.flat/at,
+    // Object.fromEntries, optional-chaining polyfills
     browsersListForSwc: true,
   },
-  // SWC-only (no Babel) — prevents legacy class/spread/optional-chaining transforms
+  // SWC-only, no Babel — prevents legacy class/spread transforms
   swcMinify: true,
   compiler: {
-    // Strip data-testid and React dev props in production
+    // Strip console.* in production builds
+    removeConsole: process.env.NODE_ENV === "production",
+    // Strip data-testid and React dev-only props in production
     reactRemoveProperties: process.env.NODE_ENV === "production",
   },
-  // Split large vendor chunks so each route only loads what it needs
   webpack(config, { isServer }) {
     if (!isServer) {
       config.optimization.splitChunks = {
         ...config.optimization.splitChunks,
         cacheGroups: {
           ...config.optimization.splitChunks?.cacheGroups,
+          // Isolate framer-motion into its own named async chunk.
+          // All dynamic() imports of framer-motion components share this
+          // single chunk — downloaded once, cached forever.
           framerMotion: {
             test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
             name: "framer-motion",
-            chunks: "all",
+            chunks: "async",   // async-only: never in the initial bundle
             priority: 30,
           },
+          // emailjs only loads when the contact form is submitted
           emailjs: {
             test: /[\\/]node_modules[\\/]@emailjs[\\/]/,
             name: "emailjs",
-            chunks: "async",   // only loaded when contact form submits
+            chunks: "async",
             priority: 20,
           },
         },
@@ -60,4 +75,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
