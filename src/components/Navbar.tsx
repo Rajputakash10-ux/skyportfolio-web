@@ -68,7 +68,7 @@ export default function Navbar() {
             );
           })}
           <a
-            href="/Akash.pdf"
+            href="/sky.pdf"
             download
             className="ml-3 px-4 py-1.5 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
@@ -110,7 +110,7 @@ export default function Navbar() {
               </button>
             ))}
             <a
-              href="/Akash.pdf"
+              href="/sky.pdf"
               download
               className="mt-1 px-3 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white text-center"
             >
