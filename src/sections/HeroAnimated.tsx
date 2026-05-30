@@ -63,7 +63,7 @@ export default function HeroAnimated() {
           Hire Me →
         </a>
         <a
-          href="/Akash Singh.pdf"
+          href="/Akashcv.pdf"
           download
           aria-label="Download resume PDF"
           className="px-6 py-3 rounded-xl font-semibold glass border border-white/10 hover:border-[#3B82F6]/50 hover:scale-105 transition-[transform,opacity] duration-200 flex items-center gap-2 text-[#9CA3AF] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
