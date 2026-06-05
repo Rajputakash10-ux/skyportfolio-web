@@ -347,8 +347,6 @@ function useLinearWebGL(size: number) {
 export default function LinearLogo({ size = 240 }: { size?: number }) {
   const drag = useDragControls();
   const { ref, onMouseMove, onTouchMove, onEnter, onLeave } = useLinearWebGL(size);
-  const r    = size / 2; // full circle
-
   return (
     <motion.div
       drag
