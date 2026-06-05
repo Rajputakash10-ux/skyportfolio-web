@@ -2,54 +2,159 @@
 import { useEffect, useRef, useCallback } from "react";
 import { motion, useDragControls } from "framer-motion";
 
-interface Dot {
-  x: number; y: number;   // normalised [-1, 1]
-  vx: number; vy: number;
-  phase: number;
-  speed: number;
-  size: number;
-  opacity: number;
-  gray: number;           // 0=white  0.5=silver  1=dim
-}
+// ── GLSL shaders ──────────────────────────────────────────────────────────────
+const VERT = `
+precision highp float;
+attribute vec2  aPos;     // normalised sphere pos [-1,1]
+attribute float aPhase;
+attribute float aSpeed;
+attribute float aSize;
 
-// ── stripe mask ──────────────────────────────────────────────────────────────
+uniform float uTime;
+uniform float uBreath;
+uniform vec2  uMouse;     // canvas-local [0,size]
+uniform float uSize;      // canvas px size
+uniform float uDpr;
+
+varying float vAlpha;
+
+float hash(float n){ return fract(sin(n)*43758.5453); }
+
+void main(){
+  vec2 p = aPos * uBreath;
+
+  // 3-harmonic organic drift  (sub-pixel movement)
+  float amp = 0.004 + aSize * 0.003;
+  float t   = uTime * aSpeed;
+  p.x += sin(t*0.38 + aPhase*2.1)*amp + sin(t*0.14 + aPhase*5.3)*amp*0.3;
+  p.y += cos(t*0.31 + aPhase*3.1)*amp + cos(t*0.11 + aPhase*7.0)*amp*0.3;
+
+  // mouse repel (very subtle) — in NDC space
+  vec2 ndcMouse = (uMouse / uSize) * 2.0 - 1.0;
+  ndcMouse.y *= -1.0;
+  vec2  delta = p - ndcMouse;
+  float d     = length(delta);
+  float R     = 0.35;
+  if(d < R && d > 0.001){
+    float str = pow(1.0 - d/R, 1.8) * 0.04;
+    p += normalize(delta) * str;
+  }
+
+  // shimmer brightness
+  float sh = 0.25 + 0.75 * pow(0.5 + 0.5*sin(uTime*aSpeed*0.78 + aPhase*6.28), 2.0);
+
+  // edge fade
+  float dc   = length(aPos);
+  float edge = 1.0 - smoothstep(0.50, 0.97, dc);
+
+  vAlpha = sh * edge * 0.92;
+
+  // clip-space
+  gl_Position  = vec4(p, 0.0, 1.0);
+  gl_PointSize = aSize * uDpr * (0.85 + sh * 0.3);
+}`;
+
+const FRAG = `
+precision highp float;
+varying float vAlpha;
+uniform vec3 uColor;
+
+void main(){
+  vec2  uv = gl_PointCoord - 0.5;
+  float d  = dot(uv, uv);
+  if(d > 0.25) discard;           // round dot
+  float soft = 1.0 - smoothstep(0.10, 0.25, d);
+  gl_FragColor = vec4(uColor, soft * vAlpha);
+}`;
+
+// ── stripe mask ───────────────────────────────────────────────────────────────
 function inStripe(nx: number, ny: number): boolean {
-  const proj   = nx * Math.cos(Math.PI / 5.2) + ny * Math.sin(Math.PI / 5.2);
-  const period = 0.52, width = 0.16;
-  const p = ((proj % period) + period) % period;
-  return p < width;
+  const proj = nx * Math.cos(Math.PI / 5.2) + ny * Math.sin(Math.PI / 5.2);
+  const p    = ((proj % 0.52) + 0.52) % 0.52;
+  return p < 0.16;
 }
 
-// ── Fibonacci sphere sample → flat 2D projection ────────────────────────────
-function buildDots(count: number): Dot[] {
-  const dots: Dot[] = [];
-  const phi = Math.PI * (3 - Math.sqrt(5));
-  // oversample so after rejection we land near `count`
-  const S = Math.round(count * 1.9);
-  for (let i = 0; i < S && dots.length < count; i++) {
+// ── build Float32 buffers ─────────────────────────────────────────────────────
+function buildBuffers(COUNT: number) {
+  // oversample heavily — stripe + circle rejection drops ~35%
+  const S      = Math.round(COUNT * 2.1);
+  const phi    = Math.PI * (3 - Math.sqrt(5));
+  const pos    = new Float32Array(COUNT * 2);
+  const phase  = new Float32Array(COUNT);
+  const speed  = new Float32Array(COUNT);
+  const size   = new Float32Array(COUNT);
+  let   filled = 0;
+
+  for (let i = 0; i < S && filled < COUNT; i++) {
     const y  = 1 - (i / (S - 1)) * 2;
     const r  = Math.sqrt(Math.max(0, 1 - y * y));
     const th = phi * i;
     const nx = Math.cos(th) * r;
     if (inStripe(nx, y)) continue;
-    const bx = nx  + (Math.random() - 0.5) * 0.028;
-    const by = y   + (Math.random() - 0.5) * 0.028;
+    const bx = nx + (Math.random() - 0.5) * 0.022;
+    const by = y  + (Math.random() - 0.5) * 0.022;
     if (bx * bx + by * by > 0.97) continue;
-    const cr = Math.random();
-    dots.push({
-      x: bx, y: by, vx: 0, vy: 0,
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.3 + Math.random() * 1.8,
-      size:  0.55 + Math.random() * 1.1,
-      opacity: 0.4 + Math.random() * 0.6,
-      gray: cr < 0.75 ? 0 : cr < 0.92 ? 0.5 : 1,
-    });
+    // centre density bias
+    const dc = Math.sqrt(bx * bx + by * by);
+    if (dc > 0.45 && Math.random() > 1.15 - dc) continue;
+
+    pos[filled * 2]     = bx;
+    pos[filled * 2 + 1] = by;
+    phase[filled] = Math.random() * Math.PI * 2;
+    speed[filled] = 0.25 + Math.random() * 1.6;
+    // size: 1–2px, smaller at edges
+    size[filled]  = (0.9 + Math.random() * 1.1) * (0.7 + 0.3 * (1 - dc));
+    filled++;
   }
-  return dots;
+
+  // fill remainder if rejection was too aggressive
+  while (filled < COUNT) {
+    const a  = Math.random() * Math.PI * 2;
+    const rd = Math.sqrt(Math.random()) * 0.96;
+    const bx = Math.cos(a) * rd, by = Math.sin(a) * rd;
+    if (!inStripe(bx, by)) {
+      pos[filled * 2]     = bx;
+      pos[filled * 2 + 1] = by;
+      phase[filled] = Math.random() * Math.PI * 2;
+      speed[filled] = 0.25 + Math.random() * 1.6;
+      size[filled]  = 0.9 + Math.random() * 0.8;
+      filled++;
+    }
+  }
+
+  return { pos, phase, speed, size };
 }
 
-// ── hook ─────────────────────────────────────────────────────────────────────
-function useCanvas(size: number) {
+// ── WebGL helpers ─────────────────────────────────────────────────────────────
+function compile(gl: WebGLRenderingContext, type: number, src: string) {
+  const s = gl.createShader(type)!;
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  return s;
+}
+function makeProgram(gl: WebGLRenderingContext) {
+  const p = gl.createProgram()!;
+  gl.attachShader(p, compile(gl, gl.VERTEX_SHADER,   VERT));
+  gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(p);
+  return p;
+}
+function buf(gl: WebGLRenderingContext, data: Float32Array) {
+  const b = gl.createBuffer()!;
+  gl.bindBuffer(gl.ARRAY_BUFFER, b);
+  gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+  return b;
+}
+function attr(gl: WebGLRenderingContext, prog: WebGLProgram, name: string,
+              buffer: WebGLBuffer, size: number) {
+  const loc = gl.getAttribLocation(prog, name);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+}
+
+// ── hook ──────────────────────────────────────────────────────────────────────
+function useWebGL(size: number) {
   const ref      = useRef<HTMLCanvasElement>(null);
   const mouse    = useRef<[number, number]>([9999, 9999]);
   const hovering = useRef(false);
@@ -58,150 +163,99 @@ function useCanvas(size: number) {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: true })!;
 
-    const DPR   = Math.min(window.devicePixelRatio || 1, 2);
-    const COUNT = window.innerWidth < 768 ? 420 : 1000;
-
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width  = size * DPR;
     canvas.height = size * DPR;
     canvas.style.width  = `${size}px`;
     canvas.style.height = `${size}px`;
-    ctx.scale(DPR, DPR);
 
-    const dots = buildDots(COUNT);
-    const cx = size / 2, cy = size / 2;
-    const sR = size * 0.44;   // sphere radius
+    const gl = canvas.getContext("webgl", {
+      alpha: true,
+      premultipliedAlpha: false,
+      antialias: false,
+      powerPreference: "high-performance",
+    }) as WebGLRenderingContext | null;
 
-    const toX = (n: number) => cx + n * sR;
-    const toY = (n: number) => cy + n * sR;
+    if (!gl) return;
 
-    // subtle breathing
-    const breath = (t: number) =>
-      1 + Math.sin(t * 0.55) * 0.012 + Math.sin(t * 0.21) * 0.005;
+    // transparent clear
+    gl.clearColor(0, 0, 0, 0);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
+    // particle count — mobile gets fewer for 60fps
+    const isMob  = window.innerWidth < 768;
+    const COUNT  = isMob ? 120_000 : 2_000_000;
+
+    const { pos, phase, speed, size: sz } = buildBuffers(COUNT);
+    const prog = makeProgram(gl);
+    gl.useProgram(prog);
+
+    const bPos   = buf(gl, pos);
+    const bPhase = buf(gl, phase);
+    const bSpeed = buf(gl, speed);
+    const bSize  = buf(gl, sz);
+
+    attr(gl, prog, "aPos",   bPos,   2);
+    attr(gl, prog, "aPhase", bPhase, 1);
+    attr(gl, prog, "aSpeed", bSpeed, 1);
+    attr(gl, prog, "aSize",  bSize,  1);
+
+    const uTime   = gl.getUniformLocation(prog, "uTime");
+    const uBreath = gl.getUniformLocation(prog, "uBreath");
+    const uMouse  = gl.getUniformLocation(prog, "uMouse");
+    const uSize   = gl.getUniformLocation(prog, "uSize");
+    const uDpr    = gl.getUniformLocation(prog, "uDpr");
+    const uColor  = gl.getUniformLocation(prog, "uColor");
+
+    gl.uniform1f(uDpr,  DPR);
+    gl.uniform1f(uSize, size);
+    // BLACK particles: rgb(0,0,0)
+    gl.uniform3f(uColor, 0.0, 0.0, 0.0);
+
+    let start = 0;
     const draw = (ts: number) => {
-      const t = ts * 0.001;
-      ctx.clearRect(0, 0, size, size);
+      if (!start) start = ts;
+      const t = (ts - start) * 0.001;
 
-      ctx.save();
-      // ── circle clip — ONLY thing visible ──────────────────────────────────
-      ctx.beginPath();
-      ctx.arc(cx, cy, size / 2 - 0.5, 0, Math.PI * 2);
-      ctx.clip();
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-      // ── NO background fill — fully transparent ────────────────────────────
+      const br = 1 + Math.sin(t * 0.55) * 0.012 + Math.sin(t * 0.21) * 0.005;
+      gl.uniform1f(uTime,   t);
+      gl.uniform1f(uBreath, br);
 
-      const br       = breath(t);
       const [mx, my] = mouse.current;
-      const isHover  = hovering.current;
+      gl.uniform2f(uMouse,
+        hovering.current ? mx : 9999,
+        hovering.current ? my : 9999,
+      );
 
-      for (const d of dots) {
-        // ── organic drift (3 harmonics) ─────────────────────────────────────
-        const amp = 0.35 + d.size * 0.5;
-        const ox  = Math.sin(t * d.speed * 0.36 + d.phase * 2.0) * amp
-                  + Math.sin(t * d.speed * 0.14 + d.phase * 5.3) * amp * 0.3;
-        const oy  = Math.cos(t * d.speed * 0.31 + d.phase * 3.1) * amp
-                  + Math.cos(t * d.speed * 0.11 + d.phase * 7.0) * amp * 0.3;
-
-        const bx = d.x * br;
-        const by = d.y * br;
-        let px = toX(bx) + ox;
-        let py = toY(by) + oy;
-
-        // ── mouse / touch interaction (only while hovering) ──────────────────
-        if (isHover) {
-          const ddx = mx - px, ddy = my - py;
-          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-          const R = size * 0.35;
-          if (dist < R && dist > 0.5) {
-            const str = Math.pow(1 - dist / R, 1.8) * 8;
-            d.vx += (ddx / dist) * str * 0.016;
-            d.vy += (ddy / dist) * str * 0.016;
-          }
-        }
-        d.vx *= 0.80;
-        d.vy *= 0.80;
-        px += d.vx;
-        py += d.vy;
-
-        // ── brightness shimmer (no flash, no spark) ──────────────────────────
-        const shimmer = 0.28 + 0.72 * Math.pow(
-          0.5 + 0.5 * Math.sin(t * d.speed * 0.78 + d.phase * 6.28), 2.0
-        );
-
-        // ── edge fade ────────────────────────────────────────────────────────
-        const dc   = Math.sqrt(bx * bx + by * by);
-        const edge = 1 - Math.max(0, Math.min(1, (dc - 0.50) / 0.47));
-        if (edge < 0.02) continue;
-
-        // centre density boost
-        const centreBoost = Math.max(0, 1 - dc * 1.5);
-        const sz = d.size * (1 + centreBoost * 0.4);
-
-        // ── color ────────────────────────────────────────────────────────────
-        const bright = shimmer;
-        const lum = d.gray === 0
-          ? Math.round(bright * 255)
-          : d.gray === 0.5
-          ? Math.round(bright * 205)
-          : Math.round(bright * 100);
-        const alpha = (d.opacity * bright * edge).toFixed(3);
-
-        ctx.beginPath();
-        ctx.arc(px, py, sz, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${lum},${lum},${lum},${alpha})`;
-        ctx.fill();
-      }
-
-      // ── sweeping border ring ──────────────────────────────────────────────
-      const sw = (t * 0.16) % 1;
-      const ctxC = ctx as CanvasRenderingContext2D & {
-        createConicGradient?: (a: number, x: number, y: number) => CanvasGradient;
-      };
-      const ring = ctxC.createConicGradient
-        ? (() => {
-            const cg = ctxC.createConicGradient!(sw * Math.PI * 2, cx, cy);
-            cg.addColorStop(0,    "rgba(255,255,255,0)");
-            cg.addColorStop(0.07, "rgba(255,255,255,0.28)");
-            cg.addColorStop(0.14, "rgba(255,255,255,0)");
-            cg.addColorStop(1,    "rgba(255,255,255,0)");
-            return cg;
-          })()
-        : (() => {
-            const lg = ctx.createLinearGradient(0, 0, size, size);
-            lg.addColorStop(Math.max(0, sw - 0.1), "rgba(255,255,255,0)");
-            lg.addColorStop(sw,                     "rgba(255,255,255,0.22)");
-            lg.addColorStop(Math.min(1, sw + 0.1),  "rgba(255,255,255,0)");
-            return lg;
-          })();
-
-      ctx.strokeStyle = ring;
-      ctx.lineWidth   = 1;
-      ctx.beginPath();
-      ctx.arc(cx, cy, size / 2 - 1, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.restore();
+      gl.drawArrays(gl.POINTS, 0, COUNT);
       frameId.current = requestAnimationFrame(draw);
     };
 
     frameId.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(frameId.current);
+    return () => {
+      cancelAnimationFrame(frameId.current);
+      gl.deleteBuffer(bPos);
+      gl.deleteBuffer(bPhase);
+      gl.deleteBuffer(bSpeed);
+      gl.deleteBuffer(bSize);
+      gl.deleteProgram(prog);
+    };
   }, [size]);
 
-  const onMouseMove  = useCallback((e: React.MouseEvent) => {
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
     const r = ref.current?.getBoundingClientRect();
     if (r) mouse.current = [e.clientX - r.left, e.clientY - r.top];
   }, []);
-
-  const onTouchMove  = useCallback((e: React.TouchEvent) => {
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
     const r = ref.current?.getBoundingClientRect();
     if (!r) return;
-    const t = e.touches[0];
-    mouse.current = [t.clientX - r.left, t.clientY - r.top];
+    mouse.current = [e.touches[0].clientX - r.left, e.touches[0].clientY - r.top];
   }, []);
-
   const onEnter = useCallback(() => { hovering.current = true;  }, []);
   const onLeave = useCallback(() => {
     hovering.current = false;
@@ -211,16 +265,16 @@ function useCanvas(size: number) {
   return { ref, onMouseMove, onTouchMove, onEnter, onLeave };
 }
 
-// ── component ─────────────────────────────────────────────────────────────────
+// ── component ──────────────────────────────────────────────────────────────────
 export default function LinearLogo({ size = 220 }: { size?: number }) {
   const drag = useDragControls();
-  const { ref, onMouseMove, onTouchMove, onEnter, onLeave } = useCanvas(size);
+  const { ref, onMouseMove, onTouchMove, onEnter, onLeave } = useWebGL(size);
 
   return (
     <motion.div
       drag
       dragControls={drag}
-      dragMomentum={false}        // fixed where released
+      dragMomentum={false}
       dragElastic={0}
       whileDrag={{ scale: 1.03 }}
       initial={{ opacity: 0, scale: 0.85 }}
@@ -235,6 +289,7 @@ export default function LinearLogo({ size = 220 }: { size?: number }) {
         flexShrink: 0,
         position: "relative",
         zIndex: 10,
+        overflow: "hidden",
       }}
       onPointerDown={(e) => drag.start(e)}
     >
@@ -246,7 +301,7 @@ export default function LinearLogo({ size = 220 }: { size?: number }) {
         onMouseLeave={onLeave}
         onTouchStart={onEnter}
         onTouchEnd={onLeave}
-        style={{ display: "block", borderRadius: "50%", width: size, height: size }}
+        style={{ display: "block", width: size, height: size }}
       />
     </motion.div>
   );
