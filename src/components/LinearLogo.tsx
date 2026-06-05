@@ -2,7 +2,7 @@
 import { useRef, useMemo, useCallback } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { motion } from "framer-motion";
+import { motion, useDragControls } from "framer-motion";
 
 // ─── Vertex Shader ────────────────────────────────────────────────────────────
 const VERT = /* glsl */`
@@ -280,12 +280,12 @@ function Particles({ mouse, isMobile }: {
       // Size: larger near front (z>0), smaller at back; equator bonus
       const latFactor  = 0.65 + 0.35 * (1.0 - Math.abs(sy));
       const depthBonus = 0.8 + 0.4 * (sz * 0.5 + 0.5);
-      aSize[i]  = (0.0055 + Math.random() * 0.0095) * latFactor * depthBonus;
+      aSize[i]  = (0.007 + Math.random() * 0.011) * latFactor * depthBonus;
       aSeed[i]  = Math.random();
 
-      // Color distribution: mostly white, some gray, few dark-gray
+      // Color distribution: heavily white-biased
       const cr = Math.random();
-      aColor[i] = cr < 0.55 ? 0.0 : cr < 0.82 ? 0.5 : 1.0;
+      aColor[i] = cr < 0.82 ? 0.0 : cr < 0.94 ? 0.5 : 1.0;
     }
 
     for (let i = 0; i < BG_N; i++) {
@@ -370,6 +370,7 @@ function Particles({ mouse, isMobile }: {
 export default function LinearLogo({ size = 260 }: { size?: number }) {
   const mouse        = useRef<[number, number]>([9999, 9999]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dragControls = useDragControls();
   const radius       = size * 0.108;
   const isMobile     = typeof window !== "undefined" && window.innerWidth < 768;
 
@@ -392,61 +393,78 @@ export default function LinearLogo({ size = 260 }: { size?: number }) {
   }, []);
 
   return (
+    /* Outer draggable wrapper — sits above canvas, no overflow clip */
     <motion.div
-      ref={containerRef}
-      onMouseMove={onMove}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
+      drag
+      dragControls={dragControls}
+      dragMomentum={true}
+      dragElastic={0.12}
+      dragTransition={{ power: 0.18, timeConstant: 220 }}
+      whileDrag={{ scale: 1.04, cursor: "grabbing" }}
       initial={{ opacity: 0, scale: 0.84 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
       style={{
         width: size, height: size,
-        borderRadius: radius,
-        background: "#000",
-        overflow: "hidden",
         position: "relative",
         userSelect: "none",
-        cursor: "crosshair",
-        boxShadow: [
-          "0 0 0 1px rgba(255,255,255,0.08)",
-          "0 0 0 1px rgba(255,255,255,0.04) inset",
-          "0 36px 90px rgba(0,0,0,0.6)",
-          "0 12px 32px rgba(0,0,0,0.4)",
-        ].join(", "),
+        cursor: "grab",
+        touchAction: "none",
+        zIndex: 10,
+        filter: "drop-shadow(0 24px 48px rgba(0,0,0,0.45))",
       }}
     >
-      {/* Animated shimmer border */}
-      <motion.div
-        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+      {/* Inner canvas container — rounded clip */}
+      <div
+        ref={containerRef}
+        onMouseMove={onMove}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        onPointerDown={(e) => dragControls.start(e)}
         style={{
-          position: "absolute", inset: 0, zIndex: 20, pointerEvents: "none",
+          width: "100%", height: "100%",
           borderRadius: radius,
-          border: "1px solid transparent",
-          backgroundImage: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.12) 60%, transparent 100%)",
-          backgroundSize: "200% 100%",
-          backgroundOrigin: "border-box",
-          WebkitMask: "linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)",
-          WebkitMaskComposite: "destination-out",
-          maskComposite: "exclude",
+          background: "#000",
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: [
+            "0 0 0 1px rgba(255,255,255,0.09)",
+            "0 0 0 1px rgba(255,255,255,0.04) inset",
+          ].join(", "),
         }}
-      />
-      {/* Radial vignette — deepens corners */}
-      <div style={{
-        position: "absolute", inset: 0, zIndex: 15, pointerEvents: "none",
-        borderRadius: radius,
-        background: "radial-gradient(ellipse 85% 85% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%)",
-      }} />
-
-      <Canvas
-        camera={{ position: [0, 0, 2.9], fov: 42 }}
-        gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
-        style={{ background: "#000", display: "block", width: "100%", height: "100%" }}
-        dpr={[1, 2]}
       >
-        <Particles mouse={mouse} isMobile={isMobile} />
-      </Canvas>
+        {/* Animated shimmer border */}
+        <motion.div
+          animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+          style={{
+            position: "absolute", inset: 0, zIndex: 20, pointerEvents: "none",
+            borderRadius: radius,
+            border: "1px solid transparent",
+            backgroundImage: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.12) 60%, transparent 100%)",
+            backgroundSize: "200% 100%",
+            backgroundOrigin: "border-box",
+            WebkitMask: "linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "destination-out",
+            maskComposite: "exclude",
+          }}
+        />
+        {/* Radial vignette */}
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 15, pointerEvents: "none",
+          borderRadius: radius,
+          background: "radial-gradient(ellipse 85% 85% at 50% 50%, transparent 55%, rgba(0,0,0,0.5) 100%)",
+        }} />
+
+        <Canvas
+          camera={{ position: [0, 0, 2.9], fov: 42 }}
+          gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
+          style={{ background: "#000", display: "block", width: "100%", height: "100%" }}
+          dpr={[1, 2]}
+        >
+          <Particles mouse={mouse} isMobile={isMobile} />
+        </Canvas>
+      </div>
     </motion.div>
   );
 }

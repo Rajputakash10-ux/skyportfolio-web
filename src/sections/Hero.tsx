@@ -20,15 +20,8 @@ export default function Hero() {
         style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, rgba(0,0,0,0.03) 100%)" }}
       />
 
-      {/* Logo */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.0, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="mb-14"
-      >
+      {/* Logo — draggable, no extra wrapper */}
         <LinearLogo />
-      </motion.div>
 
       {/* Text content */}
       <div className="text-center max-w-xl">
