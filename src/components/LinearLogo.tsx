@@ -3,160 +3,65 @@ import { useEffect, useRef, useCallback } from "react";
 import { motion, useDragControls } from "framer-motion";
 
 interface Dot {
-  x: number; y: number;         // normalised [-1,1]
+  x: number; y: number;   // normalised [-1, 1]
+  vx: number; vy: number;
   phase: number;
   speed: number;
-  baseSize: number;
-  brightness: number;
-  flashTimer: number;
-  flashDur: number;
-  flashing: boolean;
-  gray: number;                  // 0=white 0.5=silver 1=dim
-  // velocity for mouse interaction
-  vx: number; vy: number;
+  size: number;
+  opacity: number;
+  gray: number;           // 0=white  0.5=silver  1=dim
 }
 
-// ── simplex-ish 2D hash noise (cheap, no import) ────────────────────────────
-function noise2(x: number, y: number): number {
-  const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-  return n - Math.floor(n);
-}
-
-// ── stripe mask: 3 diagonal bands ───────────────────────────────────────────
+// ── stripe mask ──────────────────────────────────────────────────────────────
 function inStripe(nx: number, ny: number): boolean {
-  const cosA = Math.cos(Math.PI / 5.2);
-  const sinA = Math.sin(Math.PI / 5.2);
-  const proj = nx * cosA + ny * sinA;
-  const period = 0.52, width = 0.155;
+  const proj   = nx * Math.cos(Math.PI / 5.2) + ny * Math.sin(Math.PI / 5.2);
+  const period = 0.52, width = 0.16;
   const p = ((proj % period) + period) % period;
   return p < width;
 }
 
-// ── build sphere dots via Fibonacci lattice ──────────────────────────────────
-function buildDots(S: number): Dot[] {
+// ── Fibonacci sphere sample → flat 2D projection ────────────────────────────
+function buildDots(count: number): Dot[] {
   const dots: Dot[] = [];
   const phi = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < S; i++) {
+  // oversample so after rejection we land near `count`
+  const S = Math.round(count * 1.9);
+  for (let i = 0; i < S && dots.length < count; i++) {
     const y  = 1 - (i / (S - 1)) * 2;
     const r  = Math.sqrt(Math.max(0, 1 - y * y));
     const th = phi * i;
     const nx = Math.cos(th) * r;
     if (inStripe(nx, y)) continue;
-    const jx = (Math.random() - 0.5) * 0.032;
-    const jy = (Math.random() - 0.5) * 0.032;
-    const bx = nx + jx, by = y + jy;
+    const bx = nx  + (Math.random() - 0.5) * 0.028;
+    const by = y   + (Math.random() - 0.5) * 0.028;
     if (bx * bx + by * by > 0.97) continue;
     const cr = Math.random();
-    // density: more dots near centre — accept/reject by distance
-    const distC = Math.sqrt(bx * bx + by * by);
-    if (distC > 0.5 && Math.random() > 1.2 - distC) continue;
     dots.push({
       x: bx, y: by, vx: 0, vy: 0,
       phase: Math.random() * Math.PI * 2,
-      speed: 0.35 + Math.random() * 2.4,
-      baseSize: 0.7 + Math.random() * 1.6,
-      brightness: 0.45 + Math.random() * 0.55,
-      flashTimer: Math.random() * 10,
-      flashDur: 0.35 + Math.random() * 1.1,
-      flashing: false,
-      gray: cr < 0.78 ? 0 : cr < 0.93 ? 0.5 : 1,
+      speed: 0.3 + Math.random() * 1.8,
+      size:  0.55 + Math.random() * 1.1,
+      opacity: 0.4 + Math.random() * 0.6,
+      gray: cr < 0.75 ? 0 : cr < 0.92 ? 0.5 : 1,
     });
   }
   return dots;
 }
 
-// ── background scatter dots (behind sphere, inside circle) ──────────────────
-function buildBg(N: number): Dot[] {
-  const dots: Dot[] = [];
-  for (let i = 0; i < N; i++) {
-    // polar placement so density is even inside circle
-    const angle = Math.random() * Math.PI * 2;
-    const rad   = Math.sqrt(Math.random()) * 0.97;
-    dots.push({
-      x: Math.cos(angle) * rad,
-      y: Math.sin(angle) * rad,
-      vx: 0, vy: 0,
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.1 + Math.random() * 0.45,
-      baseSize: 0.3 + Math.random() * 0.55,
-      brightness: 0.05 + Math.random() * 0.1,
-      flashTimer: Math.random() * 15,
-      flashDur: 1.5 + Math.random() * 2.5,
-      flashing: false,
-      gray: 1,
-    });
-  }
-  return dots;
-}
-
-// ── draw 4+6 point star spark ────────────────────────────────────────────────
-function drawSpark(
-  ctx: CanvasRenderingContext2D,
-  px: number, py: number,
-  r: number, intensity: number,
-) {
-  // glow halo
-  const grd = ctx.createRadialGradient(px, py, 0, px, py, r * 5);
-  grd.addColorStop(0,   `rgba(255,255,255,${(intensity * 0.55).toFixed(3)})`);
-  grd.addColorStop(0.4, `rgba(220,235,255,${(intensity * 0.22).toFixed(3)})`);
-  grd.addColorStop(1,   "rgba(180,210,255,0)");
-  ctx.beginPath();
-  ctx.arc(px, py, r * 5, 0, Math.PI * 2);
-  ctx.fillStyle = grd;
-  ctx.fill();
-
-  // 4-point long spikes
-  ctx.save();
-  ctx.translate(px, py);
-  ctx.globalAlpha = intensity * 0.75;
-  ctx.strokeStyle = "#fff";
-  ctx.lineWidth   = 0.6;
-  ctx.lineCap     = "round";
-  const arms4 = [[r * 7, 0], [0, r * 7], [-r * 7, 0], [0, -r * 7]];
-  for (const [ex, ey] of arms4) {
-    const g = ctx.createLinearGradient(0, 0, ex, ey);
-    g.addColorStop(0,   "rgba(255,255,255,1)");
-    g.addColorStop(1,   "rgba(255,255,255,0)");
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(ex, ey);
-    ctx.strokeStyle = g;
-    ctx.stroke();
-  }
-  // 6-point short spikes (rotated 30°)
-  ctx.globalAlpha = intensity * 0.35;
-  ctx.lineWidth   = 0.4;
-  for (let a = 0; a < Math.PI * 2; a += Math.PI / 3) {
-    const ex = Math.cos(a + Math.PI / 6) * r * 4;
-    const ey = Math.sin(a + Math.PI / 6) * r * 4;
-    const g2 = ctx.createLinearGradient(0, 0, ex, ey);
-    g2.addColorStop(0, "rgba(200,220,255,1)");
-    g2.addColorStop(1, "rgba(200,220,255,0)");
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(ex, ey);
-    ctx.strokeStyle = g2;
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-// ── main hook ────────────────────────────────────────────────────────────────
-function useLinearCanvas(size: number) {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const mouse      = useRef<[number, number]>([9999, 9999]);
-  const frameRef   = useRef(0);
-  const hoverRef   = useRef(false);
+// ── hook ─────────────────────────────────────────────────────────────────────
+function useCanvas(size: number) {
+  const ref      = useRef<HTMLCanvasElement>(null);
+  const mouse    = useRef<[number, number]>([9999, 9999]);
+  const hovering = useRef(false);
+  const frameId  = useRef(0);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true })!;
 
-    const DPR    = Math.min(window.devicePixelRatio || 1, 2);
-    const isMob  = size < 200;
-    const SPHERE = isMob ? 3500  : 12000;
-    const BG     = isMob ?  400  :  1000;
+    const DPR   = Math.min(window.devicePixelRatio || 1, 2);
+    const COUNT = window.innerWidth < 768 ? 420 : 1000;
 
     canvas.width  = size * DPR;
     canvas.height = size * DPR;
@@ -164,254 +69,184 @@ function useLinearCanvas(size: number) {
     canvas.style.height = `${size}px`;
     ctx.scale(DPR, DPR);
 
-    const dots   = buildDots(SPHERE);
-    const bgDots = buildBg(BG);
-    const cx     = size / 2;
-    const cy     = size / 2;
-    const sR     = size * 0.46;   // sphere radius — fills most of circle
-    let   t      = 0;
+    const dots = buildDots(COUNT);
+    const cx = size / 2, cy = size / 2;
+    const sR = size * 0.44;   // sphere radius
 
     const toX = (n: number) => cx + n * sR;
     const toY = (n: number) => cy + n * sR;
 
-    // Breathing: triple-frequency
-    const breath = (time: number) =>
-      1 + Math.sin(time * 0.58) * 0.013
-        + Math.sin(time * 0.22) * 0.006
-        + Math.sin(time * 0.09) * 0.003;
-
-    // ── circle clip ─────────────────────────────────────────────────────────
-    const clipCircle = () => {
-      ctx.beginPath();
-      ctx.arc(cx, cy, size / 2 - 0.5, 0, Math.PI * 2);
-      ctx.clip();
-    };
+    // subtle breathing
+    const breath = (t: number) =>
+      1 + Math.sin(t * 0.55) * 0.012 + Math.sin(t * 0.21) * 0.005;
 
     const draw = (ts: number) => {
-      t = ts * 0.001;
-
-      // fully transparent every frame — shows hero bg through
+      const t = ts * 0.001;
       ctx.clearRect(0, 0, size, size);
 
       ctx.save();
-      clipCircle();
+      // ── circle clip — ONLY thing visible ──────────────────────────────────
+      ctx.beginPath();
+      ctx.arc(cx, cy, size / 2 - 0.5, 0, Math.PI * 2);
+      ctx.clip();
 
-      // ── translucent dark fill so dots read on light bg ───────────────────
-      const hover  = hoverRef.current;
-      const alpha  = hover ? 0.72 : 0.88;   // more transparent on hover
-      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-      ctx.fillRect(0, 0, size, size);
+      // ── NO background fill — fully transparent ────────────────────────────
 
-      // subtle radial: slightly lighter in centre
-      const radGrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, sR);
-      radGrd.addColorStop(0,   "rgba(30,30,35,0.18)");
-      radGrd.addColorStop(1,   "rgba(0,0,0,0)");
-      ctx.fillStyle = radGrd;
-      ctx.fillRect(0, 0, size, size);
-
-      const br = breath(t);
+      const br       = breath(t);
       const [mx, my] = mouse.current;
+      const isHover  = hovering.current;
 
-      // ── background ambient dots ──────────────────────────────────────────
-      for (const d of bgDots) {
-        const px = toX(d.x + Math.sin(t * d.speed * 0.28 + d.phase) * 0.04);
-        const py = toY(d.y + Math.cos(t * d.speed * 0.22 + d.phase * 1.4) * 0.04);
-        const fl = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(t * d.speed * 2.2 + d.phase * 5));
-        ctx.beginPath();
-        ctx.arc(px, py, d.baseSize, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${(d.brightness * fl).toFixed(3)})`;
-        ctx.fill();
-      }
-
-      // ── sphere dots ──────────────────────────────────────────────────────
       for (const d of dots) {
-        // ── flash timer ──────────────────────────────────────────────────
-        d.flashTimer += 0.016 * d.speed;
-        if (!d.flashing && d.flashTimer > 4 + noise2(d.x, d.y) * 8) {
-          d.flashing   = true;
-          d.flashTimer = 0;
-        }
-        let flashBoost = 0;
-        if (d.flashing) {
-          const fp = Math.min(1, d.flashTimer / d.flashDur);
-          flashBoost = fp < 0.5 ? fp * 2 : 2 - fp * 2;
-          if (d.flashTimer >= d.flashDur) { d.flashing = false; d.flashTimer = 0; }
-        }
-
-        // ── organic multi-freq drift ──────────────────────────────────────
-        const amp  = 0.45 + d.baseSize * 0.7;
-        const dx   = Math.sin(t * d.speed * 0.38 + d.phase * 2.1) * amp
-                   + Math.sin(t * d.speed * 0.16 + d.phase * 5.7) * amp * 0.35
-                   + Math.cos(t * d.speed * 0.09 + d.phase * 9.1) * amp * 0.15;
-        const dy   = Math.cos(t * d.speed * 0.34 + d.phase * 3.3) * amp
-                   + Math.cos(t * d.speed * 0.14 + d.phase * 7.2) * amp * 0.35
-                   + Math.sin(t * d.speed * 0.07 + d.phase * 11.) * amp * 0.15;
+        // ── organic drift (3 harmonics) ─────────────────────────────────────
+        const amp = 0.35 + d.size * 0.5;
+        const ox  = Math.sin(t * d.speed * 0.36 + d.phase * 2.0) * amp
+                  + Math.sin(t * d.speed * 0.14 + d.phase * 5.3) * amp * 0.3;
+        const oy  = Math.cos(t * d.speed * 0.31 + d.phase * 3.1) * amp
+                  + Math.cos(t * d.speed * 0.11 + d.phase * 7.0) * amp * 0.3;
 
         const bx = d.x * br;
         const by = d.y * br;
-        let px = toX(bx) + dx;
-        let py = toY(by) + dy;
+        let px = toX(bx) + ox;
+        let py = toY(by) + oy;
 
-        // ── mouse interaction: attract toward cursor ──────────────────────
-        const mdx = mx - px;
-        const mdy = my - py;
-        const md  = Math.sqrt(mdx * mdx + mdy * mdy);
-        const mRadius = size * 0.38;
-        if (md < mRadius && md > 1) {
-          // attraction (pull toward cursor)
-          const str = Math.pow(1 - md / mRadius, 1.6) * 9;
-          d.vx += (mdx / md) * str * 0.016;
-          d.vy += (mdy / md) * str * 0.016;
+        // ── mouse / touch interaction (only while hovering) ──────────────────
+        if (isHover) {
+          const ddx = mx - px, ddy = my - py;
+          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+          const R = size * 0.35;
+          if (dist < R && dist > 0.5) {
+            const str = Math.pow(1 - dist / R, 1.8) * 8;
+            d.vx += (ddx / dist) * str * 0.016;
+            d.vy += (ddy / dist) * str * 0.016;
+          }
         }
-        // dampen + apply velocity
-        d.vx *= 0.82;
-        d.vy *= 0.82;
+        d.vx *= 0.80;
+        d.vy *= 0.80;
         px += d.vx;
         py += d.vy;
 
-        // ── sparkle brightness ────────────────────────────────────────────
-        const sp     = Math.pow(0.5 + 0.5 * Math.sin(t * d.speed * 0.82 + d.phase * 6.28), 2.4);
-        const bright = Math.min(1, 0.3 + 0.7 * sp + flashBoost * 0.75);
+        // ── brightness shimmer (no flash, no spark) ──────────────────────────
+        const shimmer = 0.28 + 0.72 * Math.pow(
+          0.5 + 0.5 * Math.sin(t * d.speed * 0.78 + d.phase * 6.28), 2.0
+        );
 
-        // ── edge + depth fade ─────────────────────────────────────────────
-        const distC = Math.sqrt(bx * bx + by * by);
-        const edge  = 1 - Math.max(0, Math.min(1, (distC - 0.52) / 0.48));
-        if (edge <= 0.01) continue;
+        // ── edge fade ────────────────────────────────────────────────────────
+        const dc   = Math.sqrt(bx * bx + by * by);
+        const edge = 1 - Math.max(0, Math.min(1, (dc - 0.50) / 0.47));
+        if (edge < 0.02) continue;
 
-        // centre bloom: dots near centre slightly larger
-        const centreBoost = Math.max(0, 1 - distC * 1.4);
-        const sz = d.baseSize * (1 + centreBoost * 0.5) * (1 + flashBoost * 0.6);
+        // centre density boost
+        const centreBoost = Math.max(0, 1 - dc * 1.5);
+        const sz = d.size * (1 + centreBoost * 0.4);
 
-        // ── color ─────────────────────────────────────────────────────────
+        // ── color ────────────────────────────────────────────────────────────
+        const bright = shimmer;
         const lum = d.gray === 0
           ? Math.round(bright * 255)
           : d.gray === 0.5
-          ? Math.round(bright * 210)
-          : Math.round(bright * 105);
-        const a = (bright * edge * 0.96).toFixed(3);
+          ? Math.round(bright * 205)
+          : Math.round(bright * 100);
+        const alpha = (d.opacity * bright * edge).toFixed(3);
 
-        // dot body
         ctx.beginPath();
         ctx.arc(px, py, sz, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${lum},${lum},${lum},${a})`;
+        ctx.fillStyle = `rgba(${lum},${lum},${lum},${alpha})`;
         ctx.fill();
-
-        // ── spark effect ──────────────────────────────────────────────────
-        if (flashBoost > 0.55 && sz > 1.1) {
-          drawSpark(ctx, px, py, sz, flashBoost * edge);
-        }
-
-        // ── micro glow on all bright dots ─────────────────────────────────
-        if (bright > 0.75 && edge > 0.4) {
-          const gr = ctx.createRadialGradient(px, py, 0, px, py, sz * 2.8);
-          gr.addColorStop(0,   `rgba(255,255,255,${(bright * 0.18 * edge).toFixed(3)})`);
-          gr.addColorStop(1,   "rgba(255,255,255,0)");
-          ctx.beginPath();
-          ctx.arc(px, py, sz * 2.8, 0, Math.PI * 2);
-          ctx.fillStyle = gr;
-          ctx.fill();
-        }
       }
 
-      // ── circle border ring ────────────────────────────────────────────────
-      const shimmer = (t * 0.18) % 1;
-      // conic gradient for sweeping shimmer, linear as fallback
-      const ctxConic = ctx as CanvasRenderingContext2D & {
+      // ── sweeping border ring ──────────────────────────────────────────────
+      const sw = (t * 0.16) % 1;
+      const ctxC = ctx as CanvasRenderingContext2D & {
         createConicGradient?: (a: number, x: number, y: number) => CanvasGradient;
       };
-      const bGrd = ctxConic.createConicGradient
+      const ring = ctxC.createConicGradient
         ? (() => {
-            const cg = ctxConic.createConicGradient!(shimmer * Math.PI * 2, cx, cy);
-            cg.addColorStop(0,    "rgba(255,255,255,0.0)");
-            cg.addColorStop(0.08, "rgba(255,255,255,0.35)");
-            cg.addColorStop(0.16, "rgba(255,255,255,0.0)");
-            cg.addColorStop(1,    "rgba(255,255,255,0.0)");
+            const cg = ctxC.createConicGradient!(sw * Math.PI * 2, cx, cy);
+            cg.addColorStop(0,    "rgba(255,255,255,0)");
+            cg.addColorStop(0.07, "rgba(255,255,255,0.28)");
+            cg.addColorStop(0.14, "rgba(255,255,255,0)");
+            cg.addColorStop(1,    "rgba(255,255,255,0)");
             return cg;
           })()
         : (() => {
             const lg = ctx.createLinearGradient(0, 0, size, size);
-            lg.addColorStop(Math.max(0, shimmer - 0.12), "rgba(255,255,255,0)");
-            lg.addColorStop(shimmer,                      "rgba(255,255,255,0.28)");
-            lg.addColorStop(Math.min(1, shimmer + 0.12), "rgba(255,255,255,0)");
+            lg.addColorStop(Math.max(0, sw - 0.1), "rgba(255,255,255,0)");
+            lg.addColorStop(sw,                     "rgba(255,255,255,0.22)");
+            lg.addColorStop(Math.min(1, sw + 0.1),  "rgba(255,255,255,0)");
             return lg;
           })();
 
-      ctx.strokeStyle = bGrd;
+      ctx.strokeStyle = ring;
       ctx.lineWidth   = 1;
       ctx.beginPath();
       ctx.arc(cx, cy, size / 2 - 1, 0, Math.PI * 2);
       ctx.stroke();
 
-      // inner subtle ring
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
-      ctx.lineWidth   = 0.5;
-      ctx.beginPath();
-      ctx.arc(cx, cy, size / 2 - 3, 0, Math.PI * 2);
-      ctx.stroke();
-
       ctx.restore();
-      frameRef.current = requestAnimationFrame(draw);
+      frameId.current = requestAnimationFrame(draw);
     };
 
-    frameRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(frameRef.current);
+    frameId.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(frameId.current);
   }, [size]);
 
-  const onMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const r = canvasRef.current?.getBoundingClientRect();
-    if (!r) return;
-    mouse.current = [e.clientX - r.left, e.clientY - r.top];
+  const onMouseMove  = useCallback((e: React.MouseEvent) => {
+    const r = ref.current?.getBoundingClientRect();
+    if (r) mouse.current = [e.clientX - r.left, e.clientY - r.top];
   }, []);
 
-  const onMouseEnter = useCallback(() => { hoverRef.current = true;  }, []);
-  const onMouseLeave = useCallback(() => {
-    hoverRef.current = false;
+  const onTouchMove  = useCallback((e: React.TouchEvent) => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    const t = e.touches[0];
+    mouse.current = [t.clientX - r.left, t.clientY - r.top];
+  }, []);
+
+  const onEnter = useCallback(() => { hovering.current = true;  }, []);
+  const onLeave = useCallback(() => {
+    hovering.current = false;
     mouse.current    = [9999, 9999];
   }, []);
 
-  return { canvasRef, onMouseMove, onMouseEnter, onMouseLeave };
+  return { ref, onMouseMove, onTouchMove, onEnter, onLeave };
 }
 
-// ── exported component ────────────────────────────────────────────────────────
-export default function LinearLogo({ size = 280 }: { size?: number }) {
-  const dragControls = useDragControls();
-  const { canvasRef, onMouseMove, onMouseEnter, onMouseLeave } = useLinearCanvas(size);
+// ── component ─────────────────────────────────────────────────────────────────
+export default function LinearLogo({ size = 220 }: { size?: number }) {
+  const drag = useDragControls();
+  const { ref, onMouseMove, onTouchMove, onEnter, onLeave } = useCanvas(size);
 
   return (
     <motion.div
       drag
-      dragControls={dragControls}
-      dragMomentum
-      dragElastic={0.1}
-      dragTransition={{ power: 0.15, timeConstant: 200 }}
-      whileDrag={{ scale: 1.04, cursor: "grabbing" }}
-      initial={{ opacity: 0, scale: 0.8 }}
+      dragControls={drag}
+      dragMomentum={false}        // fixed where released
+      dragElastic={0}
+      whileDrag={{ scale: 1.03 }}
+      initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
       style={{
         width: size, height: size,
         borderRadius: "50%",
-        position: "relative",
-        userSelect: "none",
         cursor: "grab",
+        userSelect: "none",
         touchAction: "none",
-        zIndex: 10,
         flexShrink: 0,
-        filter: "drop-shadow(0 0 32px rgba(255,255,255,0.08)) drop-shadow(0 20px 48px rgba(0,0,0,0.4))",
+        position: "relative",
+        zIndex: 10,
       }}
-      onPointerDown={(e) => dragControls.start(e)}
+      onPointerDown={(e) => drag.start(e)}
     >
       <canvas
-        ref={canvasRef}
+        ref={ref}
         onMouseMove={onMouseMove}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        style={{
-          display: "block",
-          borderRadius: "50%",
-          width: size,
-          height: size,
-        }}
+        onTouchMove={onTouchMove}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
+        onTouchStart={onEnter}
+        onTouchEnd={onLeave}
+        style={{ display: "block", borderRadius: "50%", width: size, height: size }}
       />
     </motion.div>
   );
