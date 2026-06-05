@@ -21,8 +21,8 @@ export default function Hero() {
       />
 
       {/* Logo */}
-      <div className="mb-14">
-        <LinearLogo />
+      <div className="mb-12">
+        <LinearLogo size={290} />
       </div>
 
       {/* Text content */}
