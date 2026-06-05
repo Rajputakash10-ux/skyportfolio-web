@@ -1,35 +1,29 @@
 "use client";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
-export default function SectionWrapper({
-  id, children, className = "",
-}: {
-  id: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
+export default function SectionWrapper({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.07 });
   return (
-    <m.section
+    <motion.section
       id={id}
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`py-16 px-5 sm:px-8 max-w-6xl mx-auto ${className}`}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className={`py-24 px-6 sm:px-8 max-w-5xl mx-auto ${className}`}
     >
       {children}
-    </m.section>
+    </motion.section>
   );
 }
 
 export function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <div className="text-center mb-10">
-      <h2 className="font-sora font-extrabold text-3xl sm:text-4xl gradient-text mb-3">{title}</h2>
-      {subtitle && <p className="text-[#9CA3AF] text-sm sm:text-base max-w-lg mx-auto">{subtitle}</p>}
-      <div className="mt-4 mx-auto w-14 h-[3px] rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6]" />
+    <div className="mb-14">
+      <div className="w-8 h-px bg-white mb-6" />
+      <h2 className="font-light text-3xl sm:text-4xl text-white tracking-tight mb-3">{title}</h2>
+      {subtitle && <p className="text-white/40 text-sm font-light max-w-md">{subtitle}</p>}
     </div>
   );
 }
