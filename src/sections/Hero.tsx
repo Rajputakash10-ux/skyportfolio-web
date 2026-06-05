@@ -20,8 +20,10 @@ export default function Hero() {
         style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, rgba(0,0,0,0.03) 100%)" }}
       />
 
-      {/* Logo — draggable, no extra wrapper */}
+      {/* Logo */}
+      <div className="mb-14">
         <LinearLogo />
+      </div>
 
       {/* Text content */}
       <div className="text-center max-w-xl">
