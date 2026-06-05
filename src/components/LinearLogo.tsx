@@ -277,8 +277,8 @@ function useLinearWebGL(size: number) {
       if (!start) start = ts;
       const t = (ts - start) * 0.001;
 
-      // BLACK background fill — rounded square visual from CSS, WebGL fills rect
-      gl.clearColor(0.04, 0.04, 0.04, 1.0);
+      // Pure near-black background — matches Linear exactly
+      gl.clearColor(0.04, 0.04, 0.045, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.viewport(0, 0, W, W);
 
@@ -359,7 +359,7 @@ export default function LinearLogo({ size = 240 }: { size?: number }) {
       transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
       style={{
         width: size, height: size,
-        borderRadius: "50%",
+        borderRadius: Math.round(size * 0.22),
         cursor: "grab",
         userSelect: "none",
         touchAction: "none",
@@ -367,7 +367,7 @@ export default function LinearLogo({ size = 240 }: { size?: number }) {
         position: "relative",
         zIndex: 10,
         overflow: "hidden",
-        boxShadow: "0 0 40px rgba(139,92,246,0.35), 0 0 80px rgba(59,130,246,0.15), 0 8px 40px rgba(0,0,0,0.8)",
+        boxShadow: "0 4px 32px rgba(0,0,0,0.7), 0 1px 6px rgba(0,0,0,0.5)",
       }}
       onPointerDown={(e) => drag.start(e)}
     >
