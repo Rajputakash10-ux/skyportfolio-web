@@ -347,7 +347,7 @@ function useLinearWebGL(size: number) {
 export default function LinearLogo({ size = 240 }: { size?: number }) {
   const drag = useDragControls();
   const { ref, onMouseMove, onTouchMove, onEnter, onLeave } = useLinearWebGL(size);
-  const r    = size * 0.11; // rounded corner radius matching image
+  const r    = size / 2; // full circle
 
   return (
     <motion.div
@@ -355,13 +355,13 @@ export default function LinearLogo({ size = 240 }: { size?: number }) {
       dragControls={drag}
       dragMomentum={false}
       dragElastic={0}
-      whileDrag={{ scale: 1.03 }}
+      whileDrag={{ scale: 1.05 }}
       initial={{ opacity: 0, scale: 0.82 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
       style={{
         width: size, height: size,
-        borderRadius: r,
+        borderRadius: "50%",
         cursor: "grab",
         userSelect: "none",
         touchAction: "none",
@@ -369,7 +369,7 @@ export default function LinearLogo({ size = 240 }: { size?: number }) {
         position: "relative",
         zIndex: 10,
         overflow: "hidden",
-        boxShadow: "0 8px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4)",
+        boxShadow: "0 0 40px rgba(139,92,246,0.35), 0 0 80px rgba(59,130,246,0.15), 0 8px 40px rgba(0,0,0,0.8)",
       }}
       onPointerDown={(e) => drag.start(e)}
     >

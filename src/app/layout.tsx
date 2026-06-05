@@ -36,7 +36,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`scroll-smooth ${inter.variable} ${sora.variable}`}>
+    <html lang="en" className={`scroll-smooth ${inter.variable} ${sora.variable} bg-[#050508]`}>
       <head>
         {/* Preconnect to Google Fonts CDN — reduces font TTFB */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -60,7 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           crossOrigin="anonymous"
         />
       </head>
-      <body className="bg-white text-black font-inter antialiased">{children}</body>
+      <body className="bg-[#050508] text-[#f0f0f0] font-inter antialiased">{children}</body>
     </html>
   );
 }

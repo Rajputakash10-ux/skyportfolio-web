@@ -41,54 +41,54 @@ export default function Contact() {
       <SectionTitle title="Contact" subtitle="Open to Data Science, AI/ML, and Python roles." />
       <div ref={ref} className="grid lg:grid-cols-2 gap-16">
 
-        <motion.div initial={{ opacity: 0, x: -16 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.5 }}>
-          <p className="text-black/50 text-sm font-light leading-loose mb-10">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6 }}>
+          <p className="text-white/50 text-base font-light leading-loose mb-10">
             I&apos;m actively looking for opportunities in Data Science, AI/ML Engineering,
             and Python Development. Feel free to reach out.
           </p>
-          <div className="border-t border-black/8">
+          <div className="border-t border-white/8">
             {contactLinks.map((c) => (
               <a
                 key={c.label} href={c.href}
                 target={c.href.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="flex items-center gap-6 py-4 border-b border-black/8 group hover:bg-black/[0.02] transition-colors px-1"
+                className="flex items-center gap-6 py-4 border-b border-white/8 group hover:bg-purple-900/10 transition-colors px-2 -mx-2"
               >
-                <span className="text-black/25 text-xs tracking-widest uppercase w-20 flex-shrink-0">{c.label}</span>
-                <span className="text-black/55 text-sm font-light group-hover:text-black transition-colors">{c.value}</span>
-                <svg className="ml-auto text-black/15 group-hover:text-black/40 transition-colors" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                <span className="text-purple-400/50 text-xs tracking-widest uppercase w-20 flex-shrink-0">{c.label}</span>
+                <span className="text-white/55 text-sm font-medium group-hover:text-white transition-colors">{c.value}</span>
+                <svg className="ml-auto text-white/15 group-hover:text-purple-400 transition-colors" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
               </a>
             ))}
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 16 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.5, delay: 0.1 }}>
-          <form onSubmit={handleSubmit} className="border border-black/8 p-8 space-y-6">
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.1 }}>
+          <form onSubmit={handleSubmit} className="border border-white/8 p-8 space-y-6 hover:border-purple-500/20 transition-colors">
             <div>
-              <label className="block text-xs text-black/30 tracking-widest uppercase mb-2">Name</label>
+              <label className="block text-xs text-purple-400/60 tracking-widest uppercase mb-2">Name</label>
               <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Your full name"
-                className="w-full bg-transparent border border-black/10 px-4 py-3 text-black text-sm font-light placeholder-black/20 focus:outline-none focus:border-black/30 transition-colors"
+                className="w-full bg-white/3 border border-white/10 px-4 py-3 text-white text-sm font-light placeholder-white/20 focus:outline-none focus:border-purple-500/50 focus:bg-purple-500/5 transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs text-black/30 tracking-widest uppercase mb-2">Email</label>
+              <label className="block text-xs text-purple-400/60 tracking-widest uppercase mb-2">Email</label>
               <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="your@email.com"
-                className="w-full bg-transparent border border-black/10 px-4 py-3 text-black text-sm font-light placeholder-black/20 focus:outline-none focus:border-black/30 transition-colors"
+                className="w-full bg-white/3 border border-white/10 px-4 py-3 text-white text-sm font-light placeholder-white/20 focus:outline-none focus:border-purple-500/50 focus:bg-purple-500/5 transition-all"
               />
             </div>
             <div>
-              <label className="block text-xs text-black/30 tracking-widest uppercase mb-2">Message</label>
+              <label className="block text-xs text-purple-400/60 tracking-widest uppercase mb-2">Message</label>
               <textarea required rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
                 placeholder="Tell me about the opportunity..."
-                className="w-full bg-transparent border border-black/10 px-4 py-3 text-black text-sm font-light placeholder-black/20 focus:outline-none focus:border-black/30 transition-colors resize-none"
+                className="w-full bg-white/3 border border-white/10 px-4 py-3 text-white text-sm font-light placeholder-white/20 focus:outline-none focus:border-purple-500/50 focus:bg-purple-500/5 transition-all resize-none"
               />
             </div>
             <button type="submit" disabled={status === "sending"}
-              className="w-full py-3 text-sm tracking-widest uppercase bg-black text-white hover:bg-black/80 disabled:opacity-50 transition-colors"
+              className="w-full py-3 text-sm tracking-widest uppercase font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 disabled:opacity-50 transition-all shadow-lg shadow-purple-900/30"
             >
-              {status === "sending" ? "Sending..." : status === "sent" ? "Message Sent" : status === "error" ? "Failed — Try Again" : "Send Message"}
+              {status === "sending" ? "Sending..." : status === "sent" ? "✓ Message Sent" : status === "error" ? "Failed — Try Again" : "Send Message"}
             </button>
           </form>
         </motion.div>

@@ -36,11 +36,12 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/95 backdrop-blur-sm border-b border-black/8" : "bg-transparent"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-[#050508]/95 backdrop-blur-md border-b border-white/8" : "bg-transparent"}`}>
       <div className="max-w-5xl mx-auto px-6 sm:px-8 flex items-center justify-between h-14">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="font-light text-sm tracking-[0.2em] uppercase text-black/50 hover:text-black transition-colors"
+          className="font-bold text-sm tracking-[0.2em] uppercase text-white/70 hover:text-white transition-colors"
+          style={{ fontFamily: "'Sora', sans-serif" }}
         >
           Akash Singh
         </button>
@@ -50,15 +51,22 @@ export default function Navbar() {
             <button
               key={l}
               onClick={() => scrollTo(l)}
-              className={`text-xs tracking-widest uppercase transition-colors ${active === l.toLowerCase() ? "text-black" : "text-black/35 hover:text-black/70"}`}
+              className={`text-xs tracking-widest uppercase transition-all duration-200 ${
+                active === l.toLowerCase()
+                  ? "text-white font-semibold"
+                  : "text-white/35 hover:text-white/80"
+              }`}
             >
+              {active === l.toLowerCase() && (
+                <span className="inline-block w-1 h-1 rounded-full bg-purple-500 mr-1.5 mb-0.5" />
+              )}
               {l}
             </button>
           ))}
           <a
             href="/sky.pdf"
             download
-            className="text-xs tracking-widest uppercase text-white bg-black px-4 py-1.5 hover:bg-black/80 transition-colors"
+            className="text-xs tracking-widest uppercase text-white bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-1.5 hover:from-purple-500 hover:to-blue-500 transition-all rounded-sm font-semibold"
           >
             Resume
           </a>
@@ -69,24 +77,24 @@ export default function Navbar() {
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
-          <span className={`block w-5 h-px bg-black transition-all duration-200 ${open ? "rotate-45 translate-y-[7px]" : ""}`} />
-          <span className={`block w-5 h-px bg-black transition-all duration-200 ${open ? "opacity-0" : ""}`} />
-          <span className={`block w-5 h-px bg-black transition-all duration-200 ${open ? "-rotate-45 -translate-y-[7px]" : ""}`} />
+          <span className={`block w-5 h-px bg-white transition-all duration-200 ${open ? "rotate-45 translate-y-[7px]" : ""}`} />
+          <span className={`block w-5 h-px bg-white transition-all duration-200 ${open ? "opacity-0" : ""}`} />
+          <span className={`block w-5 h-px bg-white transition-all duration-200 ${open ? "-rotate-45 -translate-y-[7px]" : ""}`} />
         </button>
       </div>
 
       {open && (
-        <div className="md:hidden bg-white border-t border-black/8 px-6 py-5 flex flex-col gap-4">
+        <div className="md:hidden bg-[#050508]/98 border-t border-white/8 px-6 py-5 flex flex-col gap-4">
           {links.map((l) => (
             <button
               key={l}
               onClick={() => scrollTo(l)}
-              className="text-left text-xs tracking-widest uppercase text-black/40 hover:text-black transition-colors"
+              className="text-left text-xs tracking-widest uppercase text-white/50 hover:text-white transition-colors"
             >
               {l}
             </button>
           ))}
-          <a href="/sky.pdf" download className="text-xs tracking-widest uppercase text-white bg-black px-4 py-2 text-center mt-1">
+          <a href="/sky.pdf" download className="text-xs tracking-widest uppercase text-white bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 text-center mt-1 rounded-sm font-semibold">
             Download Resume
           </a>
         </div>
