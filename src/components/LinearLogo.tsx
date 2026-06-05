@@ -26,19 +26,23 @@ function spherePoints(n: number, r: number, jitter: number): Float32Array {
 function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,number]> }) {
   const SPHERE_N = 4800;
   const BG_N     = 600;
-  const TOTAL    = SPHERE_N + BG_N;
+  const CIRCLE_N = 800;  // new: white circle-orbit particles
+  const TOTAL    = SPHERE_N + BG_N + CIRCLE_N;
 
   const matRef  = useRef<THREE.ShaderMaterial>(null);
   const geoRef  = useRef<THREE.BufferGeometry>(null);
 
   // Per-particle data
-  const { positions, phases, speeds, sizes, isSphere, stripeExclude } = useMemo(() => {
+  const { positions, phases, speeds, sizes, isSphere, stripeExclude, orbitR, orbitSpeed, isCircle } = useMemo(() => {
     const positions     = new Float32Array(TOTAL * 3);
-    const phases        = new Float32Array(TOTAL);   // sparkle phase offset
-    const speeds        = new Float32Array(TOTAL);   // sparkle speed
-    const sizes         = new Float32Array(TOTAL);   // base size
-    const isSphere      = new Float32Array(TOTAL);   // 1=sphere, 0=bg
-    const stripeExclude = new Float32Array(TOTAL);   // 1=inside stripe (hidden)
+    const phases        = new Float32Array(TOTAL);
+    const speeds        = new Float32Array(TOTAL);
+    const sizes         = new Float32Array(TOTAL);
+    const isSphere      = new Float32Array(TOTAL);
+    const stripeExclude = new Float32Array(TOTAL);
+    const orbitR        = new Float32Array(TOTAL);  // orbit radius for circle particles
+    const orbitSpeed    = new Float32Array(TOTAL);  // orbit speed direction +/-
+    const isCircle      = new Float32Array(TOTAL);  // 1=circle orbit particle
 
     // Sphere dots
     const spts = spherePoints(SPHERE_N, 1.0, 0.045);
@@ -76,7 +80,35 @@ function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,num
       stripeExclude[idx] = 0.0;
     }
 
-    return { positions, phases, speeds, sizes, isSphere, stripeExclude };
+    // Circle-orbit white particles — multiple rings
+    const rings = [
+      { r: 1.28, count: 160, size: 0.009, spd: 0.28 },
+      { r: 1.52, count: 200, size: 0.007, spd: -0.18 },
+      { r: 1.78, count: 240, size: 0.006, spd: 0.12 },
+      { r: 2.05, count: 200, size: 0.005, spd: -0.08 },
+    ];
+    let ci = 0;
+    for (const ring of rings) {
+      for (let k = 0; k < ring.count; k++) {
+        const idx = SPHERE_N + BG_N + ci;
+        const angle = (k / ring.count) * Math.PI * 2 + Math.random() * 0.3;
+        // initial position on ring
+        positions[idx*3]   = Math.cos(angle) * ring.r;
+        positions[idx*3+1] = Math.sin(angle) * ring.r;
+        positions[idx*3+2] = (Math.random() - 0.5) * 0.12;
+        phases[idx]     = angle;           // use as initial angle
+        speeds[idx]     = 0.4 + Math.random() * 1.8;
+        sizes[idx]      = ring.size * (0.7 + Math.random() * 0.6);
+        isSphere[idx]   = 0.0;
+        isCircle[idx]   = 1.0;
+        orbitR[idx]     = ring.r + (Math.random() - 0.5) * 0.08;
+        orbitSpeed[idx] = ring.spd * (0.7 + Math.random() * 0.6);
+        stripeExclude[idx] = 0.0;
+        ci++;
+      }
+    }
+
+    return { positions, phases, speeds, sizes, isSphere, stripeExclude, orbitR, orbitSpeed, isCircle };
   }, []);
 
   const uniforms = useMemo(() => ({
@@ -92,8 +124,6 @@ function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,num
     matRef.current.uniforms.uTime.value    = t;
     matRef.current.uniforms.uBreath.value  = 1.0 + Math.sin(t * 0.55) * 0.018 + Math.sin(t * 0.23) * 0.007;
     matRef.current.uniforms.uResolution.value.set(size.width, size.height);
-
-    // Smooth mouse
     const tx = (mouse.current[0] / size.width  - 0.5) * 2.2;
     const ty = -(mouse.current[1] / size.height - 0.5) * 2.2;
     matRef.current.uniforms.uMouse.value.x += (tx - matRef.current.uniforms.uMouse.value.x) * 0.05;
@@ -109,6 +139,9 @@ function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,num
         <bufferAttribute attach="attributes-aSize"         args={[sizes,         1]} />
         <bufferAttribute attach="attributes-aIsSphere"     args={[isSphere,      1]} />
         <bufferAttribute attach="attributes-aStripe"       args={[stripeExclude, 1]} />
+        <bufferAttribute attach="attributes-aIsCircle"     args={[isCircle,      1]} />
+        <bufferAttribute attach="attributes-aOrbitR"       args={[orbitR,        1]} />
+        <bufferAttribute attach="attributes-aOrbitSpeed"   args={[orbitSpeed,    1]} />
       </bufferGeometry>
       <shaderMaterial
         ref={matRef}
@@ -122,6 +155,9 @@ function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,num
           attribute float aSize;
           attribute float aIsSphere;
           attribute float aStripe;
+          attribute float aIsCircle;
+          attribute float aOrbitR;
+          attribute float aOrbitSpeed;
 
           uniform float uTime;
           uniform float uBreath;
@@ -131,55 +167,60 @@ function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,num
           varying float vBright;
           varying float vIsSphere;
           varying float vStripe;
+          varying float vIsCircle;
 
-          // fast hash
           float hash(float n){ return fract(sin(n)*43758.5453); }
-          float hash2(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
 
           void main(){
             vec3 pos = position;
 
-            // ── Sphere breathing ──────────────────────────
-            if(aIsSphere > 0.5){
+            // ── Circle orbit particles ────────────────────
+            if(aIsCircle > 0.5){
+              float angle = aPhase + uTime * aOrbitSpeed;
+              pos.x = cos(angle) * aOrbitR;
+              pos.y = sin(angle) * aOrbitR;
+              // slight vertical bob
+              pos.y += sin(uTime * aSpeed * 0.3 + aPhase * 2.0) * 0.04;
+              pos.z = position.z;
+
+              // Mouse subtle warp on orbit
+              vec2 toM   = pos.xy - uMouse * 0.5;
+              float mStr = smoothstep(1.5, 0.0, length(toM)) * 0.06;
+              pos.xy    += normalize(toM + 0.001) * mStr;
+
+            } else if(aIsSphere > 0.5){
               pos *= uBreath;
-
-              // Subtle drift on sphere surface
               float driftAmp = 0.008;
-              float driftX = sin(uTime * aSpeed * 0.4 + aPhase * 2.1) * driftAmp;
-              float driftY = cos(uTime * aSpeed * 0.35 + aPhase * 3.3) * driftAmp;
-              pos.x += driftX;
-              pos.y += driftY;
-
-              // Mouse magnetic repulsion
+              pos.x += sin(uTime * aSpeed * 0.4 + aPhase * 2.1) * driftAmp;
+              pos.y += cos(uTime * aSpeed * 0.35 + aPhase * 3.3) * driftAmp;
               vec2  toM  = pos.xy - uMouse * 0.45;
               float mDist = length(toM);
               float mStr  = smoothstep(0.7, 0.0, mDist) * 0.055;
               pos.xy += normalize(toM + 0.001) * mStr;
             } else {
-              // Background dots drift slowly
               pos.x += sin(uTime * aSpeed * 0.2 + aPhase) * 0.06;
               pos.y += cos(uTime * aSpeed * 0.15 + aPhase * 1.7) * 0.06;
             }
 
             // ── Sparkle lifecycle ─────────────────────────
-            // Each dot has its own phase; cycle through appear→bright→fade
             float cycle  = mod(uTime * aSpeed + aPhase, 6.2832);
             float appear = smoothstep(0.0, 1.0, cycle / 1.5);
             float fade   = 1.0 - smoothstep(4.5, 6.2832, cycle);
             float alpha  = appear * fade;
-
-            // Flicker: high-freq shimmer
             float flicker = 0.78 + 0.22 * sin(uTime * aSpeed * 8.0 + aPhase * 11.0);
-
-            // Brightness variation: white → light gray → dark gray
             float bright = 0.45 + 0.55 * (0.5 + 0.5 * sin(uTime * aSpeed * 1.5 + aPhase));
 
-            vAlpha    = alpha * flicker * (aIsSphere > 0.5 ? 0.92 : 0.35);
-            vBright   = bright;
+            // Circle particles: pure white, always slightly visible
+            float baseAlpha = aIsCircle > 0.5
+              ? (0.55 + 0.45 * alpha) * flicker
+              : alpha * flicker * (aIsSphere > 0.5 ? 0.92 : 0.35);
+
+            vAlpha    = baseAlpha;
+            vBright   = aIsCircle > 0.5 ? 0.85 + 0.15 * bright : bright;
             vIsSphere = aIsSphere;
             vStripe   = aStripe;
+            vIsCircle = aIsCircle;
 
-            // Point size: world-space size
             vec4 mv      = modelViewMatrix * vec4(pos, 1.0);
             gl_PointSize = aSize * 380.0 / -mv.z;
             gl_Position  = projectionMatrix * mv;
@@ -190,24 +231,24 @@ function SparkleParticles({ mouse }: { mouse: React.MutableRefObject<[number,num
           varying float vBright;
           varying float vIsSphere;
           varying float vStripe;
+          varying float vIsCircle;
 
           void main(){
-            // Hide stripe-masked sphere dots
             if(vIsSphere > 0.5 && vStripe > 0.5) discard;
 
             vec2  uv = gl_PointCoord - 0.5;
             float d  = length(uv);
             if(d > 0.5) discard;
 
-            // Soft disc with bright core (sparkle look)
             float core  = 1.0 - smoothstep(0.0, 0.18, d);
             float glow  = 1.0 - smoothstep(0.0, 0.50, d);
             float shape = core * 0.85 + glow * 0.35;
 
-            // Map brightness to our palette:
-            // 1.0 = #FFFFFF, 0.65 = #B0B0B0, 0.25 = #404040
-            float shade = mix(0.25, 1.0, vBright);
-            vec3  col   = vec3(shade);
+            // Circle particles are pure bright white
+            float shade = vIsCircle > 0.5
+              ? mix(0.75, 1.0, vBright)
+              : mix(0.25, 1.0, vBright);
+            vec3 col = vec3(shade);
 
             gl_FragColor = vec4(col, shape * vAlpha);
           }
