@@ -60,7 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           crossOrigin="anonymous"
         />
       </head>
-      <body className="bg-black text-white font-inter antialiased">{children}</body>
+      <body className="bg-white text-black font-inter antialiased">{children}</body>
     </html>
   );
 }

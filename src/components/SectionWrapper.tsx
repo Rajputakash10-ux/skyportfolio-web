@@ -6,8 +6,7 @@ export default function SectionWrapper({ id, children, className = "" }: { id: s
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.07 });
   return (
     <motion.section
-      id={id}
-      ref={ref}
+      id={id} ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, ease: "easeOut" }}
@@ -21,9 +20,9 @@ export default function SectionWrapper({ id, children, className = "" }: { id: s
 export function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-14">
-      <div className="w-8 h-px bg-white mb-6" />
-      <h2 className="font-light text-3xl sm:text-4xl text-white tracking-tight mb-3">{title}</h2>
-      {subtitle && <p className="text-white/40 text-sm font-light max-w-md">{subtitle}</p>}
+      <div className="w-8 h-px bg-black mb-6" />
+      <h2 className="font-light text-3xl sm:text-4xl text-black tracking-tight mb-3">{title}</h2>
+      {subtitle && <p className="text-black/40 text-sm font-light max-w-md">{subtitle}</p>}
     </div>
   );
 }

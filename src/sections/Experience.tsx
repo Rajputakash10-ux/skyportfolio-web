@@ -17,16 +17,16 @@ export default function Experience() {
             initial={{ opacity: 0, y: 12 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.4, delay: i * 0.08 }}
-            className="border border-white/8 p-6 hover:border-white/20 transition-colors group"
+            className="border border-black/8 p-6 hover:border-black/20 transition-colors group"
           >
             <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
               <div>
-                <h3 className="text-white font-light text-base tracking-tight">{e.company}</h3>
-                <p className="text-white/40 text-xs mt-0.5 tracking-wide">{e.role}</p>
+                <h3 className="text-black font-light text-base tracking-tight">{e.company}</h3>
+                <p className="text-black/40 text-xs mt-0.5 tracking-wide">{e.role}</p>
               </div>
-              <span className="text-white/25 text-xs tracking-widest">{e.period}</span>
+              <span className="text-black/25 text-xs tracking-widest">{e.period}</span>
             </div>
-            <p className="text-white/40 text-sm font-light leading-relaxed">{e.description}</p>
+            <p className="text-black/45 text-sm font-light leading-relaxed">{e.description}</p>
           </motion.div>
         ))}
       </div>
