@@ -1,273 +1,375 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, useEffect, useMemo } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import { motion } from "framer-motion";
 
-const SP_VERT = `
-precision highp float;
-attribute vec2  aPos;
-attribute float aPhase;
-attribute float aSpeed;
-attribute float aSize;
-attribute float aDist;
+// ─── Inline simplex noise (no external dep) ────────────────────────────────
+// Compact 3D simplex noise by Ian McEwan, Ashima Arts (MIT)
+const SIMPLEX_GLSL = /* glsl */`
+vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+vec4 permute(vec4 x){return mod289(((x*34.)+1.)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+float snoise(vec3 v){
+  const vec2 C=vec2(1./6.,1./3.);
+  const vec4 D=vec4(0.,.5,1.,2.);
+  vec3 i=floor(v+dot(v,C.yyy));
+  vec3 x0=v-i+dot(i,C.xxx);
+  vec3 g=step(x0.yzx,x0.xyz);
+  vec3 l=1.-g;
+  vec3 i1=min(g.xyz,l.zxy);
+  vec3 i2=max(g.xyz,l.zxy);
+  vec3 x1=x0-i1+C.xxx;
+  vec3 x2=x0-i2+C.yyy;
+  vec3 x3=x0-D.yyy;
+  i=mod289(i);
+  vec4 p=permute(permute(permute(
+    i.z+vec4(0.,i1.z,i2.z,1.))
+   +i.y+vec4(0.,i1.y,i2.y,1.))
+   +i.x+vec4(0.,i1.x,i2.x,1.));
+  float n_=.142857142857;
+  vec3 ns=n_*D.wyz-D.xzx;
+  vec4 j=p-49.*floor(p*ns.z*ns.z);
+  vec4 x_=floor(j*ns.z);
+  vec4 y_=floor(j-7.*x_);
+  vec4 x=x_*ns.x+ns.yyyy;
+  vec4 y=y_*ns.x+ns.yyyy;
+  vec4 h=1.-abs(x)-abs(y);
+  vec4 b0=vec4(x.xy,y.xy);
+  vec4 b1=vec4(x.zw,y.zw);
+  vec4 s0=floor(b0)*2.+1.;
+  vec4 s1=floor(b1)*2.+1.;
+  vec4 sh=-step(h,vec4(0.));
+  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;
+  vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+  vec3 p0=vec3(a0.xy,h.x);
+  vec3 p1=vec3(a0.zw,h.y);
+  vec3 p2=vec3(a1.xy,h.z);
+  vec3 p3=vec3(a1.zw,h.w);
+  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+  p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+  vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);
+  m=m*m;
+  return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}`;
+
+// ─── Vertex shader ──────────────────────────────────────────────────────────
+const VERT = /* glsl */`
+${SIMPLEX_GLSL}
+
+attribute vec3  aOffset;   // x,y = base position (NDC-ish), z = zone (0=bg,1=sphere)
+attribute float aPhase;    // random seed [0, 2π]
+attribute float aSpeed;    // drift speed multiplier
+attribute float aSize;     // base point size
+attribute float aDist;     // normalized distance from sphere center [0,1]
+attribute float aStripeT;  // 1 = in stripe zone (discarded), 0 = visible
+
 uniform float uTime;
-uniform float uBreath;
+uniform float uBreath;     // breathing scale 1.00–1.02
+uniform vec2  uMouse;      // NDC mouse [-1,1]
 uniform float uDpr;
-uniform vec2  uClick;    // NDC click position [-1,1]
-uniform float uStretch;  // 0..1 explosion amount
-uniform vec2  uMouse;    // NDC mouse [-1,1]
-varying float vA;
+
+varying float vAlpha;
 varying float vBright;
-void main(){
-  vec2 p = aPos * uBreath;
+varying float vZone;       // 0=bg, 1=sphere
 
-  // organic drift
-  float amp = (0.002 + aSize*0.001)*(1.0-aDist*0.4);
-  float t = uTime*aSpeed;
-  p.x += sin(t*0.38+aPhase*2.1)*amp + sin(t*0.13+aPhase*5.7)*amp*0.3;
-  p.y += cos(t*0.33+aPhase*3.4)*amp + cos(t*0.11+aPhase*7.3)*amp*0.3;
-
-  // click stretch — particles fly outward from click point
-  if(uStretch > 0.001){
-    vec2  dir = p - uClick;
-    float d   = length(dir);
-    float falloff = 1.0 - smoothstep(0.0, 1.4, d);
-    float power = uStretch * falloff * (0.5 + (1.0-aDist)*0.8);
-    p += normalize(dir + vec2(0.0001)) * power * 0.9;
+void main() {
+  // Discard stripe particles completely
+  if (aStripeT > 0.5) {
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // off-screen
+    gl_PointSize = 0.0;
+    vAlpha = 0.0;
+    return;
   }
 
-  // mouse soft attract on hover
-  vec2  dm = p - uMouse;
-  float distM = length(dm);
-  if(distM < 0.4 && distM > 0.001){
-    float pull = (1.0 - distM/0.4) * 0.018;
-    p -= normalize(dm) * pull;
+  vec2 p = aOffset.xy * uBreath;
+  vZone  = aOffset.z;
+
+  // ── Simplex noise drift ──────────────────────────────────────────────────
+  float driftStr = (vZone > 0.5)
+    ? mix(0.008, 0.022, 1.0 - aDist)   // sphere: inner drifts more
+    : 0.018;                             // bg: medium drift
+
+  float t = uTime * aSpeed;
+  p.x += snoise(vec3(aOffset.xy * 2.0,       uTime * 0.28 + aPhase)) * driftStr;
+  p.y += snoise(vec3(aOffset.xy * 2.0 + 5.3, uTime * 0.28 + aPhase)) * driftStr;
+
+  // ── Mouse attraction ─────────────────────────────────────────────────────
+  vec2  toMouse = uMouse - p;
+  float mDist   = length(toMouse);
+  float pull    = smoothstep(0.38, 0.0, mDist) * 0.055;
+  if (mDist > 0.001) p += normalize(toMouse) * pull;
+
+  // ── Sparkle (per-particle sine flicker) ──────────────────────────────────
+  float sparkle = 0.4 + 0.6 * abs(sin(uTime * aSpeed * 0.9 + aPhase * 6.2831));
+
+  // ── Alpha: sphere edge fade + background dim ──────────────────────────────
+  float edgeFade = (vZone > 0.5) ? (1.0 - smoothstep(0.82, 1.0, aDist)) : 1.0;
+  float zoneDim  = (vZone > 0.5) ? 1.0 : 0.18;
+  vAlpha  = clamp(sparkle * edgeFade * zoneDim, 0.0, 1.0);
+  vBright = sparkle;
+
+  // ── Halftone density field ────────────────────────────────────────────────
+  // Dense at shadow (bottom-left hemisphere), sparse at highlight (top-right)
+  if (vZone > 0.5) {
+    vec2  centered = aOffset.xy;
+    // highlight = top-right → reduce alpha there
+    float highlight = dot(normalize(centered + 0.001), vec2(0.707, 0.707));
+    float htone = smoothstep(-0.2, 0.8, -highlight); // denser in shadow
+    vAlpha *= 0.4 + 0.6 * htone;
   }
 
-  float sp = 0.4+0.6*pow(0.5+0.5*sin(uTime*aSpeed*0.75+aPhase*6.28),2.0);
-  float cg = 1.0-smoothstep(0.0,0.55,aDist);
-  float edge = 1.0-smoothstep(0.48,0.98,aDist);
-  vA = clamp((sp+cg*0.3)*edge,0.0,1.0);
-  // brighten on stretch
-  vBright = 1.0 + uStretch * 1.5 * (1.0-aDist);
-
-  gl_Position  = vec4(p,0.0,1.0);
-  gl_PointSize = aSize*uDpr*(0.85+sp*0.2+cg*0.15) * (1.0 + uStretch*0.6*(1.0-aDist));
+  gl_Position  = vec4(p, 0.0, 1.0);
+  // Size: larger near center of sphere, smaller in bg
+  float sizeScale = (vZone > 0.5)
+    ? (0.85 + 0.6 * (1.0 - aDist) + 0.25 * sparkle)
+    : (0.4 + 0.2 * sparkle);
+  gl_PointSize = aSize * uDpr * sizeScale;
 }`;
 
-const SP_FRAG = `
+// ─── Fragment shader ─────────────────────────────────────────────────────────
+const FRAG = /* glsl */`
 precision highp float;
-varying float vA;
+varying float vAlpha;
 varying float vBright;
-void main(){
-  vec2  uv = gl_PointCoord-0.5;
-  float d  = dot(uv,uv);
-  if(d>0.25) discard;
-  float soft = 1.0-smoothstep(0.06,0.25,d);
-  gl_FragColor = vec4(min(vBright,1.0), min(vBright*0.95,1.0), 1.0, soft*vA);
+varying float vZone;
+
+void main() {
+  // Soft circle per point
+  vec2  uv = gl_PointCoord - 0.5;
+  float d  = dot(uv, uv);
+  if (d > 0.25) discard;
+  float soft = 1.0 - smoothstep(0.10, 0.25, d);
+
+  // Colour palette: sphere = pure white/near-white, bg = dim grey
+  float lum = (vZone > 0.5)
+    ? mix(0.80, 1.0, vBright)   // #CFCFCF → #FFFFFF
+    : mix(0.20, 0.35, vBright); // dim bg specks
+
+  gl_FragColor = vec4(lum, lum, lum, soft * vAlpha);
 }`;
 
-function inStripe(x: number, y: number) {
-  const proj = x*Math.cos(Math.PI*0.21) + y*Math.sin(Math.PI*0.21);
-  return ((proj%0.50)+0.50)%0.50 < 0.17;
+// ─── Stripe test: 3 diagonal bands at ~45° ────────────────────────────────
+function inStripe(x: number, y: number): boolean {
+  // Project onto diagonal axis (23° from horizontal to match Linear logo)
+  const angle = Math.PI * 0.22;
+  const proj  = x * Math.cos(angle) + y * Math.sin(angle);
+  // Three evenly-spaced stripes, period = 0.52, width = 0.155
+  const period = 0.52;
+  const width  = 0.155;
+  const mod    = ((proj % period) + period) % period;
+  return mod < width;
 }
 
-function buildSphere(COUNT: number) {
-  const S=Math.round(COUNT*2.6), phi=Math.PI*(3-Math.sqrt(5));
-  const pos=new Float32Array(COUNT*2), phase=new Float32Array(COUNT);
-  const speed=new Float32Array(COUNT), size=new Float32Array(COUNT);
-  const dist=new Float32Array(COUNT);
-  let n=0;
-  for(let i=0;i<S&&n<COUNT;i++){
-    const y=1-(i/(S-1))*2, rr=Math.sqrt(Math.max(0,1-y*y));
-    const nx=Math.cos(phi*i)*rr;
-    if(inStripe(nx,y)) continue;
-    const bx=nx+(Math.random()-0.5)*0.012, by=y+(Math.random()-0.5)*0.012;
-    const dc=Math.sqrt(bx*bx+by*by);
-    if(dc>0.98||Math.random()>1.0-dc*0.55+0.08) continue;
-    pos[n*2]=bx; pos[n*2+1]=by;
-    phase[n]=Math.random()*Math.PI*2;
-    speed[n]=0.2+Math.random()*1.5;
-    size[n]=(0.5+Math.random()*1.0)*(0.5+0.5*(1-dc));
-    dist[n]=dc; n++;
+// ─── Build particle attribute arrays ────────────────────────────────────────
+function buildParticles(count: number) {
+  const SPHERE_R  = 0.72;   // sphere radius in NDC
+  const CENTER_X  =  0.08;  // slight right offset (upper-right quadrant feel)
+  const CENTER_Y  =  0.05;
+
+  // We'll try to generate ~80% sphere, ~20% background
+  const sphereTarget = Math.round(count * 0.80);
+  const bgTarget     = count - sphereTarget;
+
+  const offsets  = new Float32Array(count * 3);
+  const phases   = new Float32Array(count);
+  const speeds   = new Float32Array(count);
+  const sizes    = new Float32Array(count);
+  const dists    = new Float32Array(count);
+  const stripes  = new Float32Array(count); // 1 = in stripe
+
+  let n = 0;
+
+  // ── Sphere particles (halftone / dot distribution) ───────────────────────
+  // Use Fibonacci sphere projected to disk for uniform distribution
+  const phi = Math.PI * (3 - Math.sqrt(5));
+  const S   = Math.round(sphereTarget * 4); // oversample to account for discards
+
+  for (let i = 0; i < S && n < sphereTarget; i++) {
+    // Uniform disk via fibonacci
+    const r   = Math.sqrt((i + 0.5) / S) * SPHERE_R;
+    const th  = phi * i;
+    const bx  = Math.cos(th) * r + CENTER_X + (Math.random() - 0.5) * 0.007;
+    const by  = Math.sin(th) * r + CENTER_Y + (Math.random() - 0.5) * 0.007;
+    const dc  = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2) / SPHERE_R;
+
+    if (dc > 1.0) continue;
+
+    // Halftone density: sparse at top-right highlight
+    const highlight = (bx - CENTER_X) * 0.6 + (by - CENTER_Y) * 0.6;
+    const density   = 0.55 + 0.45 * (-highlight / SPHERE_R + 0.5);
+    if (Math.random() > density) continue;
+
+    const isStripe = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
+
+    offsets[n * 3]     = bx;
+    offsets[n * 3 + 1] = by;
+    offsets[n * 3 + 2] = 1.0; // zone = sphere
+    phases[n]          = Math.random() * Math.PI * 2;
+    speeds[n]          = 0.25 + Math.random() * 1.4;
+    sizes[n]           = (0.6 + Math.random() * 1.0) * (0.5 + 0.5 * (1 - dc));
+    dists[n]           = dc;
+    stripes[n]         = isStripe;
+    n++;
   }
-  while(n<COUNT){
-    const a=Math.random()*Math.PI*2, rd=Math.sqrt(Math.random())*0.97;
-    const bx=Math.cos(a)*rd, by=Math.sin(a)*rd;
-    if(!inStripe(bx,by)){
-      pos[n*2]=bx; pos[n*2+1]=by;
-      phase[n]=Math.random()*Math.PI*2;
-      speed[n]=0.2+Math.random()*1.0;
-      const dc=Math.sqrt(bx*bx+by*by);
-      size[n]=(0.5+Math.random()*0.8)*(0.5+0.5*(1-dc));
-      dist[n]=dc; n++;
-    }
+
+  // Fill remaining sphere slots with random uniform
+  const sphereFilled = n;
+  while (n < sphereTarget) {
+    const th = Math.random() * Math.PI * 2;
+    const r  = Math.sqrt(Math.random()) * SPHERE_R * 0.99;
+    const bx = Math.cos(th) * r + CENTER_X;
+    const by = Math.sin(th) * r + CENTER_Y;
+    const dc = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2) / SPHERE_R;
+    const isStripe = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
+    offsets[n * 3]     = bx;
+    offsets[n * 3 + 1] = by;
+    offsets[n * 3 + 2] = 1.0;
+    phases[n]          = Math.random() * Math.PI * 2;
+    speeds[n]          = 0.2 + Math.random() * 1.2;
+    sizes[n]           = (0.4 + Math.random() * 0.8) * (0.5 + 0.5 * (1 - dc));
+    dists[n]           = dc;
+    stripes[n]         = isStripe;
+    n++;
   }
-  return {pos,phase,speed,size,dist};
+  void sphereFilled;
+
+  // ── Background particles ─────────────────────────────────────────────────
+  const bgEnd = n + bgTarget;
+  while (n < bgEnd) {
+    const bx = (Math.random() - 0.5) * 1.9;
+    const by = (Math.random() - 0.5) * 1.9;
+    // Skip if inside sphere (background should surround it)
+    const dc = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2);
+    if (dc < SPHERE_R * 1.05) { continue; }
+    offsets[n * 3]     = bx;
+    offsets[n * 3 + 1] = by;
+    offsets[n * 3 + 2] = 0.0; // zone = background
+    phases[n]          = Math.random() * Math.PI * 2;
+    speeds[n]          = 0.1 + Math.random() * 0.6;
+    sizes[n]           = 0.3 + Math.random() * 0.5;
+    dists[n]           = 0.5;
+    stripes[n]         = 0;
+    n++;
+  }
+
+  return { offsets, phases, speeds, sizes, dists, stripes, count: n };
 }
 
-function mk(gl: WebGLRenderingContext, t: number, src: string){ const s=gl.createShader(t)!; gl.shaderSource(s,src); gl.compileShader(s); return s; }
-function mkProg(gl: WebGLRenderingContext, vs: string, fs: string){ const p=gl.createProgram()!; gl.attachShader(p,mk(gl,gl.VERTEX_SHADER,vs)); gl.attachShader(p,mk(gl,gl.FRAGMENT_SHADER,fs)); gl.linkProgram(p); return p; }
-function mkBuf(gl: WebGLRenderingContext, data: Float32Array){ const b=gl.createBuffer()!; gl.bindBuffer(gl.ARRAY_BUFFER,b); gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); return b; }
-function bind(gl: WebGLRenderingContext, prog: WebGLProgram, name: string, buf: WebGLBuffer, sz: number){ const l=gl.getAttribLocation(prog,name); if(l<0)return; gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0); }
+// ─── Inner R3F component ─────────────────────────────────────────────────────
+function ParticleField({ count }: { count: number }) {
+  const meshRef    = useRef<THREE.Points>(null);
+  const matRef     = useRef<THREE.ShaderMaterial>(null);
+  const mouseRef   = useRef<[number, number]>([9, 9]);
+  const { gl, size } = useThree();
 
-function useWebGL(size: number) {
-  const ref       = useRef<HTMLCanvasElement>(null);
-  const fId       = useRef(0);
-  const stretch   = useRef(0);      // current stretch amount 0..1
-  const stretchV  = useRef(0);      // velocity for spring
-  const clickNDC  = useRef<[number,number]>([0,0]);
-  const mouseNDC  = useRef<[number,number]>([9,9]);
-  const pressing  = useRef(false);
+  // Build geometry once
+  const geo = useMemo(() => {
+    const data = buildParticles(count);
+    const g    = new THREE.BufferGeometry();
+    g.setAttribute("aOffset",  new THREE.BufferAttribute(data.offsets, 3));
+    g.setAttribute("aPhase",   new THREE.BufferAttribute(data.phases,  1));
+    g.setAttribute("aSpeed",   new THREE.BufferAttribute(data.speeds,  1));
+    g.setAttribute("aSize",    new THREE.BufferAttribute(data.sizes,   1));
+    g.setAttribute("aDist",    new THREE.BufferAttribute(data.dists,   1));
+    g.setAttribute("aStripeT", new THREE.BufferAttribute(data.stripes, 1));
+    return g;
+  }, [count]);
 
-  // spring constants
-  const STIFF = 180, DAMP = 18;
+  // Shader material
+  const mat = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader:   VERT,
+    fragmentShader: FRAG,
+    transparent:    true,
+    depthWrite:     false,
+    depthTest:      false,
+    blending:       THREE.AdditiveBlending,
+    uniforms: {
+      uTime:   { value: 0 },
+      uBreath: { value: 1.0 },
+      uMouse:  { value: new THREE.Vector2(9, 9) },
+      uDpr:    { value: Math.min(window.devicePixelRatio || 1, 2) },
+    },
+  }), []);
 
-  useEffect(()=>{
-    const canvas = ref.current; if(!canvas) return;
-    const DPR = Math.min(window.devicePixelRatio||1,2), W = size*DPR;
-    canvas.width = canvas.height = W;
-    canvas.style.width = canvas.style.height = `${size}px`;
-
-    const gl = canvas.getContext("webgl",{alpha:true,premultipliedAlpha:false,antialias:false,powerPreference:"high-performance"}) as WebGLRenderingContext|null;
-    if(!gl) return;
-    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-
-    const isMob = window.innerWidth < 768;
-    const SP_N  = isMob ? 300_000 : 3_000_000;
-
-    const prog = mkProg(gl, SP_VERT, SP_FRAG);
-    const data = buildSphere(SP_N);
-    const bufs = {
-      pos:   mkBuf(gl,data.pos),   phase: mkBuf(gl,data.phase),
-      speed: mkBuf(gl,data.speed), size:  mkBuf(gl,data.size),
-      dist:  mkBuf(gl,data.dist),
+  // Mouse tracking — forwarded from parent via ref
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const onMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const nx   = ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+      const ny   = -(((e.clientY - rect.top)  / rect.height) * 2 - 1);
+      mouseRef.current = [nx, ny];
     };
-    const u = {
-      time:    gl.getUniformLocation(prog,"uTime"),
-      breath:  gl.getUniformLocation(prog,"uBreath"),
-      dpr:     gl.getUniformLocation(prog,"uDpr"),
-      click:   gl.getUniformLocation(prog,"uClick"),
-      stretch: gl.getUniformLocation(prog,"uStretch"),
-      mouse:   gl.getUniformLocation(prog,"uMouse"),
+    const onLeave = () => { mouseRef.current = [9, 9]; };
+    canvas.addEventListener("mousemove", onMove);
+    canvas.addEventListener("mouseleave", onLeave);
+    return () => {
+      canvas.removeEventListener("mousemove", onMove);
+      canvas.removeEventListener("mouseleave", onLeave);
     };
-    gl.useProgram(prog); gl.uniform1f(u.dpr,DPR);
+  }, [gl]);
 
-    let last = 0, start = 0;
-    const draw = (ts: number) => {
-      const dt = Math.min((ts-last)*0.001, 0.05); last = ts;
-      if(!start) start = ts;
-      const t = (ts-start)*0.001;
+  useFrame(({ clock }) => {
+    if (!matRef.current) return;
+    const t = clock.getElapsedTime();
+    matRef.current.uniforms.uTime.value   = t;
+    matRef.current.uniforms.uMouse.value.set(mouseRef.current[0], mouseRef.current[1]);
+    // Breathing: driven by parent Framer Motion scale, but also do a gentle internal pulse
+    const breath = 1.0 + Math.sin(t * 0.38) * 0.009 + Math.sin(t * 0.17) * 0.004;
+    matRef.current.uniforms.uBreath.value = breath;
+  });
 
-      // spring physics for stretch
-      const target = pressing.current ? 1.0 : 0.0;
-      const force  = (target - stretch.current) * STIFF - stretchV.current * DAMP;
-      stretchV.current  += force * dt;
-      stretch.current   += stretchV.current * dt;
-      stretch.current    = Math.max(0, Math.min(1.2, stretch.current));
-
-      gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT); gl.viewport(0,0,W,W);
-      const br = 1 + Math.sin(t*0.55)*0.015 + Math.sin(t*0.21)*0.006;
-      gl.useProgram(prog);
-      gl.uniform1f(u.time,   t);
-      gl.uniform1f(u.breath, br);
-      gl.uniform1f(u.stretch, stretch.current);
-      gl.uniform2f(u.click,  clickNDC.current[0], clickNDC.current[1]);
-      gl.uniform2f(u.mouse,  mouseNDC.current[0], mouseNDC.current[1]);
-      bind(gl,prog,"aPos",  bufs.pos,  2); bind(gl,prog,"aPhase",bufs.phase,1);
-      bind(gl,prog,"aSpeed",bufs.speed,1); bind(gl,prog,"aSize", bufs.size, 1);
-      bind(gl,prog,"aDist", bufs.dist, 1);
-      gl.drawArrays(gl.POINTS,0,SP_N);
-      fId.current = requestAnimationFrame(draw);
-    };
-    fId.current = requestAnimationFrame(draw);
-    return ()=>{ cancelAnimationFrame(fId.current); Object.values(bufs).forEach(b=>gl.deleteBuffer(b)); gl.deleteProgram(prog); };
-  },[size]);
-
-  // convert canvas pixel coords → NDC [-1,1]
-  const toNDC = (cx: number, cy: number, rect: DOMRect): [number,number] => [
-    ((cx-rect.left)/rect.width)*2-1,
-    -(((cy-rect.top)/rect.height)*2-1),
-  ];
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    mouseNDC.current = toNDC(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
-  };
-  const onMouseLeave = () => { mouseNDC.current = [9,9]; };
-
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    pressing.current = true;
-    clickNDC.current = toNDC(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
-  };
-  const onPointerUp   = () => { pressing.current = false; };
-
-  return { ref, onMouseMove, onMouseLeave, onPointerDown, onPointerUp };
-}
-
-export default function LinearLogo({ size=160 }: { size?: number }) {
-  const { ref, onMouseMove, onMouseLeave, onPointerDown, onPointerUp } = useWebGL(size);
-  const mx = useMotionValue(0), my = useMotionValue(0);
-  const sx = useSpring(mx,{stiffness:60,damping:20});
-  const sy = useSpring(my,{stiffness:60,damping:20});
-  const rotateX = useTransform(sy,[-0.5,0.5],["8deg","-8deg"]);
-  const rotateY = useTransform(sx,[-0.5,0.5],["-8deg","8deg"]);
-
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX-r.left-r.width/2)/r.width);
-    my.set((e.clientY-r.top-r.height/2)/r.height);
-    onMouseMove(e);
-  };
-  const onLeave = () => { mx.set(0); my.set(0); onMouseLeave(); };
-
-  const pad = 48;
+  void size;
 
   return (
+    <points ref={meshRef} geometry={geo} material={mat}>
+      <primitive object={mat} ref={matRef} attach="material" />
+    </points>
+  );
+}
+
+// ─── Exported component ──────────────────────────────────────────────────────
+export default function LinearLogo({ size = 320 }: { size?: number }) {
+  // Adaptive particle count
+  const count = useMemo(() => {
+    if (typeof window === "undefined") return 30_000;
+    const mobile  = window.innerWidth < 768;
+    const lowEnd  = (navigator.hardwareConcurrency ?? 4) <= 4;
+    if (mobile)  return lowEnd ? 8_000 : 12_000;
+    return lowEnd ? 30_000 : 48_000;
+  }, []);
+
+  return (
+    // Breathing: Framer Motion scale on the outer container
     <motion.div
-      className="relative select-none cursor-pointer"
-      style={{ width:size+pad*2, height:size+pad*2, perspective:700 }}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
+      className="relative"
+      style={{ width: size, height: size }}
+      animate={{ scale: [1.0, 1.02, 1.0] }}
+      transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
     >
-      {/* Orbit ring 1 */}
-      <motion.div
-        className="absolute inset-0 rounded-full border border-white/8"
-        animate={{ rotate:360 }}
-        transition={{ duration:18, repeat:Infinity, ease:"linear" }}
-        style={{ margin:4 }}
+      {/* Black rounded square background */}
+      <div
+        className="absolute inset-0 rounded-[28px] overflow-hidden"
+        style={{ background: "#000000" }}
       >
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white/50" />
-      </motion.div>
-
-      {/* Orbit ring 2 */}
-      <motion.div
-        className="absolute inset-0 rounded-full border border-white/5"
-        animate={{ rotate:-360 }}
-        transition={{ duration:30, repeat:Infinity, ease:"linear" }}
-        style={{ margin:-8 }}
-      >
-        <div className="absolute top-1/4 right-0 translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-purple-400/70" />
-        <div className="absolute bottom-1/4 left-0 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-400/70" />
-      </motion.div>
-
-      {/* Pulse glow */}
-      <motion.div
-        className="absolute rounded-full pointer-events-none"
-        style={{ inset:pad-8, background:"radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%)" }}
-        animate={{ scale:[1,1.1,1], opacity:[0.5,0.9,0.5] }}
-        transition={{ duration:3, repeat:Infinity, ease:"easeInOut" }}
-      />
-
-      {/* Canvas — 3D tilt */}
-      <motion.div
-        style={{ width:size, height:size, margin:pad, borderRadius:"50%", overflow:"hidden", rotateX, rotateY }}
-        initial={{ opacity:0, scale:0.8 }}
-        animate={{ opacity:1, scale:1 }}
-        transition={{ duration:1.2, ease:[0.22,1,0.36,1] }}
-      >
-        <canvas ref={ref} style={{ display:"block", width:size, height:size }} />
-      </motion.div>
+        <Canvas
+          gl={{
+            alpha: true,
+            antialias: false,
+            powerPreference: "high-performance",
+            stencil: false,
+            depth: false,
+          }}
+          dpr={[1, 2]}
+          camera={{ position: [0, 0, 1], near: 0.01, far: 10, fov: 90 }}
+          style={{ width: "100%", height: "100%" }}
+          frameloop="always"
+        >
+          <ParticleField count={count} />
+        </Canvas>
+      </div>
     </motion.div>
   );
 }
