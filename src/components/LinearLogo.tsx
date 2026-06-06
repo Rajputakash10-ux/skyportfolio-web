@@ -138,8 +138,8 @@ void main() {
   float soft = 1.0 - smoothstep(0.10, 0.25, d);
 
   float lum = (vZone > 0.5)
-    ? mix(0.80, 1.0,  vBright)
-    : mix(0.20, 0.35, vBright);
+    ? mix(0.95, 1.0,  vBright)
+    : mix(0.75, 1.0, vBright);
 
   gl_FragColor = vec4(lum, lum, lum, soft * vAlpha);
 }`;
