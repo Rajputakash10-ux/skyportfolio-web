@@ -5,7 +5,6 @@ import * as THREE from "three";
 import { motion } from "framer-motion";
 
 // ─── Inline simplex noise (no external dep) ────────────────────────────────
-// Compact 3D simplex noise by Ian McEwan, Ashima Arts (MIT)
 const SIMPLEX_GLSL = /* glsl */`
 vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
 vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
@@ -58,28 +57,28 @@ float snoise(vec3 v){
 const VERT = /* glsl */`
 ${SIMPLEX_GLSL}
 
-attribute vec3  aOffset;   // x,y = base position (NDC-ish), z = zone (0=bg,1=sphere)
-attribute float aPhase;    // random seed [0, 2π]
-attribute float aSpeed;    // drift speed multiplier
-attribute float aSize;     // base point size
-attribute float aDist;     // normalized distance from sphere center [0,1]
-attribute float aStripeT;  // 1 = in stripe zone (discarded), 0 = visible
+attribute vec3  aOffset;
+attribute float aPhase;
+attribute float aSpeed;
+attribute float aSize;
+attribute float aDist;
+attribute float aStripeT;
 
 uniform float uTime;
-uniform float uBreath;     // breathing scale 1.00–1.02
-uniform vec2  uMouse;      // NDC mouse [-1,1]
+uniform float uBreath;
+uniform vec2  uMouse;
 uniform float uDpr;
 
 varying float vAlpha;
 varying float vBright;
-varying float vZone;       // 0=bg, 1=sphere
+varying float vZone;
 
 void main() {
-  // Discard stripe particles completely
+  // Discard stripe particles — push off screen
   if (aStripeT > 0.5) {
-    gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // off-screen
+    gl_Position  = vec4(2.0, 2.0, 2.0, 1.0);
     gl_PointSize = 0.0;
-    vAlpha = 0.0;
+    vAlpha       = 0.0;
     return;
   }
 
@@ -88,10 +87,9 @@ void main() {
 
   // ── Simplex noise drift ──────────────────────────────────────────────────
   float driftStr = (vZone > 0.5)
-    ? mix(0.008, 0.022, 1.0 - aDist)   // sphere: inner drifts more
-    : 0.018;                             // bg: medium drift
+    ? mix(0.008, 0.022, 1.0 - aDist)
+    : 0.018;
 
-  float t = uTime * aSpeed;
   p.x += snoise(vec3(aOffset.xy * 2.0,       uTime * 0.28 + aPhase)) * driftStr;
   p.y += snoise(vec3(aOffset.xy * 2.0 + 5.3, uTime * 0.28 + aPhase)) * driftStr;
 
@@ -101,30 +99,28 @@ void main() {
   float pull    = smoothstep(0.38, 0.0, mDist) * 0.055;
   if (mDist > 0.001) p += normalize(toMouse) * pull;
 
-  // ── Sparkle (per-particle sine flicker) ──────────────────────────────────
+  // ── Sparkle ───────────────────────────────────────────────────────────────
   float sparkle = 0.4 + 0.6 * abs(sin(uTime * aSpeed * 0.9 + aPhase * 6.2831));
 
-  // ── Alpha: sphere edge fade + background dim ──────────────────────────────
+  // ── Alpha ─────────────────────────────────────────────────────────────────
   float edgeFade = (vZone > 0.5) ? (1.0 - smoothstep(0.82, 1.0, aDist)) : 1.0;
   float zoneDim  = (vZone > 0.5) ? 1.0 : 0.18;
   vAlpha  = clamp(sparkle * edgeFade * zoneDim, 0.0, 1.0);
   vBright = sparkle;
 
-  // ── Halftone density field ────────────────────────────────────────────────
-  // Dense at shadow (bottom-left hemisphere), sparse at highlight (top-right)
+  // ── Halftone density (shadow = dense, highlight = sparse) ─────────────────
   if (vZone > 0.5) {
-    vec2  centered = aOffset.xy;
-    // highlight = top-right → reduce alpha there
-    float highlight = dot(normalize(centered + 0.001), vec2(0.707, 0.707));
-    float htone = smoothstep(-0.2, 0.8, -highlight); // denser in shadow
-    vAlpha *= 0.4 + 0.6 * htone;
+    vec2  centered  = aOffset.xy;
+    float highlight = (centered.x + centered.y) / 1.41;
+    float htone     = smoothstep(-0.4, 0.6, -highlight);
+    vAlpha *= 0.35 + 0.65 * htone;
   }
 
-  gl_Position  = vec4(p, 0.0, 1.0);
-  // Size: larger near center of sphere, smaller in bg
+  gl_Position = vec4(p, 0.0, 1.0);
+
   float sizeScale = (vZone > 0.5)
     ? (0.85 + 0.6 * (1.0 - aDist) + 0.25 * sparkle)
-    : (0.4 + 0.2 * sparkle);
+    : (0.4  + 0.2 * sparkle);
   gl_PointSize = aSize * uDpr * sizeScale;
 }`;
 
@@ -136,26 +132,22 @@ varying float vBright;
 varying float vZone;
 
 void main() {
-  // Soft circle per point
   vec2  uv = gl_PointCoord - 0.5;
   float d  = dot(uv, uv);
   if (d > 0.25) discard;
   float soft = 1.0 - smoothstep(0.10, 0.25, d);
 
-  // Colour palette: sphere = pure white/near-white, bg = dim grey
   float lum = (vZone > 0.5)
-    ? mix(0.80, 1.0, vBright)   // #CFCFCF → #FFFFFF
-    : mix(0.20, 0.35, vBright); // dim bg specks
+    ? mix(0.80, 1.0,  vBright)
+    : mix(0.20, 0.35, vBright);
 
   gl_FragColor = vec4(lum, lum, lum, soft * vAlpha);
 }`;
 
-// ─── Stripe test: 3 diagonal bands at ~45° ────────────────────────────────
+// ─── Stripe test — fixed angle ~31.5° to match Linear logo ───────────────
 function inStripe(x: number, y: number): boolean {
-  // Project onto diagonal axis (23° from horizontal to match Linear logo)
-  const angle = Math.PI * 0.22;
-  const proj  = x * Math.cos(angle) + y * Math.sin(angle);
-  // Three evenly-spaced stripes, period = 0.52, width = 0.155
+  const angle  = Math.PI * 0.175; // ~31.5° (was 0.22 / ~39°)
+  const proj   = x * Math.cos(angle) + y * Math.sin(angle);
   const period = 0.52;
   const width  = 0.155;
   const mod    = ((proj % period) + period) % period;
@@ -164,65 +156,65 @@ function inStripe(x: number, y: number): boolean {
 
 // ─── Build particle attribute arrays ────────────────────────────────────────
 function buildParticles(count: number) {
-  const SPHERE_R  = 0.72;   // sphere radius in NDC
-  const CENTER_X  =  0.08;  // slight right offset (upper-right quadrant feel)
-  const CENTER_Y  =  0.05;
+  const SPHERE_R = 0.72;
+  const CENTER_X = 0.08;
+  const CENTER_Y = 0.05;
 
-  // We'll try to generate ~80% sphere, ~20% background
   const sphereTarget = Math.round(count * 0.80);
   const bgTarget     = count - sphereTarget;
 
-  const offsets  = new Float32Array(count * 3);
-  const phases   = new Float32Array(count);
-  const speeds   = new Float32Array(count);
-  const sizes    = new Float32Array(count);
-  const dists    = new Float32Array(count);
-  const stripes  = new Float32Array(count); // 1 = in stripe
+  const offsets = new Float32Array(count * 3);
+  const phases  = new Float32Array(count);
+  const speeds  = new Float32Array(count);
+  const sizes   = new Float32Array(count);
+  const dists   = new Float32Array(count);
+  const stripes = new Float32Array(count);
 
   let n = 0;
 
-  // ── Sphere particles (halftone / dot distribution) ───────────────────────
-  // Use Fibonacci sphere projected to disk for uniform distribution
+  // ── Sphere particles via Fibonacci spiral ────────────────────────────────
   const phi = Math.PI * (3 - Math.sqrt(5));
-  const S   = Math.round(sphereTarget * 4); // oversample to account for discards
+  const S   = Math.round(sphereTarget * 4);
 
   for (let i = 0; i < S && n < sphereTarget; i++) {
-    // Uniform disk via fibonacci
-    const r   = Math.sqrt((i + 0.5) / S) * SPHERE_R;
-    const th  = phi * i;
-    const bx  = Math.cos(th) * r + CENTER_X + (Math.random() - 0.5) * 0.007;
-    const by  = Math.sin(th) * r + CENTER_Y + (Math.random() - 0.5) * 0.007;
-    const dc  = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2) / SPHERE_R;
+    const r  = Math.sqrt((i + 0.5) / S) * SPHERE_R;
+    const th = phi * i;
+    const bx = Math.cos(th) * r + CENTER_X + (Math.random() - 0.5) * 0.007;
+    const by = Math.sin(th) * r + CENTER_Y + (Math.random() - 0.5) * 0.007;
+    const dc = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2) / SPHERE_R;
 
     if (dc > 1.0) continue;
 
-    // Halftone density: sparse at top-right highlight
-    const highlight = (bx - CENTER_X) * 0.6 + (by - CENTER_Y) * 0.6;
-    const density   = 0.55 + 0.45 * (-highlight / SPHERE_R + 0.5);
+    // FIX: clamped halftone density
+    const highlight = ((bx - CENTER_X) + (by - CENTER_Y)) / (SPHERE_R * 1.41);
+    const density   = Math.min(1.0, Math.max(0.1, 0.35 + 0.65 * (0.5 - highlight * 0.5)));
     if (Math.random() > density) continue;
-
-    const isStripe = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
 
     offsets[n * 3]     = bx;
     offsets[n * 3 + 1] = by;
-    offsets[n * 3 + 2] = 1.0; // zone = sphere
+    offsets[n * 3 + 2] = 1.0;
     phases[n]          = Math.random() * Math.PI * 2;
     speeds[n]          = 0.25 + Math.random() * 1.4;
     sizes[n]           = (0.6 + Math.random() * 1.0) * (0.5 + 0.5 * (1 - dc));
     dists[n]           = dc;
-    stripes[n]         = isStripe;
+    stripes[n]         = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
     n++;
   }
 
-  // Fill remaining sphere slots with random uniform
-  const sphereFilled = n;
+  // FIX: fallback loop also applies density rejection + safety counter
+  let attempts = 0;
   while (n < sphereTarget) {
+    if (++attempts > sphereTarget * 20) break; // safety
     const th = Math.random() * Math.PI * 2;
     const r  = Math.sqrt(Math.random()) * SPHERE_R * 0.99;
     const bx = Math.cos(th) * r + CENTER_X;
     const by = Math.sin(th) * r + CENTER_Y;
     const dc = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2) / SPHERE_R;
-    const isStripe = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
+
+    const highlight = ((bx - CENTER_X) + (by - CENTER_Y)) / (SPHERE_R * 1.41);
+    const density   = Math.min(1.0, Math.max(0.1, 0.35 + 0.65 * (0.5 - highlight * 0.5)));
+    if (Math.random() > density) continue;
+
     offsets[n * 3]     = bx;
     offsets[n * 3 + 1] = by;
     offsets[n * 3 + 2] = 1.0;
@@ -230,28 +222,31 @@ function buildParticles(count: number) {
     speeds[n]          = 0.2 + Math.random() * 1.2;
     sizes[n]           = (0.4 + Math.random() * 0.8) * (0.5 + 0.5 * (1 - dc));
     dists[n]           = dc;
-    stripes[n]         = isStripe;
+    stripes[n]         = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
     n++;
+    attempts = 0; // reset on success
   }
-  void sphereFilled;
 
-  // ── Background particles ─────────────────────────────────────────────────
+  // ── Background particles — FIX: safety counter ───────────────────────────
   const bgEnd = n + bgTarget;
+  let bgAttempts = 0;
   while (n < bgEnd) {
+    if (++bgAttempts > bgTarget * 20) break; // safety
     const bx = (Math.random() - 0.5) * 1.9;
     const by = (Math.random() - 0.5) * 1.9;
-    // Skip if inside sphere (background should surround it)
     const dc = Math.sqrt((bx - CENTER_X) ** 2 + (by - CENTER_Y) ** 2);
-    if (dc < SPHERE_R * 1.05) { continue; }
+    if (dc < SPHERE_R * 1.05) continue;
+
     offsets[n * 3]     = bx;
     offsets[n * 3 + 1] = by;
-    offsets[n * 3 + 2] = 0.0; // zone = background
+    offsets[n * 3 + 2] = 0.0;
     phases[n]          = Math.random() * Math.PI * 2;
     speeds[n]          = 0.1 + Math.random() * 0.6;
     sizes[n]           = 0.3 + Math.random() * 0.5;
     dists[n]           = 0.5;
     stripes[n]         = 0;
     n++;
+    bgAttempts = 0; // reset on success
   }
 
   return { offsets, phases, speeds, sizes, dists, stripes, count: n };
@@ -259,12 +254,18 @@ function buildParticles(count: number) {
 
 // ─── Inner R3F component ─────────────────────────────────────────────────────
 function ParticleField({ count }: { count: number }) {
-  const meshRef    = useRef<THREE.Points>(null);
-  const matRef     = useRef<THREE.ShaderMaterial>(null);
-  const mouseRef   = useRef<[number, number]>([9, 9]);
-  const { gl, size } = useThree();
+  // FIX: matRef typed correctly, no double-attach
+  const matRef   = useRef<THREE.ShaderMaterial>(null);
+  const mouseRef = useRef<[number, number]>([9, 9]);
+  const { gl }   = useThree();
 
-  // Build geometry once
+  // FIX: DPR in useMemo so it's stable
+  const dpr = useMemo(() => Math.min(
+    typeof window !== "undefined" ? window.devicePixelRatio : 1,
+    2
+  ), []);
+
+  // Build geometry once + dispose on unmount
   const geo = useMemo(() => {
     const data = buildParticles(count);
     const g    = new THREE.BufferGeometry();
@@ -276,6 +277,11 @@ function ParticleField({ count }: { count: number }) {
     g.setAttribute("aStripeT", new THREE.BufferAttribute(data.stripes, 1));
     return g;
   }, [count]);
+
+  // FIX: cleanup geometry on unmount
+  useEffect(() => {
+    return () => { geo.dispose(); };
+  }, [geo]);
 
   // Shader material
   const mat = useMemo(() => new THREE.ShaderMaterial({
@@ -289,24 +295,29 @@ function ParticleField({ count }: { count: number }) {
       uTime:   { value: 0 },
       uBreath: { value: 1.0 },
       uMouse:  { value: new THREE.Vector2(9, 9) },
-      uDpr:    { value: Math.min(window.devicePixelRatio || 1, 2) },
+      uDpr:    { value: dpr },
     },
-  }), []);
+  }), [dpr]);
 
-  // Mouse tracking — forwarded from parent via ref
+  // FIX: cleanup material on unmount
   useEffect(() => {
-    const canvas = gl.domElement;
-    const onMove = (e: MouseEvent) => {
+    return () => { mat.dispose(); };
+  }, [mat]);
+
+  // Mouse tracking
+  useEffect(() => {
+    const canvas  = gl.domElement;
+    const onMove  = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       const nx   = ((e.clientX - rect.left) / rect.width)  * 2 - 1;
-      const ny   = -(((e.clientY - rect.top)  / rect.height) * 2 - 1);
+      const ny   = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
       mouseRef.current = [nx, ny];
     };
     const onLeave = () => { mouseRef.current = [9, 9]; };
-    canvas.addEventListener("mousemove", onMove);
+    canvas.addEventListener("mousemove",  onMove);
     canvas.addEventListener("mouseleave", onLeave);
     return () => {
-      canvas.removeEventListener("mousemove", onMove);
+      canvas.removeEventListener("mousemove",  onMove);
       canvas.removeEventListener("mouseleave", onLeave);
     };
   }, [gl]);
@@ -314,17 +325,16 @@ function ParticleField({ count }: { count: number }) {
   useFrame(({ clock }) => {
     if (!matRef.current) return;
     const t = clock.getElapsedTime();
-    matRef.current.uniforms.uTime.value   = t;
+    matRef.current.uniforms.uTime.value  = t;
     matRef.current.uniforms.uMouse.value.set(mouseRef.current[0], mouseRef.current[1]);
-    // Breathing: driven by parent Framer Motion scale, but also do a gentle internal pulse
+    // Internal breathing pulse (complements Framer Motion outer scale)
     const breath = 1.0 + Math.sin(t * 0.38) * 0.009 + Math.sin(t * 0.17) * 0.004;
     matRef.current.uniforms.uBreath.value = breath;
   });
 
-  void size;
-
+  // FIX: single material attachment via ref — no double-attach
   return (
-    <points ref={meshRef} geometry={geo} material={mat}>
+    <points geometry={geo}>
       <primitive object={mat} ref={matRef} attach="material" />
     </points>
   );
@@ -332,35 +342,32 @@ function ParticleField({ count }: { count: number }) {
 
 // ─── Exported component ──────────────────────────────────────────────────────
 export default function LinearLogo({ size = 320 }: { size?: number }) {
-  // Adaptive particle count
   const count = useMemo(() => {
     if (typeof window === "undefined") return 30_000;
-    const mobile  = window.innerWidth < 768;
-    const lowEnd  = (navigator.hardwareConcurrency ?? 4) <= 4;
-    if (mobile)  return lowEnd ? 8_000 : 12_000;
+    const mobile = window.innerWidth < 768;
+    const lowEnd = (navigator.hardwareConcurrency ?? 4) <= 4;
+    if (mobile) return lowEnd ? 8_000 : 12_000;
     return lowEnd ? 30_000 : 48_000;
   }, []);
 
   return (
-    // Breathing: Framer Motion scale on the outer container
     <motion.div
       className="relative"
       style={{ width: size, height: size }}
       animate={{ scale: [1.0, 1.02, 1.0] }}
       transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
     >
-      {/* Black rounded square background */}
       <div
-        className="absolute inset-0 rounded-[28px] overflow-hidden"
-        style={{ background: "#000000" }}
+        className="absolute inset-0 overflow-hidden"
+        style={{ background: "#000000", borderRadius: "28px" }}
       >
         <Canvas
           gl={{
-            alpha: true,
-            antialias: false,
-            powerPreference: "high-performance",
-            stencil: false,
-            depth: false,
+            alpha:            true,
+            antialias:        false,
+            powerPreference:  "high-performance",
+            stencil:          false,
+            depth:            false,
           }}
           dpr={[1, 2]}
           camera={{ position: [0, 0, 1], near: 0.01, far: 10, fov: 90 }}
