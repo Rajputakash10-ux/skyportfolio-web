@@ -142,7 +142,7 @@ export default function Hero() {
             transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="flex-shrink-0"
           >
-            <LinearLogo size={160} />
+            <LinearLogo size={320} />
           </motion.div>
         </div>
       </motion.div>

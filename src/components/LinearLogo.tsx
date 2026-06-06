@@ -195,7 +195,7 @@ function buildParticles(count: number) {
     offsets[n * 3 + 2] = 1.0;
     phases[n]          = Math.random() * Math.PI * 2;
     speeds[n]          = 0.25 + Math.random() * 1.4;
-    sizes[n]           = (0.6 + Math.random() * 1.0) * (0.5 + 0.5 * (1 - dc));
+    sizes[n]           = (1.2 + Math.random() * 1.6) * (0.6 + 0.4 * (1 - dc));
     dists[n]           = dc;
     stripes[n]         = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
     n++;
@@ -220,7 +220,7 @@ function buildParticles(count: number) {
     offsets[n * 3 + 2] = 1.0;
     phases[n]          = Math.random() * Math.PI * 2;
     speeds[n]          = 0.2 + Math.random() * 1.2;
-    sizes[n]           = (0.4 + Math.random() * 0.8) * (0.5 + 0.5 * (1 - dc));
+    sizes[n]           = (0.8 + Math.random() * 1.2) * (0.5 + 0.5 * (1 - dc));
     dists[n]           = dc;
     stripes[n]         = inStripe(bx - CENTER_X, by - CENTER_Y) ? 1 : 0;
     n++;
@@ -352,27 +352,36 @@ export default function LinearLogo({ size = 320 }: { size?: number }) {
 
   return (
     <motion.div
-      className="relative"
-      style={{ width: size, height: size }}
+      className="relative block"
+      style={{ width: size, height: size, flexShrink: 0 }}
       animate={{ scale: [1.0, 1.02, 1.0] }}
       transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
     >
+      {/* Black rounded square */}
       <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ background: "#000000", borderRadius: "28px" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#000000",
+          borderRadius: "28px",
+          overflow: "hidden",
+          width: size,
+          height: size,
+        }}
       >
         <Canvas
           gl={{
-            alpha:            true,
-            antialias:        false,
-            powerPreference:  "high-performance",
-            stencil:          false,
-            depth:            false,
+            alpha:           false,  // solid black background
+            antialias:       false,
+            powerPreference: "high-performance",
+            stencil:         false,
+            depth:           false,
           }}
           dpr={[1, 2]}
           camera={{ position: [0, 0, 1], near: 0.01, far: 10, fov: 90 }}
-          style={{ width: "100%", height: "100%" }}
+          style={{ display: "block", width: size, height: size }}
           frameloop="always"
+          onCreated={({ gl }) => gl.setClearColor(0x000000, 1)}
         >
           <ParticleField count={count} />
         </Canvas>
