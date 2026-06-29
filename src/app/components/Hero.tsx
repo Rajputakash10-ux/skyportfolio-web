@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { Download, Mail, ArrowRight, ExternalLink } from "lucide-react";
+import SolarSystem from "@/app/components/SolarSystem";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const fadeUp = (delay = 0): Variants => ({
@@ -200,55 +201,14 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* ── Visual Orb ── */}
+          {/* ── Solar System ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="flex-shrink-0 flex items-center justify-center"
-            aria-hidden
           >
-            <div className="relative w-72 h-72 lg:w-[360px] lg:h-[360px]">
-              {/* Outer ring */}
-              <div className="absolute inset-0 rounded-full animate-spin-slow"
-                style={{ border: "1px solid rgba(212,165,255,0.15)" }} />
-
-              {/* Orbital rings */}
-              <OrbitalRing size="inset-[12px]" duration="20s"
-                borderColor="rgba(0,229,204,0.2)" dotColor="var(--brand-teal)" reverse />
-              <OrbitalRing size="inset-[40px]" duration="14s"
-                borderColor="rgba(255,183,0,0.2)" dotColor="var(--brand-gold)" />
-
-              {/* Outer tech labels — orbiting */}
-              <TechLabel angle={30}  radius={88} label="Python"     delay={1.0} />
-              <TechLabel angle={120} radius={88} label="TensorFlow" delay={1.2} />
-              <TechLabel angle={210} radius={88} label="NLP"        delay={1.4} />
-              <TechLabel angle={300} radius={88} label="FastAPI"    delay={1.6} />
-
-              {/* Core glow */}
-              <div className="absolute inset-[64px] rounded-full blur-xl animate-pulse-slow"
-                style={{ background: "radial-gradient(circle, rgba(212,165,255,0.3) 0%, rgba(0,229,204,0.15) 60%, transparent 100%)" }}
-              />
-
-              {/* Core surface */}
-              <div
-                className="absolute inset-[72px] rounded-full backdrop-blur-sm border flex flex-col items-center justify-center gap-1.5"
-                style={{
-                  background: "linear-gradient(135deg, rgba(212,165,255,0.1), rgba(0,229,204,0.06))",
-                  borderColor: "rgba(212,165,255,0.2)",
-                }}
-              >
-                <span className="text-2xl font-bold gradient-text">AI</span>
-                <span className="text-[9px] tracking-[0.3em] uppercase" style={{ color: "var(--fg-subtle)" }}>
-                  ML · NLP · DATA
-                </span>
-              </div>
-
-              {/* Floating metric chips */}
-              <FloatingChip top="6%"  left="-14%" value="95%"  label="Accuracy"   delay={0.8} color="purple" />
-              <FloatingChip bottom="8%"  right="-12%" value="3+"   label="Projects"  delay={1.1} color="teal" />
-              <FloatingChip top="52%" left="-20%" value="8.5"  label="CGPA"       delay={1.4} color="gold" />
-            </div>
+            <SolarSystem />
           </motion.div>
 
         </div>
@@ -270,77 +230,5 @@ export default function Hero() {
         </motion.div>
       </div>
     </section>
-  );
-}
-
-/* ── Sub-components ── */
-
-function OrbitalRing({ size, duration, borderColor, dotColor, reverse }: {
-  size: string; duration: string; borderColor: string; dotColor: string; reverse?: boolean;
-}) {
-  return (
-    <div
-      className={`absolute ${size} rounded-full`}
-      style={{ border: `1px solid ${borderColor}`, animation: `${reverse ? "spin-reverse" : "spin"} ${duration} linear infinite` }}
-    >
-      <div
-        className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full"
-        style={{ background: dotColor, boxShadow: `0 0 8px 2px ${dotColor}` }}
-      />
-    </div>
-  );
-}
-
-function TechLabel({ angle, radius, label, delay }: {
-  angle: number; radius: number; label: string; delay: number;
-}) {
-  const rad = (angle * Math.PI) / 180;
-  const x = 50 + radius * Math.cos(rad);
-  const y = 50 + radius * Math.sin(rad);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute text-[9px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full"
-      style={{
-        left: `${x}%`,
-        top: `${y}%`,
-        transform: "translate(-50%, -50%)",
-        background: "var(--glass-bg)",
-        border: "1px solid var(--border)",
-        color: "var(--brand-purple)",
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      {label}
-    </motion.div>
-  );
-}
-
-function FloatingChip({ top, bottom, left, right, value, label, delay, color }: {
-  top?: string; bottom?: string; left?: string; right?: string;
-  value: string; label: string; delay: number;
-  color: "purple" | "teal" | "gold";
-}) {
-  const colorMap = {
-    purple: { border: "rgba(212,165,255,0.3)", bg: "rgba(212,165,255,0.08)" },
-    teal:   { border: "rgba(0,229,204,0.3)",   bg: "rgba(0,229,204,0.08)"   },
-    gold:   { border: "rgba(255,183,0,0.3)",   bg: "rgba(255,183,0,0.08)"   },
-  };
-  const { border, bg } = colorMap[color];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.7, y: 8 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute px-3 py-1.5 rounded-xl text-center backdrop-blur-sm"
-      style={{ top, bottom, left, right, background: bg, border: `1px solid ${border}` }}
-    >
-      <p className="text-xs font-bold gradient-text leading-none">{value}</p>
-      <p className="text-[9px] leading-none mt-1" style={{ color: "var(--fg-subtle)" }}>{label}</p>
-    </motion.div>
   );
 }
