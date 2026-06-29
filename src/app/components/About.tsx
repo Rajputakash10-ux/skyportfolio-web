@@ -15,11 +15,7 @@ export default function About() {
   return (
     <section id="about" className="section-padding bg-bg-secondary">
       <div className="container-max">
-        <SectionHeader
-          label="Get to know me"
-          title="About Me"
-          align="center"
-        />
+        <SectionHeader label="Get to know me" title="About Me" align="center" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           {/* Left — Prose */}
@@ -52,7 +48,8 @@ export default function About() {
                   transition={{ delay: i * 0.08, duration: 0.5 }}
                   className="flex items-start gap-3 text-sm text-fg-muted"
                 >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-indigo-400 to-cyan-400 flex-shrink-0" />
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }} />
                   {item}
                 </motion.li>
               ))}
@@ -61,7 +58,8 @@ export default function About() {
             <div className="pt-4">
               <a
                 href="#projects"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-600 to-cyan-500 text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
+                style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
               >
                 View My Projects →
               </a>
@@ -85,9 +83,10 @@ export default function About() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="card p-5 flex flex-col gap-1 hover:border-[var(--border-hover)] transition-all duration-300"
+                  className="card p-5 flex flex-col gap-1 transition-all duration-300"
+                  style={{ borderColor: i % 2 === 0 ? "rgba(212,165,255,0.2)" : "rgba(255,183,0,0.2)" }}
                 >
-                  <span className="text-3xl font-bold gradient-text leading-none">{stat.value}</span>
+                  <span className="text-3xl font-bold leading-none gradient-text">{stat.value}</span>
                   <span className="text-xs text-fg-muted leading-snug">{stat.label}</span>
                 </motion.div>
               ))}
@@ -104,7 +103,8 @@ export default function About() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04, duration: 0.3 }}
-                    className="text-xs px-3 py-1.5 rounded-full border border-[var(--border)] text-fg-muted hover:text-fg hover:border-[var(--border-hover)] transition-colors duration-200"
+                    className="text-xs px-3 py-1.5 rounded-full text-fg-muted hover:text-fg transition-colors duration-200 cursor-default"
+                    style={{ border: "1px solid rgba(212,165,255,0.15)" }}
                   >
                     {tech}
                   </motion.span>
@@ -113,10 +113,10 @@ export default function About() {
             </div>
 
             {/* Availability badge */}
-            <div className="card p-4 flex items-center gap-3">
+            <div className="card p-4 flex items-center gap-3" style={{ borderColor: "rgba(0,229,204,0.2)" }}>
               <div className="relative flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#00E5CC]" />
+                <div className="absolute inset-0 rounded-full bg-[#00E5CC] animate-ping opacity-60" />
               </div>
               <div>
                 <p className="text-sm font-medium text-fg">Available for opportunities</p>

@@ -5,7 +5,7 @@ import { NAV_LINKS } from "@/constants/data";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border)] bg-bg-secondary">
+    <footer style={{ borderTop: "1px solid rgba(212,165,255,0.12)", background: "#12121E" }}>
       <div className="container-max px-6 md:px-10 lg:px-16 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 mb-10">
           {/* Brand */}
@@ -17,23 +17,21 @@ export default function Footer() {
             <a
               href="/assets/Akash_Singh_Resume.pdf"
               download
-              className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 text-white hover:opacity-85 transition-opacity focus-ring"
+              className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg text-white hover:opacity-85 transition-opacity focus-ring"
+              style={{ background: "linear-gradient(135deg, #D4A5FF, #FFB700)" }}
             >
               <Download size={12} aria-hidden />
               Download Resume
             </a>
           </div>
 
-          {/* Links */}
+          {/* Navigation */}
           <div className="space-y-3">
             <p className="text-xs font-semibold text-fg uppercase tracking-widest">Navigation</p>
             <ul className="space-y-2">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-fg-muted hover:text-fg transition-colors focus-ring rounded"
-                  >
+                  <a href={link.href} className="text-sm text-fg-muted hover:text-fg transition-colors focus-ring rounded">
                     {link.label}
                   </a>
                 </li>
@@ -55,7 +53,7 @@ export default function Footer() {
                   href={href}
                   target={href.startsWith("http") ? "_blank" : undefined}
                   rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="block text-sm text-fg-muted hover:text-brand-cyan transition-colors truncate focus-ring rounded"
+                  className="block text-sm text-fg-muted hover:text-[#00E5CC] transition-colors truncate focus-ring rounded"
                 >
                   {label}
                 </a>
@@ -64,7 +62,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[var(--border)] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
+          style={{ borderTop: "1px solid rgba(212,165,255,0.1)" }}>
           <p className="text-xs text-fg-subtle">
             © {new Date().getFullYear()} Akash Singh — Built with Next.js & Tailwind CSS
           </p>

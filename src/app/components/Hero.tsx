@@ -5,7 +5,6 @@ import type { Variants } from "framer-motion";
 import { Download, Mail, ArrowRight } from "lucide-react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
 const fadeUp = (delay = 0): Variants => ({
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease, delay } },
@@ -42,8 +41,8 @@ export default function Hero() {
         aria-hidden
         style={{
           backgroundImage: `
-            linear-gradient(rgba(99,102,241,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px)
+            linear-gradient(rgba(212,165,255,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(212,165,255,0.05) 1px, transparent 1px)
           `,
           backgroundSize: "64px 64px",
           maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
@@ -52,34 +51,31 @@ export default function Hero() {
 
       {/* Ambient glows */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
-        <div className="absolute top-1/3 left-[15%] w-96 h-96 rounded-full bg-indigo-600/10 blur-[120px] animate-pulse-slow" />
-        <div className="absolute top-1/2 right-[10%] w-80 h-80 rounded-full bg-cyan-500/10 blur-[100px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
-        <div className="absolute bottom-1/4 left-1/2 w-64 h-64 rounded-full bg-violet-600/8 blur-[80px]" />
+        <div className="absolute top-1/3 left-[15%] w-96 h-96 rounded-full bg-[#D4A5FF]/8 blur-[120px] animate-pulse-slow" />
+        <div className="absolute top-1/2 right-[10%] w-80 h-80 rounded-full bg-[#00E5CC]/8 blur-[100px] animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute bottom-1/4 left-1/2 w-64 h-64 rounded-full bg-[#FFB700]/5 blur-[80px]" />
       </div>
 
       <div className="container-max w-full relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
-          {/* ── Text content ── */}
+          {/* Text content */}
           <div className="flex-1 text-center lg:text-left">
             {/* Label chip */}
             <motion.div
-              variants={fadeUp(0)}
-              initial="hidden"
-              animate="show"
-              className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full glass border border-brand-cyan/20"
+              variants={fadeUp(0)} initial="hidden" animate="show"
+              className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full glass"
+              style={{ borderColor: "rgba(0,229,204,0.25)" }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan animate-pulse" />
-              <span className="text-xs font-medium text-brand-cyan/90 tracking-widest uppercase">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00E5CC] animate-pulse" />
+              <span className="text-xs font-medium tracking-widest uppercase" style={{ color: "#00E5CC" }}>
                 Data Scientist & AI/ML Engineer
               </span>
             </motion.div>
 
             {/* Headline */}
             <motion.h1
-              variants={fadeUp(0.1)}
-              initial="hidden"
-              animate="show"
+              variants={fadeUp(0.1)} initial="hidden" animate="show"
               className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6"
             >
               Hi, I&apos;m{" "}
@@ -90,9 +86,7 @@ export default function Hero() {
 
             {/* Subheadline */}
             <motion.p
-              variants={fadeUp(0.2)}
-              initial="hidden"
-              animate="show"
+              variants={fadeUp(0.2)} initial="hidden" animate="show"
               className="text-lg text-fg-muted leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8"
             >
               B.Sc. CS graduate building{" "}
@@ -103,14 +97,13 @@ export default function Hero() {
 
             {/* CTAs */}
             <motion.div
-              variants={fadeUp(0.3)}
-              initial="hidden"
-              animate="show"
+              variants={fadeUp(0.3)} initial="hidden" animate="show"
               className="flex flex-wrap gap-3 justify-center lg:justify-start mb-10"
             >
               <a
                 href="#projects"
-                className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-90 hover:scale-105 transition-all duration-200 shadow-glow-indigo focus-ring"
+                className="group flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 hover:scale-105 transition-all duration-200 focus-ring"
+                style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)", boxShadow: "0 0 30px -8px rgba(212,165,255,0.5)" }}
               >
                 View My Work
                 <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
@@ -118,7 +111,8 @@ export default function Hero() {
               <a
                 href="/assets/Akash_Singh_Resume.pdf"
                 download
-                className="flex items-center gap-2 px-6 py-3 rounded-xl glass border border-white/10 text-fg-muted hover:text-fg hover:border-white/20 text-sm font-medium transition-all duration-200 focus-ring"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl glass text-fg-muted hover:text-fg text-sm font-medium transition-all duration-200 focus-ring"
+                style={{ borderColor: "rgba(255,183,0,0.3)" }}
               >
                 <Download size={14} aria-hidden />
                 Download Resume
@@ -127,9 +121,7 @@ export default function Hero() {
 
             {/* Socials */}
             <motion.div
-              variants={fadeUp(0.4)}
-              initial="hidden"
-              animate="show"
+              variants={fadeUp(0.4)} initial="hidden" animate="show"
               className="flex items-center gap-1 justify-center lg:justify-start"
             >
               {SOCIAL_LINKS.map(({ href, label, Icon }) => (
@@ -147,7 +139,7 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* ── Visual Orb ── */}
+          {/* Visual Orb */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -156,66 +148,59 @@ export default function Hero() {
             aria-hidden
           >
             <div className="relative w-72 h-72 lg:w-[360px] lg:h-[360px]">
-              {/* Outer ring */}
-              <div className="absolute inset-0 rounded-full border border-indigo-500/15 animate-spin-slow" />
-              {/* Orbital dots */}
-              <OrbitalRing size="inset-[12px]" duration="20s" color="border-cyan-500/20" dotColor="bg-cyan-400" reverse />
-              <OrbitalRing size="inset-[40px]" duration="14s" color="border-violet-500/20" dotColor="bg-violet-400" />
+              <div className="absolute inset-0 rounded-full border border-[#D4A5FF]/15 animate-spin-slow" />
+              <OrbitalRing size="inset-[12px]" duration="20s" borderColor="rgba(0,229,204,0.2)" dotColor="#00E5CC" reverse />
+              <OrbitalRing size="inset-[40px]" duration="14s" borderColor="rgba(255,183,0,0.2)" dotColor="#FFB700" />
 
               {/* Core glow */}
-              <div className="absolute inset-[64px] rounded-full bg-gradient-to-br from-indigo-600/30 via-violet-600/20 to-cyan-500/30 blur-xl animate-pulse-slow" />
-
+              <div className="absolute inset-[64px] rounded-full blur-xl animate-pulse-slow"
+                style={{ background: "radial-gradient(circle, rgba(212,165,255,0.25) 0%, rgba(0,229,204,0.15) 60%, transparent 100%)" }}
+              />
               {/* Core surface */}
-              <div className="absolute inset-[72px] rounded-full bg-gradient-to-br from-indigo-500/20 to-cyan-400/20 backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center gap-1">
+              <div
+                className="absolute inset-[72px] rounded-full backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center gap-1"
+                style={{ background: "rgba(212,165,255,0.08)" }}
+              >
                 <span className="text-2xl font-bold gradient-text">AI</span>
                 <span className="text-[10px] text-fg-muted tracking-[0.25em] uppercase">ML · NLP · DATA</span>
               </div>
 
-              {/* Floating metric chips */}
               <FloatingChip top="8%" left="-10%" value="95%" label="Model Accuracy" delay={0.8} />
               <FloatingChip bottom="10%" right="-8%" value="3+" label="ML Projects" delay={1.1} />
               <FloatingChip top="55%" left="-18%" value="8.5" label="CGPA" delay={1.4} />
             </div>
           </motion.div>
-
         </div>
 
         {/* Scroll hint */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.6 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           aria-hidden
         >
           <span className="text-xs text-fg-subtle tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-brand-indigo/40 to-transparent" />
+          <div className="w-px h-8" style={{ background: "linear-gradient(to bottom, rgba(212,165,255,0.4), transparent)" }} />
         </motion.div>
       </div>
     </section>
   );
 }
 
-function OrbitalRing({
-  size, duration, color, dotColor, reverse,
-}: {
-  size: string; duration: string; color: string; dotColor: string; reverse?: boolean;
+function OrbitalRing({ size, duration, borderColor, dotColor, reverse }: {
+  size: string; duration: string; borderColor: string; dotColor: string; reverse?: boolean;
 }) {
   return (
     <div
-      className={`absolute ${size} rounded-full border ${color}`}
-      style={{
-        animation: `${reverse ? "spin-reverse" : "spin"} ${duration} linear infinite`,
-      }}
+      className={`absolute ${size} rounded-full`}
+      style={{ border: `1px solid ${borderColor}`, animation: `${reverse ? "spin-reverse" : "spin"} ${duration} linear infinite` }}
     >
-      <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full ${dotColor} shadow-lg`} />
+      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full shadow-lg" style={{ background: dotColor }} />
     </div>
   );
 }
 
-function FloatingChip({
-  top, bottom, left, right, value, label, delay,
-}: {
+function FloatingChip({ top, bottom, left, right, value, label, delay }: {
   top?: string; bottom?: string; left?: string; right?: string;
   value: string; label: string; delay: number;
 }) {
@@ -224,10 +209,10 @@ function FloatingChip({
       initial={{ opacity: 0, scale: 0.7 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute px-2.5 py-1.5 rounded-xl glass border border-white/10 text-center"
-      style={{ top, bottom, left, right }}
+      className="absolute px-2.5 py-1.5 rounded-xl glass text-center"
+      style={{ top, bottom, left, right, borderColor: "rgba(255,183,0,0.25)" }}
     >
-      <p className="text-xs font-bold gradient-text-subtle">{value}</p>
+      <p className="text-xs font-bold gradient-text">{value}</p>
       <p className="text-[9px] text-fg-subtle leading-none mt-0.5">{label}</p>
     </motion.div>
   );

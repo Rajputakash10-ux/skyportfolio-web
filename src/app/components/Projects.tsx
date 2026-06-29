@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { ExternalLink, ArrowUpRight } from "lucide-react";
+import SectionHeader from "@/app/components/ui/SectionHeader";
+import { PROJECTS } from "@/constants/data";
 
 function GitHubIcon() {
   return (
@@ -10,21 +12,37 @@ function GitHubIcon() {
     </svg>
   );
 }
-import SectionHeader from "@/app/components/ui/SectionHeader";
-import { PROJECTS } from "@/constants/data";
 
-const accentMap: Record<string, string> = {
-  indigo: "from-indigo-500/20 to-indigo-600/5 border-indigo-500/20 hover:border-indigo-400/40",
-  violet: "from-violet-500/20 to-violet-600/5 border-violet-500/20 hover:border-violet-400/40",
-  cyan: "from-cyan-500/20 to-cyan-600/5 border-cyan-500/20 hover:border-cyan-400/40",
-  orange: "from-orange-500/20 to-orange-600/5 border-orange-500/20 hover:border-orange-400/40",
-};
-
-const tagColorMap: Record<string, string> = {
-  indigo: "bg-indigo-500/10 text-indigo-300 border-indigo-500/20",
-  violet: "bg-violet-500/10 text-violet-300 border-violet-500/20",
-  cyan: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
-  orange: "bg-orange-500/10 text-orange-300 border-orange-500/20",
+// Per-project accent: border, tag bg, tag text, gradient overlay
+const ACCENT = {
+  indigo: {
+    border: "rgba(212,165,255,0.25)",
+    hoverBorder: "rgba(212,165,255,0.5)",
+    tagBg: "rgba(212,165,255,0.1)",
+    tagText: "#D4A5FF",
+    gradient: "linear-gradient(135deg, rgba(212,165,255,0.12), rgba(0,229,204,0.08))",
+  },
+  violet: {
+    border: "rgba(255,183,0,0.2)",
+    hoverBorder: "rgba(255,183,0,0.45)",
+    tagBg: "rgba(255,183,0,0.1)",
+    tagText: "#FFB700",
+    gradient: "linear-gradient(135deg, rgba(255,183,0,0.1), rgba(212,165,255,0.08))",
+  },
+  cyan: {
+    border: "rgba(0,229,204,0.2)",
+    hoverBorder: "rgba(0,229,204,0.45)",
+    tagBg: "rgba(0,229,204,0.1)",
+    tagText: "#00E5CC",
+    gradient: "linear-gradient(135deg, rgba(0,229,204,0.1), rgba(212,165,255,0.06))",
+  },
+  orange: {
+    border: "rgba(255,183,0,0.2)",
+    hoverBorder: "rgba(255,183,0,0.4)",
+    tagBg: "rgba(255,183,0,0.08)",
+    tagText: "#FFB700",
+    gradient: "linear-gradient(135deg, rgba(255,183,0,0.08), rgba(0,229,204,0.06))",
+  },
 };
 
 export default function Projects() {
@@ -40,21 +58,13 @@ export default function Projects() {
           subtitle="Real-world systems built with production-grade thinking, not tutorial rewrites."
         />
 
-        {/* Featured — bento grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-          {featured.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} featured />
-          ))}
+          {featured.map((project, i) => <ProjectCard key={project.id} project={project} index={i} featured />)}
         </div>
-
-        {/* Secondary — 2-col grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {rest.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i + 2} />
-          ))}
+          {rest.map((project, i) => <ProjectCard key={project.id} project={project} index={i + 2} />)}
         </div>
 
-        {/* GitHub CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -66,7 +76,8 @@ export default function Projects() {
             href="https://github.com/Rajputakash10-ux"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-[var(--border)] text-fg-muted hover:text-fg hover:border-[var(--border-hover)] text-sm transition-all duration-200 focus-ring"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl glass text-fg-muted hover:text-fg text-sm transition-all duration-200 focus-ring"
+            style={{ borderColor: "rgba(212,165,255,0.2)" }}
           >
             <GitHubIcon />
             View all projects on GitHub
@@ -78,17 +89,10 @@ export default function Projects() {
   );
 }
 
-function ProjectCard({
-  project,
-  index,
-  featured = false,
-}: {
-  project: (typeof PROJECTS)[number];
-  index: number;
-  featured?: boolean;
+function ProjectCard({ project, index, featured = false }: {
+  project: (typeof PROJECTS)[number]; index: number; featured?: boolean;
 }) {
-  const accent = accentMap[project.accentColor] ?? accentMap.indigo;
-  const tagColor = tagColorMap[project.accentColor] ?? tagColorMap.indigo;
+  const accent = ACCENT[project.accentColor as keyof typeof ACCENT] ?? ACCENT.indigo;
 
   return (
     <motion.article
@@ -96,25 +100,23 @@ function ProjectCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative rounded-2xl border bg-bg-secondary overflow-hidden transition-all duration-300 ${accent} ${
-        featured ? "p-7" : "p-6"
-      }`}
+      className={`group relative rounded-2xl overflow-hidden transition-all duration-300 bg-bg-secondary ${featured ? "p-7" : "p-6"}`}
+      style={{ border: `1px solid ${accent.border}` }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = accent.hoverBorder)}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = accent.border)}
     >
-      {/* Background gradient */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${project.gradient} opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
-      />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 opacity-60 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: accent.gradient }} />
 
       <div className="relative z-10 flex flex-col h-full gap-4">
-        {/* Top row */}
         <div className="flex items-start justify-between">
-          <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${tagColor}`}>
+          <span className="text-xs px-2.5 py-1 rounded-full border font-medium"
+            style={{ background: accent.tagBg, color: accent.tagText, borderColor: accent.border }}>
             {project.category}
           </span>
           <a
-            href={project.href}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={project.href} target="_blank" rel="noopener noreferrer"
             aria-label={`View ${project.title} on GitHub`}
             className="p-1.5 rounded-lg text-fg-subtle hover:text-fg hover:bg-white/10 transition-all duration-200 focus-ring"
           >
@@ -122,7 +124,6 @@ function ProjectCard({
           </a>
         </div>
 
-        {/* Title */}
         <div>
           <h3 className={`font-bold text-fg tracking-tight mb-2 ${featured ? "text-xl" : "text-lg"}`}>
             {project.title}
@@ -130,19 +131,19 @@ function ProjectCard({
           <p className="text-sm text-fg-muted leading-relaxed">{project.description}</p>
         </div>
 
-        {/* Metrics */}
         <div className="flex flex-wrap gap-2 mt-auto pt-2">
           {project.metrics.map((m) => (
-            <span key={m} className="text-[11px] px-2 py-0.5 rounded bg-white/5 text-fg-subtle border border-white/5">
+            <span key={m} className="text-[11px] px-2 py-0.5 rounded border text-fg-subtle"
+              style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.07)" }}>
               {m}
             </span>
           ))}
         </div>
 
-        {/* Tags */}
         <div className="flex flex-wrap gap-1.5">
           {project.tags.map((tag) => (
-            <span key={tag} className={`text-xs px-2.5 py-0.5 rounded-full border ${tagColor}`}>
+            <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full border"
+              style={{ background: accent.tagBg, color: accent.tagText, borderColor: accent.border }}>
               {tag}
             </span>
           ))}

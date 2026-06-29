@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
+import SectionHeader from "@/app/components/ui/SectionHeader";
 
 function GitHubIcon() {
   return (
@@ -20,7 +21,6 @@ function LinkedInIcon() {
     </svg>
   );
 }
-import SectionHeader from "@/app/components/ui/SectionHeader";
 
 const CONTACT_INFO = [
   { icon: Mail, label: "Email", value: "rajputakash1656@gmail.com", href: "mailto:rajputakash1656@gmail.com" },
@@ -29,16 +29,9 @@ const CONTACT_INFO = [
   { icon: LinkedInIcon, label: "LinkedIn", value: "akash-rajput-9433aa368", href: "https://www.linkedin.com/in/akash-rajput-9433aa368/" },
 ];
 
-// ─── EmailJS config ──────────────────────────────────────────────────────────
-// 1. Sign up at https://www.emailjs.com (free tier: 200 emails/month)
-// 2. Create a service (Gmail) → copy Service ID below
-// 3. Create an email template → copy Template ID below
-// 4. Copy your Public Key from Account → API Keys
-// Replace the three placeholder strings:
 const EJS_SERVICE  = "service_g41v6qt";
 const EJS_TEMPLATE = "template_hrm1zp8";
 const EJS_PUBLIC   = "3fKcY5SiVFpMI_9y4";
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Contact() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -58,8 +51,12 @@ export default function Contact() {
     }
   };
 
-  const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }));
+  const update = (k: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const inputClass = "w-full rounded-xl px-4 py-3 text-sm text-fg placeholder:text-fg-subtle focus:outline-none transition-all duration-200"
+    + " bg-bg border focus:ring-1 focus:ring-[#D4A5FF]/30";
 
   return (
     <section id="contact" className="section-padding">
@@ -79,20 +76,24 @@ export default function Contact() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-2 space-y-3"
           >
-            {CONTACT_INFO.map(({ icon: Icon, label, value, href }) => (
-              <div key={label} className="card p-4 flex items-center gap-4 hover:border-[var(--border-hover)] transition-all duration-300">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center flex-shrink-0">
+            {CONTACT_INFO.map(({ icon: Icon, label, value, href }, i) => (
+              <div
+                key={label}
+                className="card p-4 flex items-center gap-4 transition-all duration-300"
+                style={{ borderColor: i % 2 === 0 ? "rgba(212,165,255,0.15)" : "rgba(0,229,204,0.15)" }}
+              >
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
+                >
                   <Icon size={15} className="text-white" aria-hidden />
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] text-fg-subtle uppercase tracking-wider mb-0.5">{label}</p>
                   {href ? (
-                    <a
-                      href={href}
-                      target={href.startsWith("http") ? "_blank" : undefined}
+                    <a href={href} target={href.startsWith("http") ? "_blank" : undefined}
                       rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="text-sm text-fg hover:text-brand-cyan transition-colors truncate block focus-ring rounded"
-                    >
+                      className="text-sm text-fg hover:text-[#00E5CC] transition-colors truncate block focus-ring rounded">
                       {value}
                     </a>
                   ) : (
@@ -113,15 +114,13 @@ export default function Contact() {
           >
             {status === "sent" ? (
               <div className="card p-8 flex flex-col items-center justify-center gap-4 min-h-[320px] text-center">
-                <CheckCircle size={48} className="text-emerald-400" />
+                <CheckCircle size={48} style={{ color: "#00E5CC" }} />
                 <div>
                   <p className="text-lg font-semibold text-fg mb-1">Message sent!</p>
                   <p className="text-sm text-fg-muted">I&apos;ll get back to you within 24 hours.</p>
                 </div>
-                <button
-                  onClick={() => setStatus("idle")}
-                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded"
-                >
+                <button onClick={() => setStatus("idle")}
+                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded">
                   Send another message
                 </button>
               </div>
@@ -130,39 +129,49 @@ export default function Contact() {
                 <AlertCircle size={48} className="text-red-400" />
                 <div>
                   <p className="text-lg font-semibold text-fg mb-1">Something went wrong</p>
-                  <p className="text-sm text-fg-muted">Please try again or email me directly at<br />
-                    <a href="mailto:rajputakash1656@gmail.com" className="text-brand-cyan hover:underline">rajputakash1656@gmail.com</a>
+                  <p className="text-sm text-fg-muted">Email me directly at<br />
+                    <a href="mailto:rajputakash1656@gmail.com" style={{ color: "#00E5CC" }} className="hover:underline">
+                      rajputakash1656@gmail.com
+                    </a>
                   </p>
                 </div>
-                <button
-                  onClick={() => setStatus("idle")}
-                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded"
-                >
+                <button onClick={() => setStatus("idle")}
+                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded">
                   Try again
                 </button>
               </div>
             ) : (
-              <form ref={formRef} onSubmit={handleSubmit} className="card p-6 space-y-4" noValidate>
+              <form ref={formRef} onSubmit={handleSubmit} className="card p-6 space-y-4" noValidate
+                style={{ borderColor: "rgba(212,165,255,0.15)" }}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="Name" name="from_name" type="text" placeholder="Your name" value={form.name} onChange={update("name")} required />
-                  <FormField label="Email" name="reply_to" type="email" placeholder="your@email.com" value={form.email} onChange={update("email")} required />
+                  <div className="space-y-1.5">
+                    <label className="section-label block">Name</label>
+                    <input type="text" name="from_name" required placeholder="Your name" value={form.name}
+                      onChange={update("name")}
+                      className={inputClass}
+                      style={{ borderColor: "rgba(212,165,255,0.15)" }} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="section-label block">Email</label>
+                    <input type="email" name="reply_to" required placeholder="your@email.com" value={form.email}
+                      onChange={update("email")}
+                      className={inputClass}
+                      style={{ borderColor: "rgba(212,165,255,0.15)" }} />
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="section-label block">Message</label>
-                  <textarea
-                    required
-                    name="message"
-                    rows={5}
+                  <textarea required name="message" rows={5}
                     placeholder="Tell me about your project or opportunity..."
-                    value={form.message}
-                    onChange={update("message")}
-                    className="w-full bg-bg border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-[var(--border-hover)] focus:ring-1 focus:ring-brand-indigo/30 transition-all duration-200 resize-none"
-                  />
+                    value={form.message} onChange={update("message")}
+                    className={`${inputClass} resize-none`}
+                    style={{ borderColor: "rgba(212,165,255,0.15)" }} />
                 </div>
                 <button
                   type="submit"
                   disabled={status === "sending"}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white text-sm font-semibold hover:opacity-85 hover:scale-105 transition-all duration-200 disabled:opacity-60 disabled:scale-100 disabled:cursor-wait focus-ring"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-85 hover:scale-105 transition-all duration-200 disabled:opacity-60 disabled:scale-100 disabled:cursor-wait focus-ring"
+                  style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
                 >
                   <Send size={14} aria-hidden />
                   {status === "sending" ? "Sending..." : "Send Message"}
@@ -173,27 +182,5 @@ export default function Contact() {
         </div>
       </div>
     </section>
-  );
-}
-
-function FormField({
-  label, name, type, placeholder, value, onChange, required,
-}: {
-  label: string; name: string; type: string; placeholder: string;
-  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; required?: boolean;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label className="section-label block">{label}</label>
-      <input
-        type={type}
-        name={name}
-        required={required}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        className="w-full bg-bg border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-[var(--border-hover)] focus:ring-1 focus:ring-brand-indigo/30 transition-all duration-200"
-      />
-    </div>
   );
 }
