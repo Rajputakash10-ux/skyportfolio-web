@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Briefcase, GraduationCap, MapPin, Calendar } from "lucide-react";
 import SectionHeader from "@/app/components/ui/SectionHeader";
 import { EXPERIENCES } from "@/constants/data";

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import { Download, X, Menu } from "lucide-react";
 import { NAV_LINKS } from "@/constants/data";
 import ThemeToggle from "@/app/components/ui/ThemeToggle";
@@ -10,6 +9,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
+  const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -27,13 +27,24 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
+  // Close drawer on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Lock body scroll when drawer open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   return (
     <>
-      <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
+      {/* ── Header — CSS slide-down on mount via animation class ── */}
+      <header
+        className={`navbar-enter fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
           scrolled ? "glass border-b border-[var(--border)]" : "bg-transparent border-b border-transparent"
         }`}
       >
@@ -56,14 +67,15 @@ export default function Navbar() {
                       isActive ? "text-fg" : "text-fg-muted hover:text-fg"
                     }`}
                   >
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-pill"
-                        className="absolute inset-0 rounded-lg"
-                        style={{ background: "rgba(212,165,255,0.08)", border: "1px solid rgba(212,165,255,0.2)" }}
-                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                      />
-                    )}
+                    {/* CSS-only active pill — no framer-motion layoutId needed */}
+                    <span
+                      className="absolute inset-0 rounded-lg transition-opacity duration-200"
+                      style={{
+                        background: "rgba(212,165,255,0.08)",
+                        border: "1px solid rgba(212,165,255,0.2)",
+                        opacity: isActive ? 1 : 0,
+                      }}
+                    />
                     <span className="relative">{link.label}</span>
                   </a>
                 </li>
@@ -87,69 +99,89 @@ export default function Navbar() {
 
           {/* Mobile toggle */}
           <button
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen((v) => !v)}
             className="md:hidden p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-white/5 transition-colors focus-ring"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
+            aria-controls="mobile-drawer"
           >
-            {open ? <X size={20} /> : <Menu size={20} />}
+            {/* CSS cross/hamburger transition */}
+            <span className="relative block w-5 h-5">
+              <Menu
+                size={20}
+                className="absolute inset-0 transition-all duration-200"
+                style={{ opacity: open ? 0 : 1, transform: open ? "rotate(90deg)" : "rotate(0deg)" }}
+              />
+              <X
+                size={20}
+                className="absolute inset-0 transition-all duration-200"
+                style={{ opacity: open ? 1 : 0, transform: open ? "rotate(0deg)" : "rotate(-90deg)" }}
+              />
+            </span>
           </button>
         </nav>
-      </motion.header>
+      </header>
 
-      {/* Mobile drawer */}
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+      {/* ── Mobile backdrop — CSS fade ── */}
+      <div
+        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-200"
+        style={{ opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none" }}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* ── Mobile drawer — CSS slide-in from right ── */}
+      <div
+        id="mobile-drawer"
+        ref={drawerRef}
+        className="fixed top-0 right-0 bottom-0 z-50 w-72 flex flex-col md:hidden transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{
+          background: "var(--bg-secondary)",
+          borderLeft: "1px solid var(--border)",
+          transform: open ? "translateX(0)" : "translateX(100%)",
+        }}
+        aria-label="Mobile navigation"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
+          <span className="font-bold gradient-text text-base">Menu</span>
+          <button
+            onClick={() => setOpen(false)}
+            className="p-1.5 rounded-lg text-fg-muted hover:text-fg hover:bg-white/5 transition-colors focus-ring"
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <nav className="flex-1 px-4 py-6 space-y-1">
+          {NAV_LINKS.map((link, i) => (
+            <a
+              key={link.href}
+              href={link.href}
               onClick={() => setOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 bottom-0 z-50 w-72 flex flex-col md:hidden"
-              style={{ background: "#12121E", borderLeft: "1px solid var(--border)" }}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl text-fg-muted hover:text-fg hover:bg-white/5 transition-colors text-sm focus-ring drawer-link"
+              style={{ animationDelay: `${i * 40}ms` }}
             >
-              <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
-                <span className="font-bold gradient-text text-base">Menu</span>
-                <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg text-fg-muted hover:text-fg hover:bg-white/5 transition-colors focus-ring" aria-label="Close menu">
-                  <X size={18} />
-                </button>
-              </div>
-              <nav className="flex-1 px-4 py-6 space-y-1">
-                {NAV_LINKS.map((link, i) => (
-                  <motion.a
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.3 }}
-                    className="flex items-center gap-3 px-3 py-3 rounded-xl text-fg-muted hover:text-fg hover:bg-white/5 transition-colors text-sm focus-ring"
-                  >
-                    {link.label}
-                  </motion.a>
-                ))}
-              </nav>
-              <div className="px-4 pb-8">
-                <a
-                  href="/assets/Akash_Singh_Resume.pdf"
-                  download
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-white text-sm font-medium focus-ring"
-                  style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
-                >
-                  <Download size={15} aria-hidden="true" />
-                  Download Resume
-                </a>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="px-4 pb-8">
+          <a
+            href="/assets/Akash_Singh_Resume.pdf"
+            download
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-white text-sm font-medium focus-ring"
+            style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
+          >
+            <Download size={15} aria-hidden="true" />
+            Download Resume
+          </a>
+        </div>
+      </div>
     </>
   );
 }

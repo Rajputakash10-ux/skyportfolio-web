@@ -1,10 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
 import { useTheme, type Theme } from "@/hooks/useTheme";
 
-/* Half-filled circle icon for B&W / Classic mode */
 function ClassicIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
@@ -15,12 +13,11 @@ function ClassicIcon() {
 }
 
 const MODES: { id: Theme; icon: React.ReactNode; label: string }[] = [
-  { id: "dark",  icon: <Moon size={13} />,   label: "Dark"  },
-  { id: "light", icon: <Sun  size={13} />,   label: "Light" },
-  { id: "bold",  icon: <ClassicIcon />,       label: "B&W"   },
+  { id: "dark",  icon: <Moon size={13} />, label: "Dark"  },
+  { id: "light", icon: <Sun  size={13} />, label: "Light" },
+  { id: "bold",  icon: <ClassicIcon />,    label: "B&W"   },
 ];
 
-/* Active pill colour per theme */
 const PILL_BG: Record<Theme, string> = {
   dark:  "linear-gradient(135deg, #D4A5FF, #00E5CC)",
   light: "#0D0D15",
@@ -54,15 +51,14 @@ export default function ThemeToggle() {
             onClick={() => toggle(id)}
             aria-pressed={active}
             aria-label={`${label} mode`}
-            className="relative flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-colors duration-200 focus-ring z-10"
+            className="relative flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium focus-ring z-10 transition-colors duration-150"
             style={{ color: active ? PILL_TEXT[theme] : "var(--fg-muted)" }}
           >
+            {/* CSS-only pill — no framer-motion */}
             {active && (
-              <motion.span
-                layoutId="theme-pill"
+              <span
                 className="absolute inset-0 rounded-full"
                 style={{ background: PILL_BG[theme] }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
             <span className="relative flex items-center gap-1">

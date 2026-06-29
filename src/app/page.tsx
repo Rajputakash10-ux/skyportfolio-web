@@ -1,8 +1,9 @@
 import dynamic from "next/dynamic";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import MotionProvider from "./components/MotionProvider";
 
-// Lazy-load everything below the fold — keeps initial bundle to Hero + Navbar only
+// Lazy-load everything below the fold
 const About      = dynamic(() => import("./components/About"));
 const Projects   = dynamic(() => import("./components/Projects"));
 const Experience = dynamic(() => import("./components/Experience"));
@@ -15,12 +16,14 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
-      <About />
-      <Projects />
-      <Experience />
-      <Skills />
-      <Contact />
-      <Footer />
+      <MotionProvider>
+        <About />
+        <Projects />
+        <Experience />
+        <Skills />
+        <Contact />
+        <Footer />
+      </MotionProvider>
     </main>
   );
 }

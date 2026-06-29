@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
 import SectionHeader from "@/app/components/ui/SectionHeader";

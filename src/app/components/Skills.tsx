@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import SectionHeader from "@/app/components/ui/SectionHeader";
 import { SKILLS } from "@/constants/data";
 
