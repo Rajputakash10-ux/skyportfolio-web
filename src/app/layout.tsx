@@ -58,11 +58,26 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#080810",
-  colorScheme: "dark",
+  themeColor: "#0D0D15",
+  colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
 };
+
+// Prevent flash of wrong theme before React hydrates
+const themeScript = `
+  (function() {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'bold' || t === 'dark') {
+        document.documentElement.setAttribute('data-theme', t);
+      } else {
+        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      }
+    } catch(e) {}
+  })();
+`;
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -82,6 +97,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        {/* Anti-flash theme script — must run before paint */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

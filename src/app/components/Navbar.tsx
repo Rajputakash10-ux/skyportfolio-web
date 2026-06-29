@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, X, Menu } from "lucide-react";
 import { NAV_LINKS } from "@/constants/data";
+import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -71,15 +72,18 @@ export default function Navbar() {
           </ul>
 
           {/* Desktop CTA */}
-          <a
-            href="/assets/Akash_Singh_Resume.pdf"
-            download
-            className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
-            style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)", boxShadow: "0 0 20px -5px rgba(212,165,255,0.4)" }}
-          >
-            <Download size={14} aria-hidden />
-            Resume
-          </a>
+          <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
+            <a
+              href="/assets/Akash_Singh_Resume.pdf"
+              download
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
+              style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))", boxShadow: "0 0 20px -5px rgba(212,165,255,0.4)" }}
+            >
+              <Download size={14} aria-hidden />
+              Resume
+            </a>
+          </div>
 
           {/* Mobile toggle */}
           <button
