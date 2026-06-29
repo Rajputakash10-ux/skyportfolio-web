@@ -29,8 +29,8 @@ function LinkedInIcon({ size }: { size: number }) {
 
 const SOCIAL_LINKS = [
   { href: "https://github.com/Rajputakash10-ux", label: "GitHub", Icon: GitHubIcon },
-  { href: "https://linkedin.com/in/akashrajput", label: "LinkedIn", Icon: LinkedInIcon },
-  { href: "mailto:akash@example.com", label: "Email", Icon: ({ size }: { size: number }) => <Mail size={size} /> },
+  { href: "https://www.linkedin.com/in/akash-rajput-9433aa368/", label: "LinkedIn", Icon: LinkedInIcon },
+  { href: "mailto:rajputakash1656@gmail.com", label: "Email", Icon: ({ size }: { size: number }) => <Mail size={size} /> },
 ];
 
 export default function Hero() {

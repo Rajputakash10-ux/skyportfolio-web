@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Send, CheckCircle } from "lucide-react";
+import emailjs from "@emailjs/browser";
+import { Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 function GitHubIcon() {
   return (
@@ -22,20 +23,39 @@ function LinkedInIcon() {
 import SectionHeader from "@/app/components/ui/SectionHeader";
 
 const CONTACT_INFO = [
-  { icon: Mail, label: "Email", value: "akash@example.com", href: "mailto:akash@example.com" },
+  { icon: Mail, label: "Email", value: "rajputakash1656@gmail.com", href: "mailto:rajputakash1656@gmail.com" },
   { icon: MapPin, label: "Location", value: "Mumbai, India", href: undefined },
   { icon: GitHubIcon, label: "GitHub", value: "Rajputakash10-ux", href: "https://github.com/Rajputakash10-ux" },
-  { icon: LinkedInIcon, label: "LinkedIn", value: "akashrajput", href: "https://linkedin.com/in/akashrajput" },
+  { icon: LinkedInIcon, label: "LinkedIn", value: "akash-rajput-9433aa368", href: "https://www.linkedin.com/in/akash-rajput-9433aa368/" },
 ];
 
-export default function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+// ─── EmailJS config ──────────────────────────────────────────────────────────
+// 1. Sign up at https://www.emailjs.com (free tier: 200 emails/month)
+// 2. Create a service (Gmail) → copy Service ID below
+// 3. Create an email template → copy Template ID below
+// 4. Copy your Public Key from Account → API Keys
+// Replace the three placeholder strings:
+const EJS_SERVICE  = "YOUR_SERVICE_ID";   // e.g. "service_abc123"
+const EJS_TEMPLATE = "YOUR_TEMPLATE_ID";  // e.g. "template_xyz789"
+const EJS_PUBLIC   = "YOUR_PUBLIC_KEY";   // e.g. "aBcDeFgHiJkLmNoP"
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const handleSubmit = (e: React.FormEvent) => {
+export default function Contact() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formRef.current) return;
     setStatus("sending");
-    setTimeout(() => { setStatus("sent"); setForm({ name: "", email: "", message: "" }); }, 1500);
+    try {
+      await emailjs.sendForm(EJS_SERVICE, EJS_TEMPLATE, formRef.current, EJS_PUBLIC);
+      setStatus("sent");
+      setForm({ name: "", email: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
   };
 
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -105,16 +125,33 @@ export default function Contact() {
                   Send another message
                 </button>
               </div>
+            ) : status === "error" ? (
+              <div className="card p-8 flex flex-col items-center justify-center gap-4 min-h-[320px] text-center">
+                <AlertCircle size={48} className="text-red-400" />
+                <div>
+                  <p className="text-lg font-semibold text-fg mb-1">Something went wrong</p>
+                  <p className="text-sm text-fg-muted">Please try again or email me directly at<br />
+                    <a href="mailto:rajputakash1656@gmail.com" className="text-brand-cyan hover:underline">rajputakash1656@gmail.com</a>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setStatus("idle")}
+                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded"
+                >
+                  Try again
+                </button>
+              </div>
             ) : (
-              <form onSubmit={handleSubmit} className="card p-6 space-y-4" noValidate>
+              <form ref={formRef} onSubmit={handleSubmit} className="card p-6 space-y-4" noValidate>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="Name" type="text" placeholder="Your name" value={form.name} onChange={update("name")} required />
-                  <FormField label="Email" type="email" placeholder="your@email.com" value={form.email} onChange={update("email")} required />
+                  <FormField label="Name" name="from_name" type="text" placeholder="Your name" value={form.name} onChange={update("name")} required />
+                  <FormField label="Email" name="reply_to" type="email" placeholder="your@email.com" value={form.email} onChange={update("email")} required />
                 </div>
                 <div className="space-y-1.5">
                   <label className="section-label block">Message</label>
                   <textarea
                     required
+                    name="message"
                     rows={5}
                     placeholder="Tell me about your project or opportunity..."
                     value={form.message}
@@ -140,9 +177,9 @@ export default function Contact() {
 }
 
 function FormField({
-  label, type, placeholder, value, onChange, required,
+  label, name, type, placeholder, value, onChange, required,
 }: {
-  label: string; type: string; placeholder: string;
+  label: string; name: string; type: string; placeholder: string;
   value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; required?: boolean;
 }) {
   return (
@@ -150,6 +187,7 @@ function FormField({
       <label className="section-label block">{label}</label>
       <input
         type={type}
+        name={name}
         required={required}
         placeholder={placeholder}
         value={value}

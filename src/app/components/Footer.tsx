@@ -46,9 +46,9 @@ export default function Footer() {
             <p className="text-xs font-semibold text-fg uppercase tracking-widest">Connect</p>
             <div className="space-y-2">
               {[
-                { label: "akash@example.com", href: "mailto:akash@example.com" },
+                { label: "rajputakash1656@gmail.com", href: "mailto:rajputakash1656@gmail.com" },
                 { label: "github.com/Rajputakash10-ux", href: "https://github.com/Rajputakash10-ux" },
-                { label: "linkedin.com/in/akashrajput", href: "https://linkedin.com/in/akashrajput" },
+                { label: "linkedin.com/in/akash-rajput", href: "https://www.linkedin.com/in/akash-rajput-9433aa368/" },
               ].map(({ label, href }) => (
                 <a
                   key={href}

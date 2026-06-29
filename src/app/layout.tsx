@@ -74,7 +74,7 @@ const structuredData = {
   address: { "@type": "PostalAddress", addressLocality: "Mumbai", addressCountry: "IN" },
   sameAs: [
     "https://github.com/Rajputakash10-ux",
-    "https://linkedin.com/in/akashrajput",
+    "https://www.linkedin.com/in/akash-rajput-9433aa368/",
   ],
 };
 
