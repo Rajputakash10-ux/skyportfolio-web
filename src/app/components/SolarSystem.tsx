@@ -4,128 +4,101 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
 /* ─────────────────────────────────────────────
-   PLANET DATA — real Kepler orbital periods
-   Earth = 16s baseline. All others scaled by
-   true sidereal year ratios from NASA data.
-   Earth=1yr, Mercury=0.241yr, Venus=0.615yr,
-   Mars=1.881yr, Jupiter=11.86yr, Saturn=29.46yr,
-   Uranus=84.01yr, Neptune=164.8yr
+   PLANET DATA — compact HUD scale
+   Container = 360px. Neptune fits at r=155px.
+   Real Kepler periods preserved (Earth = 16s).
 ───────────────────────────────────────────── */
-const EARTH_BASE = 16; // seconds on screen = 1 Earth year
+const EARTH_BASE = 16;
 
 const PLANETS = [
   {
-    id: "mercury",
-    label: "Mercury",
-    size: 6,
-    orbitR: 68,
-    period: +(EARTH_BASE * 0.241).toFixed(2),   // 3.86s
-    color: "#b5b5b5",
-    glow: "rgba(181,181,181,0.8)",
-    initialAngle: 20,
-    moons: [],
+    id: "mercury", label: "Mercury",
+    size: 4, orbitR: 28,
+    period: +(EARTH_BASE * 0.241).toFixed(2),
+    color: "#b5b5b5", glow: "rgba(181,181,181,0.9)",
+    initialAngle: 20, moons: [],
   },
   {
-    id: "venus",
-    label: "Venus",
-    size: 10,
-    orbitR: 96,
-    period: +(EARTH_BASE * 0.615).toFixed(2),   // 9.84s
-    color: "#e8cda0",
-    glow: "rgba(232,205,160,0.8)",
-    initialAngle: 110,
-    moons: [],
+    id: "venus", label: "Venus",
+    size: 5, orbitR: 44,
+    period: +(EARTH_BASE * 0.615).toFixed(2),
+    color: "#e8cda0", glow: "rgba(232,205,160,0.9)",
+    initialAngle: 110, moons: [],
   },
   {
-    id: "earth",
-    label: "Earth",
-    size: 11,
-    orbitR: 128,
-    period: EARTH_BASE,                          // 16s
-    color: "#4fa3e0",
-    glow: "rgba(79,163,224,0.9)",
+    id: "earth", label: "Earth",
+    size: 5, orbitR: 60,
+    period: EARTH_BASE,
+    color: "#4fa3e0", glow: "rgba(79,163,224,1)",
     initialAngle: 200,
-    moons: [{ size: 3, orbitR: 18, period: 1.2, color: "#c8c8c8" }],
+    moons: [{ size: 2, orbitR: 9, period: 1.2, color: "#c8c8c8" }],
     hasAtmosphere: true,
   },
   {
-    id: "mars",
-    label: "Mars",
-    size: 8,
-    orbitR: 162,
-    period: +(EARTH_BASE * 1.881).toFixed(2),   // 30.1s
-    color: "#c1440e",
-    glow: "rgba(193,68,14,0.8)",
-    initialAngle: 300,
-    moons: [],
+    id: "mars", label: "Mars",
+    size: 4, orbitR: 78,
+    period: +(EARTH_BASE * 1.881).toFixed(2),
+    color: "#c1440e", glow: "rgba(193,68,14,0.9)",
+    initialAngle: 300, moons: [],
   },
   {
-    id: "jupiter",
-    label: "Jupiter",
-    size: 28,
-    orbitR: 212,
-    period: +(EARTH_BASE * 11.86).toFixed(2),   // 189.8s
-    color: "#c88b3a",
-    glow: "rgba(200,139,58,0.7)",
-    initialAngle: 45,
-    moons: [],
-    hasStripes: true,
+    id: "jupiter", label: "Jupiter",
+    size: 10, orbitR: 102,
+    period: +(EARTH_BASE * 11.86).toFixed(2),
+    color: "#c88b3a", glow: "rgba(200,139,58,0.8)",
+    initialAngle: 45, moons: [], hasStripes: true,
   },
   {
-    id: "saturn",
-    label: "Saturn",
-    size: 23,
-    orbitR: 268,
-    period: +(EARTH_BASE * 29.46).toFixed(2),   // 471.4s
-    color: "#e4d191",
-    glow: "rgba(228,209,145,0.7)",
-    initialAngle: 160,
-    moons: [],
-    hasRings: true,
+    id: "saturn", label: "Saturn",
+    size: 9, orbitR: 120,
+    period: +(EARTH_BASE * 29.46).toFixed(2),
+    color: "#e4d191", glow: "rgba(228,209,145,0.8)",
+    initialAngle: 160, moons: [], hasRings: true,
   },
   {
-    id: "uranus",
-    label: "Uranus",
-    size: 16,
-    orbitR: 316,
-    period: +(EARTH_BASE * 84.01).toFixed(2),   // 1344s
-    color: "#7de8e8",
-    glow: "rgba(125,232,232,0.7)",
-    initialAngle: 270,
-    moons: [],
+    id: "uranus", label: "Uranus",
+    size: 7, orbitR: 137,
+    period: +(EARTH_BASE * 84.01).toFixed(2),
+    color: "#7de8e8", glow: "rgba(125,232,232,0.8)",
+    initialAngle: 270, moons: [],
   },
   {
-    id: "neptune",
-    label: "Neptune",
-    size: 15,
-    orbitR: 356,
-    period: +(EARTH_BASE * 164.8).toFixed(2),   // 2636.8s
-    color: "#3f54ba",
-    glow: "rgba(63,84,186,0.8)",
-    initialAngle: 350,
-    moons: [],
+    id: "neptune", label: "Neptune",
+    size: 7, orbitR: 153,
+    period: +(EARTH_BASE * 164.8).toFixed(2),
+    color: "#3f54ba", glow: "rgba(63,84,186,0.9)",
+    initialAngle: 350, moons: [],
   },
 ] as const;
 
 /* ── Star data generated once ── */
-const STARS = Array.from({ length: 120 }, (_, i) => ({
+const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: Math.random() * 1.8 + 0.4,
-  opacity: Math.random() * 0.6 + 0.2,
+  size: Math.random() * 1.2 + 0.3,
+  opacity: Math.random() * 0.5 + 0.15,
   twinkleDelay: Math.random() * 4,
   twinkleDuration: Math.random() * 2 + 1.5,
 }));
 
-const DUST = Array.from({ length: 30 }, (_, i) => ({
+const DUST = Array.from({ length: 18 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: Math.random() * 2 + 1,
-  opacity: Math.random() * 0.3 + 0.05,
+  size: Math.random() * 1.5 + 0.5,
+  opacity: Math.random() * 0.2 + 0.04,
   duration: Math.random() * 8 + 6,
   delay: Math.random() * 6,
+}));
+
+/* ── Asteroid belt (between Mars r=78 and Jupiter r=102) ── */
+const ASTEROIDS = Array.from({ length: 28 }, (_, i) => ({
+  id: i,
+  r: 88 + Math.random() * 10,
+  angle: (i / 28) * 360 + Math.random() * 8,
+  size: Math.random() * 1.2 + 0.4,
+  opacity: Math.random() * 0.35 + 0.1,
 }));
 
 /* ── Inject CSS keyframes once ── */
@@ -144,15 +117,26 @@ function injectKeyframes() {
       50%  { transform: translate(6px,-8px) scale(1.2); opacity: 0.35 }
       100% { transform: translate(-4px,4px) scale(0.9); opacity: 0.1 }
     }
-    @keyframes sun-pulse {
-      0%,100% { box-shadow: 0 0 40px 16px rgba(255,200,50,0.5), 0 0 80px 32px rgba(255,140,0,0.3), 0 0 120px 60px rgba(255,80,0,0.15) }
-      50%      { box-shadow: 0 0 55px 22px rgba(255,220,80,0.7), 0 0 100px 45px rgba(255,160,20,0.4), 0 0 160px 80px rgba(255,100,0,0.2) }
-    }
     @keyframes sun-corona {
       0%,100% { transform: scale(1); opacity: 0.4 }
       50%      { transform: scale(1.15); opacity: 0.7 }
     }
     @keyframes moon-orbit { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+    @keyframes radar-sweep { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+    @keyframes energy-pulse {
+      0%   { transform: scale(0.5); opacity: 0.8 }
+      80%  { transform: scale(4);   opacity: 0 }
+      100% { transform: scale(4);   opacity: 0 }
+    }
+    @keyframes orbit-particle {
+      from { transform: rotate(0deg) }
+      to   { transform: rotate(360deg) }
+    }
+    @keyframes hud-blink { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+    @keyframes sun-pulse {
+      0%,100% { box-shadow: 0 0 10px 4px rgba(255,200,50,0.8), 0 0 22px 8px rgba(255,140,0,0.4), 0 0 40px 16px rgba(255,80,0,0.15) }
+      50%      { box-shadow: 0 0 14px 6px rgba(255,220,80,1),   0 0 30px 12px rgba(255,160,20,0.5), 0 0 55px 22px rgba(255,100,0,0.2) }
+    }
   `;
   document.head.appendChild(style);
 }
@@ -210,10 +194,9 @@ export default function SolarSystem() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth;
-      if (w < 400)       setScale(0.42);
-      else if (w < 640)  setScale(0.52);
-      else if (w < 768)  setScale(0.65);
-      else if (w < 1024) setScale(0.78);
+      if (w < 400)       setScale(0.7);
+      else if (w < 640)  setScale(0.82);
+      else if (w < 768)  setScale(0.9);
       else               setScale(1);
     };
     update();
@@ -221,7 +204,7 @@ export default function SolarSystem() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const SIZE = 760; // base canvas size in px
+  const SIZE = 360;
   const cx = SIZE / 2;
 
   return (
@@ -281,48 +264,205 @@ export default function SolarSystem() {
           />
         ))}
 
-        {/* ── Orbit rings ── */}
+        {/* ── Orbit rings with glow ── */}
         {PLANETS.map((p) => (
-          <div
-            key={`orbit-${p.id}`}
-            className="absolute rounded-full pointer-events-none"
+          <div key={`orbit-${p.id}`} className="absolute rounded-full pointer-events-none"
             style={{
-              left: cx - p.orbitR,
-              top: cx - p.orbitR,
-              width: p.orbitR * 2,
-              height: p.orbitR * 2,
+              left: cx - p.orbitR, top: cx - p.orbitR,
+              width: p.orbitR * 2, height: p.orbitR * 2,
               border: hoveredPlanet === p.id
-                ? `1px solid rgba(255,255,255,0.35)`
-                : `1px solid rgba(255,255,255,0.08)`,
+                ? "1px solid rgba(0,229,204,0.4)"
+                : "1px solid rgba(255,255,255,0.07)",
               boxShadow: hoveredPlanet === p.id
-                ? `0 0 8px rgba(255,255,255,0.15)`
+                ? `0 0 6px rgba(0,229,204,0.15)`
                 : "none",
               transition: "border-color 0.3s, box-shadow 0.3s",
             }}
           />
         ))}
 
+        {/* ── Orbit particle dots (one bright dot per orbit) ── */}
+        {PLANETS.map((p) => (
+          <div key={`particle-${p.id}`} className="absolute pointer-events-none"
+            style={{
+              left: cx, top: cx,
+              width: 0, height: 0,
+              animation: `orbit ${p.period * 0.7}s linear infinite`,
+              animationDelay: `-${(p.initialAngle / 360) * p.period * 0.7}s`,
+              willChange: "transform",
+              zIndex: 1,
+            }}
+          >
+            <div style={{
+              position: "absolute",
+              left: p.orbitR - 1, top: -1,
+              width: 2, height: 2,
+              borderRadius: "50%",
+              background: p.color,
+              opacity: 0.6,
+              boxShadow: `0 0 3px 1px ${p.glow}`,
+            }} />
+          </div>
+        ))}
+
         {/* ── Sun ── */}
         <div
           className="absolute rounded-full"
           style={{
-            left: cx - 22,
-            top: cx - 22,
-            width: 44,
-            height: 44,
+            left: cx - 10,
+            top: cx - 10,
+            width: 20,
+            height: 20,
             background: "radial-gradient(circle at 38% 38%, #fff7a0, #ffd020 30%, #ff8c00 65%, #ff4500 100%)",
             animation: "sun-pulse 3s ease-in-out infinite",
             zIndex: 20,
           }}
         >
-          {/* Corona layers */}
-          <div className="absolute -inset-3 rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(255,200,50,0.3), transparent 70%)", animation: "sun-corona 3s ease-in-out infinite" }} />
-          <div className="absolute -inset-6 rounded-full"
+          <div className="absolute -inset-2 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(255,200,50,0.35), transparent 70%)", animation: "sun-corona 3s ease-in-out infinite" }} />
+          <div className="absolute -inset-4 rounded-full"
             style={{ background: "radial-gradient(circle, rgba(255,140,0,0.15), transparent 70%)", animation: "sun-corona 3s 0.5s ease-in-out infinite" }} />
-          <div className="absolute -inset-10 rounded-full"
-            style={{ background: "radial-gradient(circle, rgba(255,80,0,0.08), transparent 70%)", animation: "sun-corona 4s 1s ease-in-out infinite" }} />
+          <div className="absolute -inset-7 rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(255,80,0,0.07), transparent 70%)", animation: "sun-corona 4s 1s ease-in-out infinite" }} />
+
+          {/* Chromatic aberration */}
+          <div className="absolute rounded-full pointer-events-none"
+            style={{ inset: -1, border: "1px solid rgba(255,0,80,0.22)", borderRadius: "50%", transform: "translate(0.6px,0)" }} />
+          <div className="absolute rounded-full pointer-events-none"
+            style={{ inset: -1, border: "1px solid rgba(0,200,255,0.18)", borderRadius: "50%", transform: "translate(-0.6px,0)" }} />
         </div>
+
+        {/* ── Energy pulse rings (staggered every 9s) ── */}
+        {[0, 3, 6].map((delay) => (
+          <div key={delay} className="absolute rounded-full pointer-events-none"
+            style={{
+              left: cx - 10, top: cx - 10,
+              width: 20, height: 20,
+              border: "1px solid rgba(255,180,0,0.6)",
+              animation: `energy-pulse 9s ${delay}s ease-out infinite`,
+              zIndex: 19,
+            }}
+          />
+        ))}
+
+        {/* ── Lens flare streak ── */}
+        <div className="absolute pointer-events-none"
+          style={{
+            left: cx - 40, top: cx - 1,
+            width: 80, height: 2,
+            background: "linear-gradient(to right, transparent, rgba(255,230,100,0.1), rgba(255,255,200,0.22), rgba(255,230,100,0.1), transparent)",
+            filter: "blur(0.5px)",
+            zIndex: 21,
+          }}
+        />
+
+        {/* ── Asteroid belt (Mars r=78 → Jupiter r=102) ── */}
+        {ASTEROIDS.map((a) => {
+          const rad = (a.angle * Math.PI) / 180;
+          return (
+            <div
+              key={a.id}
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                left: cx + a.r * Math.cos(rad) - a.size / 2,
+                top:  cx + a.r * Math.sin(rad) - a.size / 2,
+                width: a.size, height: a.size,
+                background: "rgba(160,140,120,0.7)",
+                opacity: a.opacity,
+                boxShadow: "0 0 2px rgba(200,180,140,0.4)",
+              }}
+            />
+          );
+        })}
+
+        {/* ── HUD outer ring with tick marks ── */}
+        <div className="absolute rounded-full pointer-events-none"
+          style={{
+            left: 4, top: 4,
+            width: SIZE - 8, height: SIZE - 8,
+            border: "1px solid rgba(0,229,204,0.12)",
+          }}
+        />
+        {Array.from({ length: 36 }).map((_, i) => {
+          const angle = (i / 36) * 360;
+          const isMain = i % 9 === 0;
+          const isMed  = i % 3 === 0;
+          const rad = (angle * Math.PI) / 180;
+          const r = SIZE / 2 - 4;
+          const len = isMain ? 8 : isMed ? 5 : 3;
+          const x1 = cx + r * Math.cos(rad);
+          const y1 = cx + r * Math.sin(rad);
+          const x2 = cx + (r - len) * Math.cos(rad);
+          const y2 = cx + (r - len) * Math.sin(rad);
+          return (
+            <svg key={i} className="absolute inset-0 pointer-events-none"
+              width={SIZE} height={SIZE} style={{ overflow: "visible" }}>
+              <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke={isMain ? "rgba(0,229,204,0.5)" : "rgba(0,229,204,0.2)"}
+                strokeWidth={isMain ? 1.2 : 0.7} />
+            </svg>
+          );
+        })}
+
+        {/* ── Degree labels at cardinal points ── */}
+        {[{ a: 0, l: "0°" }, { a: 90, l: "90°" }, { a: 180, l: "180°" }, { a: 270, l: "270°" }].map(({ a, l }) => {
+          const rad = (a * Math.PI) / 180;
+          const r = SIZE / 2 - 16;
+          return (
+            <div key={a} className="absolute pointer-events-none"
+              style={{
+                left: cx + r * Math.cos(rad),
+                top:  cx + r * Math.sin(rad),
+                transform: "translate(-50%,-50%)",
+                fontSize: 7,
+                fontFamily: "monospace",
+                color: "rgba(0,229,204,0.45)",
+                letterSpacing: "0.05em",
+              }}
+            >{l}</div>
+          );
+        })}
+
+        {/* ── Radar sweep ── */}
+        <div className="absolute pointer-events-none"
+          style={{
+            left: cx, top: cx,
+            width: 0, height: 0,
+            animation: "radar-sweep 6s linear infinite",
+            willChange: "transform",
+            zIndex: 2,
+          }}
+        >
+          <div style={{
+            position: "absolute",
+            top: -(SIZE / 2 - 10),
+            left: -1,
+            width: 2,
+            height: SIZE / 2 - 10,
+            background: "linear-gradient(to top, rgba(0,229,204,0.55), transparent)",
+            transformOrigin: "bottom center",
+          }} />
+          {/* Sweep arc fade */}
+          <div style={{
+            position: "absolute",
+            top: -(SIZE / 2 - 10),
+            left: -(SIZE / 2 - 10),
+            width: (SIZE / 2 - 10) * 2,
+            height: (SIZE / 2 - 10) * 2,
+            borderRadius: "50%",
+            background: "conic-gradient(from -15deg, transparent 0deg, rgba(0,229,204,0.07) 15deg, transparent 25deg)",
+            pointerEvents: "none",
+          }} />
+        </div>
+
+        {/* ── Crosshair at center ── */}
+        <svg className="absolute inset-0 pointer-events-none" width={SIZE} height={SIZE}>
+          <line x1={cx - 14} y1={cx} x2={cx - 6} y2={cx} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
+          <line x1={cx + 6}  y1={cx} x2={cx + 14} y2={cx} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
+          <line x1={cx} y1={cx - 14} x2={cx} y2={cx - 6} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
+          <line x1={cx} y1={cx + 6}  x2={cx} y2={cx + 14} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
+          <circle cx={cx} cy={cx} r="3" fill="none" stroke="rgba(0,229,204,0.25)" strokeWidth="0.8" />
+        </svg>
 
         {/* ── Planets ── */}
         {PLANETS.map((p) => {
