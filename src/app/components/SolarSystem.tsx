@@ -4,16 +4,22 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 
 /* ─────────────────────────────────────────────
-   PLANET DATA  — sizes & orbits tuned to look
-   great on screen while keeping solar proportions
+   PLANET DATA — real Kepler orbital periods
+   Earth = 16s baseline. All others scaled by
+   true sidereal year ratios from NASA data.
+   Earth=1yr, Mercury=0.241yr, Venus=0.615yr,
+   Mars=1.881yr, Jupiter=11.86yr, Saturn=29.46yr,
+   Uranus=84.01yr, Neptune=164.8yr
 ───────────────────────────────────────────── */
+const EARTH_BASE = 16; // seconds on screen = 1 Earth year
+
 const PLANETS = [
   {
     id: "mercury",
     label: "Mercury",
     size: 6,
     orbitR: 68,
-    period: 6,
+    period: +(EARTH_BASE * 0.241).toFixed(2),   // 3.86s
     color: "#b5b5b5",
     glow: "rgba(181,181,181,0.8)",
     initialAngle: 20,
@@ -24,7 +30,7 @@ const PLANETS = [
     label: "Venus",
     size: 10,
     orbitR: 96,
-    period: 10,
+    period: +(EARTH_BASE * 0.615).toFixed(2),   // 9.84s
     color: "#e8cda0",
     glow: "rgba(232,205,160,0.8)",
     initialAngle: 110,
@@ -35,11 +41,11 @@ const PLANETS = [
     label: "Earth",
     size: 11,
     orbitR: 128,
-    period: 16,
+    period: EARTH_BASE,                          // 16s
     color: "#4fa3e0",
     glow: "rgba(79,163,224,0.9)",
     initialAngle: 200,
-    moons: [{ size: 3, orbitR: 18, period: 2.5, color: "#c8c8c8" }],
+    moons: [{ size: 3, orbitR: 18, period: 1.2, color: "#c8c8c8" }],
     hasAtmosphere: true,
   },
   {
@@ -47,7 +53,7 @@ const PLANETS = [
     label: "Mars",
     size: 8,
     orbitR: 162,
-    period: 26,
+    period: +(EARTH_BASE * 1.881).toFixed(2),   // 30.1s
     color: "#c1440e",
     glow: "rgba(193,68,14,0.8)",
     initialAngle: 300,
@@ -58,7 +64,7 @@ const PLANETS = [
     label: "Jupiter",
     size: 28,
     orbitR: 212,
-    period: 48,
+    period: +(EARTH_BASE * 11.86).toFixed(2),   // 189.8s
     color: "#c88b3a",
     glow: "rgba(200,139,58,0.7)",
     initialAngle: 45,
@@ -70,7 +76,7 @@ const PLANETS = [
     label: "Saturn",
     size: 23,
     orbitR: 268,
-    period: 72,
+    period: +(EARTH_BASE * 29.46).toFixed(2),   // 471.4s
     color: "#e4d191",
     glow: "rgba(228,209,145,0.7)",
     initialAngle: 160,
@@ -82,7 +88,7 @@ const PLANETS = [
     label: "Uranus",
     size: 16,
     orbitR: 316,
-    period: 100,
+    period: +(EARTH_BASE * 84.01).toFixed(2),   // 1344s
     color: "#7de8e8",
     glow: "rgba(125,232,232,0.7)",
     initialAngle: 270,
@@ -93,7 +99,7 @@ const PLANETS = [
     label: "Neptune",
     size: 15,
     orbitR: 356,
-    period: 130,
+    period: +(EARTH_BASE * 164.8).toFixed(2),   // 2636.8s
     color: "#3f54ba",
     glow: "rgba(63,84,186,0.8)",
     initialAngle: 350,
