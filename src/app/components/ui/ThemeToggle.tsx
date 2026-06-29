@@ -23,7 +23,7 @@ const MODES: { id: Theme; icon: React.ReactNode; label: string }[] = [
 /* Active pill colour per theme */
 const PILL_BG: Record<Theme, string> = {
   dark:  "linear-gradient(135deg, #D4A5FF, #00E5CC)",
-  light: "linear-gradient(135deg, #9333EA, #00B8A3)",
+  light: "#0D0D15",
   bold:  "#000000",
 };
 
