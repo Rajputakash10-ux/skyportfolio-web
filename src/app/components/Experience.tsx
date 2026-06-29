@@ -30,18 +30,6 @@ const experiences = [
     ],
     skills: ["Python", "TensorFlow", "FastAPI", "Next.js", "PostgreSQL"],
   },
-  {
-    type: "work",
-    company: "Professional Experience",
-    role: "Client-Facing Roles (BPO / Support)",
-    grade: null,
-    period: "2021 – 2023",
-    highlights: [
-      "Strong client communication and problem-solving under pressure",
-      "Managed high-volume interactions with consistent quality delivery",
-    ],
-    skills: ["Communication", "Problem-solving", "Team Collaboration"],
-  },
 ];
 
 function TimelineCard({

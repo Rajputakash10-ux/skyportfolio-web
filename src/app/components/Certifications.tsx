@@ -1,76 +1,100 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, Award } from "lucide-react";
+import { Code2, Brain, Database, Globe, BarChart2, Cpu } from "lucide-react";
 
-const certifications = [
+const skills = [
   {
-    title: "TensorFlow Developer Certificate",
-    issuer: "Google / Coursera",
-    date: "In Progress",
-    link: "https://coursera.org",
-    category: "ML / Deep Learning",
+    icon: Brain,
+    title: "Machine Learning",
     color: "from-indigo-500 to-purple-500",
     border: "border-indigo-500/20",
     badge: "bg-indigo-500/10 text-indigo-300",
+    category: "ML / DL",
+    points: [
+      "Built end-to-end ML pipelines from data ingestion to deployment",
+      "Hands-on with supervised, unsupervised & reinforcement learning",
+      "Model evaluation, hyperparameter tuning, cross-validation",
+    ],
+    tools: ["scikit-learn", "TensorFlow", "Keras", "XGBoost"],
   },
   {
-    title: "Python for Data Science & AI",
-    issuer: "IBM / Coursera",
-    date: "2023",
-    link: "https://coursera.org",
-    category: "Data Science",
+    icon: Code2,
+    title: "Natural Language Processing",
     color: "from-cyan-500 to-blue-500",
     border: "border-cyan-500/20",
     badge: "bg-cyan-500/10 text-cyan-300",
-  },
-  {
-    title: "Machine Learning Specialization",
-    issuer: "DeepLearning.AI / Coursera",
-    date: "2023",
-    link: "https://coursera.org",
-    category: "ML / Deep Learning",
-    color: "from-indigo-500 to-cyan-500",
-    border: "border-indigo-500/20",
-    badge: "bg-indigo-500/10 text-indigo-300",
-  },
-  {
-    title: "Natural Language Processing",
-    issuer: "DeepLearning.AI",
-    date: "2024",
-    link: "https://coursera.org",
     category: "NLP",
-    color: "from-violet-500 to-indigo-500",
-    border: "border-violet-500/20",
-    badge: "bg-violet-500/10 text-violet-300",
+    points: [
+      "Built real-time NLP chatbot with intent classification",
+      "Text preprocessing, tokenization, embeddings (Word2Vec, BERT)",
+      "Sentiment analysis, named entity recognition",
+    ],
+    tools: ["NLTK", "spaCy", "HuggingFace", "Transformers"],
   },
   {
-    title: "SQL for Data Science",
-    issuer: "UC Davis / Coursera",
-    date: "2023",
-    link: "https://coursera.org",
-    category: "Data Science",
+    icon: BarChart2,
+    title: "Data Science & Analysis",
     color: "from-cyan-500 to-teal-500",
     border: "border-cyan-500/20",
     badge: "bg-cyan-500/10 text-cyan-300",
+    category: "Data Science",
+    points: [
+      "Exploratory data analysis on real-world datasets",
+      "Data cleaning, feature engineering, visualization",
+      "Statistical analysis and hypothesis testing",
+    ],
+    tools: ["Pandas", "NumPy", "Matplotlib", "Seaborn"],
   },
   {
-    title: "MLOps Fundamentals",
-    issuer: "Google Cloud",
-    date: "In Progress",
-    link: "https://cloud.google.com",
-    category: "MLOps",
+    icon: Globe,
+    title: "Full-Stack Development",
+    color: "from-violet-500 to-indigo-500",
+    border: "border-violet-500/20",
+    badge: "bg-violet-500/10 text-violet-300",
+    category: "Web Dev",
+    points: [
+      "Built Stock Talks — live stock analysis & trading platform",
+      "REST API design and integration with ML backends",
+      "Responsive UI with React, Next.js, Tailwind CSS",
+    ],
+    tools: ["Next.js", "React", "FastAPI", "PostgreSQL"],
+  },
+  {
+    icon: Database,
+    title: "Data Engineering",
     color: "from-orange-500 to-amber-500",
     border: "border-orange-500/20",
     badge: "bg-orange-500/10 text-orange-300",
+    category: "Data Eng",
+    points: [
+      "Designed and queried relational databases for ML projects",
+      "Data pipeline automation and preprocessing scripts",
+      "Experience with structured and unstructured data formats",
+    ],
+    tools: ["SQL", "PostgreSQL", "MongoDB", "Pandas"],
+  },
+  {
+    icon: Cpu,
+    title: "MLOps & Deployment",
+    color: "from-indigo-500 to-cyan-500",
+    border: "border-indigo-500/20",
+    badge: "bg-indigo-500/10 text-indigo-300",
+    category: "MLOps",
+    points: [
+      "Model versioning, packaging and serving via APIs",
+      "Docker basics for containerizing ML applications",
+      "Deployed ML models to cloud and local environments",
+    ],
+    tools: ["Docker", "FastAPI", "GitHub Actions", "Vercel"],
   },
 ];
 
-function CertCard({
-  cert,
+function SkillCard({
+  skill,
   index,
 }: {
-  cert: (typeof certifications)[0];
+  skill: (typeof skills)[0];
   index: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -85,6 +109,8 @@ function CertCard({
     return () => observer.disconnect();
   }, []);
 
+  const Icon = skill.icon;
+
   return (
     <div
       ref={ref}
@@ -93,33 +119,40 @@ function CertCard({
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}
     >
-      {/* Top row: icon + category badge */}
+      {/* Top row */}
       <div className="flex items-start justify-between">
-        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${cert.color} flex items-center justify-center shadow-md`}>
-          <Award size={18} className="text-white" />
+        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${skill.color} flex items-center justify-center shadow-md`}>
+          <Icon size={18} className="text-white" />
         </div>
-        <span className={`text-xs px-2.5 py-1 rounded-full border ${cert.border} ${cert.badge} font-medium`}>
-          {cert.category}
+        <span className={`text-xs px-2.5 py-1 rounded-full border ${skill.border} ${skill.badge} font-medium`}>
+          {skill.category}
         </span>
       </div>
 
-      {/* Title + issuer */}
-      <div className="flex-1">
-        <h3 className="font-semibold text-[var(--foreground)] leading-snug mb-1">{cert.title}</h3>
-        <p className="text-sm text-[var(--foreground-secondary)]">{cert.issuer}</p>
-        <p className="text-xs text-[var(--foreground-secondary)] mt-1 opacity-70">{cert.date}</p>
-      </div>
+      {/* Title */}
+      <h3 className="font-semibold text-[var(--foreground)]">{skill.title}</h3>
 
-      {/* Link */}
-      <a
-        href={cert.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-1.5 text-sm text-[var(--accent-cyan)] hover:text-white transition-colors w-fit"
-      >
-        <ExternalLink size={13} />
-        View Certificate
-      </a>
+      {/* Points */}
+      <ul className="space-y-1.5 flex-1">
+        {skill.points.map((p) => (
+          <li key={p} className="flex items-start gap-2 text-sm text-[var(--foreground-secondary)]">
+            <span className="mt-1.5 w-1 h-1 rounded-full bg-indigo-400 flex-shrink-0" />
+            {p}
+          </li>
+        ))}
+      </ul>
+
+      {/* Tools */}
+      <div className="flex flex-wrap gap-2 pt-1">
+        {skill.tools.map((t) => (
+          <span
+            key={t}
+            className={`text-xs px-2.5 py-0.5 rounded-full border ${skill.border} ${skill.badge}`}
+          >
+            {t}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -130,14 +163,17 @@ export default function Certifications() {
       <div className="container-max">
         {/* Section Title */}
         <div className="text-center mb-14">
-          <p className="text-sm text-[var(--accent-cyan)] tracking-widest uppercase mb-2">Credentials</p>
-          <h2 className="text-3xl font-bold">Certifications</h2>
+          <p className="text-sm text-[var(--accent-cyan)] tracking-widest uppercase mb-2">What I bring</p>
+          <h2 className="text-3xl font-bold">Hands-On Skills</h2>
+          <p className="text-[var(--foreground-secondary)] mt-3 max-w-md mx-auto text-sm">
+            No certificates — just real projects, consistent practice, and depth built from actually building things.
+          </p>
         </div>
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {certifications.map((cert, i) => (
-            <CertCard key={cert.title} cert={cert} index={i} />
+          {skills.map((skill, i) => (
+            <SkillCard key={skill.title} skill={skill} index={i} />
           ))}
         </div>
       </div>
