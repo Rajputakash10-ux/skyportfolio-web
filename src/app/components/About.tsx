@@ -1,114 +1,129 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import SectionHeader from "@/app/components/ui/SectionHeader";
+import { STATS, TECH_STACK } from "@/constants/data";
 
-const stats = [
-  { value: "3+", label: "ML Projects Deployed" },
-  { value: "2+", label: "Years Professional Experience" },
-  { value: "8.50", label: "CGPA" },
-];
-
-const highlights = [
-  "Daily ML practice — consistent self-learner",
-  "Ships fast with a code-first mentality",
-  "Technical depth + strong client communication",
-  "Real projects on GitHub, not just tutorials",
+const HIGHLIGHTS = [
+  "Daily ML practice — consistent, disciplined self-learner",
+  "Ships fast with a code-first, production-minded mentality",
+  "Technical depth with strong client communication skills",
+  "Every GitHub project is real-world grade, not tutorial clones",
 ];
 
 export default function About() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.15 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="about" className="section-padding bg-[var(--background-secondary)]">
+    <section id="about" className="section-padding bg-bg-secondary">
       <div className="container-max">
-        {/* Section Title */}
-        <div className="text-center mb-14">
-          <p className="text-sm text-[var(--accent-cyan)] tracking-widest uppercase mb-2">Get to know me</p>
-          <h2 className="text-3xl font-bold">About Me</h2>
-        </div>
+        <SectionHeader
+          label="Get to know me"
+          title="About Me"
+          align="center"
+        />
 
-        <div
-          ref={ref}
-          className={`flex flex-col lg:flex-row gap-12 lg:gap-20 items-center transition-all duration-700 ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
-        >
-          {/* Left — Text */}
-          <div className="flex-1 space-y-5">
-            <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed">
-              I&apos;m a B.Sc. Computer Science graduate (2026) passionate about building
-              intelligent systems that solve real-world problems. My focus is on
-              Python, Machine Learning, NLP, and full-stack web development.
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          {/* Left — Prose */}
+          <motion.div
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-5"
+          >
+            <p className="text-base text-fg-muted leading-relaxed">
+              I&apos;m a <span className="text-fg font-medium">B.Sc. Computer Science</span> graduate (2026)
+              passionate about building intelligent systems that solve real-world problems.
+              My core focus is Python, Machine Learning, NLP, and full-stack web development.
             </p>
-            <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed">
-              From deploying ML pipelines to building NLP chatbots and a live
-              stock analysis platform, I combine technical depth with a
-              ship-fast mindset. Every project on my GitHub is production-grade
-              — built to learn, built to last.
-            </p>
-            <p className="text-lg text-[var(--foreground-secondary)] leading-relaxed">
-              I&apos;m currently seeking a full-time Data Science role where I can
-              go deeper into MLOps, model deployment, and real-time data systems.
+            <p className="text-base text-fg-muted leading-relaxed">
+              From deploying ML pipelines to building NLP chatbots and a live stock analysis
+              platform, I combine technical depth with a ship-fast mindset. I&apos;m currently
+              seeking a full-time <span className="text-fg font-medium">Data Science role</span> where
+              I can go deeper into MLOps, model deployment, and real-time data systems.
             </p>
 
-            {/* Highlights */}
-            <ul className="space-y-2 pt-2">
-              {highlights.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-[var(--foreground-secondary)]">
-                  <span className="mt-1 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-indigo-400 to-cyan-400 flex-shrink-0" />
+            <ul className="space-y-2.5 pt-2" aria-label="Key highlights">
+              {HIGHLIGHTS.map((item, i) => (
+                <motion.li
+                  key={item}
+                  initial={{ opacity: 0, x: -16 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                  className="flex items-start gap-3 text-sm text-fg-muted"
+                >
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-indigo-400 to-cyan-400 flex-shrink-0" />
                   {item}
-                </li>
+                </motion.li>
               ))}
             </ul>
 
-            {/* CTA */}
             <div className="pt-4">
               <a
                 href="#projects"
-                className="inline-block px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-medium hover:opacity-90 hover:scale-105 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-indigo-600 to-cyan-500 text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
               >
-                View My Work →
+                View My Projects →
               </a>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right — Stats + Visual */}
-          <div className="flex-shrink-0 w-full lg:w-80 space-y-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="card-base card-hover p-6 flex items-center gap-5 cursor-default"
-              >
-                <span className="text-3xl font-bold gradient-text">{stat.value}</span>
-                <span className="text-sm text-[var(--foreground-secondary)] leading-snug">{stat.label}</span>
-              </div>
-            ))}
+          {/* Right — Stats + Stack */}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+            className="space-y-4"
+          >
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {STATS.map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="card p-5 flex flex-col gap-1 hover:border-[var(--border-hover)] transition-all duration-300"
+                >
+                  <span className="text-3xl font-bold gradient-text leading-none">{stat.value}</span>
+                  <span className="text-xs text-fg-muted leading-snug">{stat.label}</span>
+                </motion.div>
+              ))}
+            </div>
 
-            {/* Tech tags */}
-            <div className="card-base p-5">
-              <p className="text-xs text-[var(--foreground-secondary)] uppercase tracking-widest mb-3">Core Stack</p>
+            {/* Tech stack */}
+            <div className="card p-5 space-y-3">
+              <p className="section-label">Core Stack</p>
               <div className="flex flex-wrap gap-2">
-                {["Python", "ML/DL", "NLP", "React", "Next.js", "SQL", "FastAPI", "TensorFlow"].map((tech) => (
-                  <span
+                {TECH_STACK.map((tech, i) => (
+                  <motion.span
                     key={tech}
-                    className="text-xs px-3 py-1 rounded-full border border-[var(--border-subtle)] text-[var(--foreground-secondary)]"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.04, duration: 0.3 }}
+                    className="text-xs px-3 py-1.5 rounded-full border border-[var(--border)] text-fg-muted hover:text-fg hover:border-[var(--border-hover)] transition-colors duration-200"
                   >
                     {tech}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
             </div>
-          </div>
+
+            {/* Availability badge */}
+            <div className="card p-4 flex items-center gap-3">
+              <div className="relative flex-shrink-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-60" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-fg">Available for opportunities</p>
+                <p className="text-xs text-fg-muted">Open to full-time Data Science / ML roles</p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
