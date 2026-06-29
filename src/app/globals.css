@@ -44,24 +44,24 @@
     --selection-bg: rgba(124, 58, 237, 0.15);
   }
 
-  /* ── BOLD WHITE MODE ─────────────────────────────────────── */
+  /* ── BOLD CLASSIC MODE — pure black & white, zero colour ── */
   [data-theme="bold"] {
     --bg: #FFFFFF;
-    --bg-secondary: #F5F5FF;
-    --bg-tertiary: #EBEBFF;
+    --bg-secondary: #F4F4F4;
+    --bg-tertiary: #E8E8E8;
     --fg: #000000;
-    --fg-muted: #2A2A2A;
-    --fg-subtle: #6A6A6A;
-    --brand-purple: #6D28D9;
-    --brand-teal: #0E7490;
-    --brand-gold: #B45309;
-    --border: rgba(109, 40, 217, 0.2);
-    --border-hover: rgba(14, 116, 144, 0.5);
-    --border-gold: rgba(180, 83, 9, 0.35);
-    --glass-bg: rgba(255, 255, 255, 0.95);
-    --card-shadow: 0 1px 4px rgba(0,0,0,0.12), 0 8px 32px rgba(109,40,217,0.1);
-    --scrollbar: rgba(109, 40, 217, 0.4);
-    --selection-bg: rgba(109, 40, 217, 0.2);
+    --fg-muted: #333333;
+    --fg-subtle: #777777;
+    --brand-purple: #000000;
+    --brand-teal: #000000;
+    --brand-gold: #000000;
+    --border: rgba(0, 0, 0, 0.15);
+    --border-hover: rgba(0, 0, 0, 0.5);
+    --border-gold: rgba(0, 0, 0, 0.2);
+    --glass-bg: rgba(255, 255, 255, 0.97);
+    --card-shadow: 0 1px 0 rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    --scrollbar: rgba(0, 0, 0, 0.25);
+    --selection-bg: rgba(0, 0, 0, 0.1);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -148,20 +148,27 @@
     opacity: 0.9;
   }
 
-  /* Bold mode section label — stronger */
-  [data-theme="bold"] .section-label { opacity: 1; font-weight: 800; }
+  /* Bold mode section label */
+  [data-theme="bold"] .section-label {
+    opacity: 1;
+    font-weight: 800;
+    color: #000000;
+    letter-spacing: 0.25em;
+  }
 
-  /* Bold mode headings */
+  /* Bold mode headings — heavier weight */
   [data-theme="bold"] h1,
   [data-theme="bold"] h2,
   [data-theme="bold"] h3 { font-weight: 900; }
 
-  /* Glow effects — reduced in light/bold modes */
+  /* Glow effects — none in bold mode */
   .glow-purple { box-shadow: 0 0 60px -15px rgba(212,165,255,0.5); }
   .glow-teal   { box-shadow: 0 0 60px -15px rgba(0,229,204,0.5); }
   .glow-gold   { box-shadow: 0 0 60px -15px rgba(255,183,0,0.4); }
-  [data-theme="light"] .glow-purple,
-  [data-theme="bold"]  .glow-purple { box-shadow: 0 0 40px -15px rgba(124,58,237,0.3); }
+  [data-theme="light"] .glow-purple { box-shadow: 0 0 40px -15px rgba(124,58,237,0.3); }
+  [data-theme="bold"] .glow-purple,
+  [data-theme="bold"] .glow-teal,
+  [data-theme="bold"] .glow-gold { box-shadow: none; }
 
   /* Focus ring */
   .focus-ring {
@@ -190,9 +197,57 @@
     opacity: 0.5;
   }
 
-  /* Light/bold — no ambient grid glow needed */
-  [data-theme="light"] .hero-grid,
-  [data-theme="bold"]  .hero-grid { opacity: 0.4; }
+  /* Light — reduce hero grid */
+  [data-theme="light"] .hero-grid { opacity: 0.4; }
+
+  /* Bold — sharp black grid, no colour glow */
+  [data-theme="bold"] .hero-grid { opacity: 0.07; }
+
+  /* Bold — strip all gradient-text to plain black */
+  [data-theme="bold"] .gradient-text,
+  [data-theme="bold"] .gradient-text-gold,
+  [data-theme="bold"] .gradient-text-subtle {
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: #000000;
+    background-clip: unset;
+    color: #000000;
+  }
+
+  /* Bold — glass becomes a clean white card with black border */
+  [data-theme="bold"] .glass {
+    background: #FFFFFF;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: rgba(0,0,0,0.12);
+  }
+
+  /* Bold — card gets a crisp black border */
+  [data-theme="bold"] .card {
+    border: 1px solid rgba(0,0,0,0.12);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  }
+
+  /* Bold — scrollbar goes black */
+  [data-theme="bold"]::-webkit-scrollbar-thumb,
+  [data-theme="bold"] ::-webkit-scrollbar-thumb {
+    background: #000000;
+  }
+
+  /* Bold — kill all ambient glows and decorative blobs */
+  [data-theme="bold"] .animate-pulse-slow { display: none; }
+
+  /* Bold — focus ring becomes black */
+  [data-theme="bold"] .focus-ring {
+    --tw-ring-color: #000000;
+    --tw-ring-offset-color: #FFFFFF;
+  }
+
+  /* Bold — gradient-border becomes a clean black border */
+  [data-theme="bold"] .gradient-border::before {
+    background: #000000;
+    opacity: 0.15;
+  }
 
   /* ── SolarSystem keyframes — static CSS, replaces runtime injectKeyframes() ── */
   @keyframes orbit      { from { transform: rotate(0deg)   } to { transform: rotate(360deg)  } }
