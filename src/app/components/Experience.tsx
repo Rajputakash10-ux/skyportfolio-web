@@ -16,7 +16,7 @@ export default function Experience() {
             <div
               className="absolute left-5 top-6 bottom-6 w-px"
               style={{ background: "linear-gradient(to bottom, rgba(212,165,255,0.5), rgba(0,229,204,0.3), transparent)" }}
-              aria-hidden
+              aria-hidden="true"
             />
             <div className="space-y-6">
               {EXPERIENCES.map((exp, i) => (
@@ -35,8 +35,8 @@ export default function Experience() {
                       style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)", boxShadow: "0 0 20px -5px rgba(212,165,255,0.5)" }}
                     >
                       {exp.type === "education"
-                        ? <GraduationCap size={17} className="text-white" aria-hidden />
-                        : <Briefcase size={17} className="text-white" aria-hidden />}
+                        ? <GraduationCap size={17} className="text-white" aria-hidden="true" />
+                        : <Briefcase size={17} className="text-white" aria-hidden="true" />}
                     </div>
                   </div>
 
@@ -51,8 +51,8 @@ export default function Experience() {
                         <p className="text-sm mt-0.5" style={{ color: "#00E5CC" }}>{exp.role}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1 text-xs text-fg-muted flex-shrink-0">
-                        <span className="flex items-center gap-1"><Calendar size={11} aria-hidden />{exp.period}</span>
-                        <span className="flex items-center gap-1"><MapPin size={11} aria-hidden />{exp.location}</span>
+                        <span className="flex items-center gap-1"><Calendar size={11} aria-hidden="true" />{exp.period}</span>
+                        <span className="flex items-center gap-1"><MapPin size={11} aria-hidden="true" />{exp.location}</span>
                       </div>
                     </div>
 

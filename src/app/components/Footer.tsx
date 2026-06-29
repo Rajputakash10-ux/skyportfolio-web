@@ -20,7 +20,7 @@ export default function Footer() {
               className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg text-white hover:opacity-85 transition-opacity focus-ring"
               style={{ background: "linear-gradient(135deg, #D4A5FF, #FFB700)" }}
             >
-              <Download size={12} aria-hidden />
+              <Download size={12} aria-hidden="true" />
               Download Resume
             </a>
           </div>
@@ -72,7 +72,7 @@ export default function Footer() {
             className="flex items-center gap-1.5 text-xs text-fg-subtle hover:text-fg transition-colors focus-ring rounded"
             aria-label="Scroll to top"
           >
-            <ArrowUp size={12} aria-hidden />
+            <ArrowUp size={12} aria-hidden="true" />
             Back to top
           </button>
         </div>

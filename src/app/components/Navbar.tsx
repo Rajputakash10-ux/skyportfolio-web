@@ -80,7 +80,7 @@ export default function Navbar() {
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
               style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))", boxShadow: "0 0 20px -5px rgba(212,165,255,0.4)" }}
             >
-              <Download size={14} aria-hidden />
+              <Download size={14} aria-hidden="true" />
               Resume
             </a>
           </div>
@@ -142,7 +142,7 @@ export default function Navbar() {
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-white text-sm font-medium focus-ring"
                   style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
                 >
-                  <Download size={15} aria-hidden />
+                  <Download size={15} aria-hidden="true" />
                   Download Resume
                 </a>
               </div>

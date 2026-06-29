@@ -49,7 +49,7 @@ export default function About() {
                   className="flex items-start gap-3 text-sm text-fg-muted"
                 >
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }} />
+                    style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))" }} />
                   {item}
                 </motion.li>
               ))}
@@ -59,7 +59,7 @@ export default function About() {
               <a
                 href="#projects"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
-                style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
+                style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))" }}
               >
                 View My Projects →
               </a>
@@ -115,8 +115,8 @@ export default function About() {
             {/* Availability badge */}
             <div className="card p-4 flex items-center gap-3" style={{ borderColor: "rgba(0,229,204,0.2)" }}>
               <div className="relative flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#00E5CC]" />
-                <div className="absolute inset-0 rounded-full bg-[#00E5CC] animate-ping opacity-60" />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--brand-teal)" }} />
+                <div className="absolute inset-0 rounded-full animate-ping opacity-60" style={{ background: "var(--brand-teal)" }} />
               </div>
               <div>
                 <p className="text-sm font-medium text-fg">Available for opportunities</p>
