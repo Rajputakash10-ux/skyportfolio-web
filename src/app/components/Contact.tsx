@@ -35,9 +35,9 @@ const CONTACT_INFO = [
 // 3. Create an email template → copy Template ID below
 // 4. Copy your Public Key from Account → API Keys
 // Replace the three placeholder strings:
-const EJS_SERVICE  = "YOUR_SERVICE_ID";   // e.g. "service_abc123"
-const EJS_TEMPLATE = "YOUR_TEMPLATE_ID";  // e.g. "template_xyz789"
-const EJS_PUBLIC   = "YOUR_PUBLIC_KEY";   // e.g. "aBcDeFgHiJkLmNoP"
+const EJS_SERVICE  = "service_g41v6qt";
+const EJS_TEMPLATE = "template_hrm1zp8";
+const EJS_PUBLIC   = "3fKcY5SiVFpMI_9y4";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Contact() {
