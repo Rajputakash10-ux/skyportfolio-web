@@ -1,17 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
-import type { Variants } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { Download, Mail, ArrowRight } from "lucide-react";
-import SolarSystem from "@/app/components/SolarSystem";
 
-const ease = [0.22, 1, 0.36, 1] as const;
-const fadeUp = (delay = 0): Variants => ({
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease, delay } },
+// Lazy-load the heavy SolarSystem — not part of LCP, deferred safely
+const SolarSystem = dynamic(() => import("@/app/components/SolarSystem"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="flex-shrink-0"
+      style={{ width: 360, height: 360 }}
+      aria-hidden="true"
+    />
+  ),
 });
 
-/* ── Social icon SVGs ── */
+/* ── Static SVG icons — no client overhead ── */
 function GitHubIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -28,7 +33,6 @@ function LinkedInIcon() {
   );
 }
 
-/* ── Enhanced social links with gradient pill style ── */
 const SOCIAL_LINKS = [
   {
     href: "https://github.com/Rajputakash10-ux",
@@ -51,7 +55,7 @@ const SOCIAL_LINKS = [
   {
     href: "mailto:rajputakash1656@gmail.com",
     label: "Email",
-    icon: <Mail size={18} />,
+    icon: <Mail size={18} aria-hidden="true" />,
     gradient: "linear-gradient(135deg, rgba(255,183,0,0.15), rgba(255,183,0,0.05))",
     hoverGradient: "linear-gradient(135deg, rgba(255,183,0,0.3), rgba(255,183,0,0.1))",
     borderColor: "rgba(255,183,0,0.25)",
@@ -61,7 +65,7 @@ const SOCIAL_LINKS = [
     href: "/assets/Akash_Singh_Resume.pdf",
     label: "Resume",
     download: true,
-    icon: <Download size={18} />,
+    icon: <Download size={18} aria-hidden="true" />,
     gradient: "linear-gradient(135deg, rgba(212,165,255,0.1), rgba(0,229,204,0.1))",
     hoverGradient: "linear-gradient(135deg, rgba(212,165,255,0.25), rgba(0,229,204,0.2))",
     borderColor: "rgba(212,165,255,0.2)",
@@ -70,24 +74,34 @@ const SOCIAL_LINKS = [
 ];
 
 export default function Hero() {
+  // Animations start after first paint — content is visible immediately
+  const [ready, setReady] = useState(false);
+  const reducedMotion = useRef(false);
+
+  useEffect(() => {
+    reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // rAF ensures we're past first paint before starting animations
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const noMotion = !ready || reducedMotion.current;
+
   return (
     <section className="relative min-h-screen flex items-center section-padding overflow-hidden">
 
-      {/* Grid background */}
+      {/* Grid background — pure CSS, no JS */}
       <div
         className="hero-grid absolute inset-0 pointer-events-none"
         aria-hidden="true"
         style={{
-          backgroundImage: `
-            linear-gradient(var(--border) 1px, transparent 1px),
-            linear-gradient(90deg, var(--border) 1px, transparent 1px)
-          `,
+          backgroundImage: `linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)`,
           backgroundSize: "64px 64px",
           maskImage: "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
         }}
       />
 
-      {/* Ambient glows */}
+      {/* Ambient glows — CSS only, no JS animation cost */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/3 left-[15%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow"
           style={{ background: "radial-gradient(circle, rgba(212,165,255,0.12), transparent 70%)" }} />
@@ -100,64 +114,67 @@ export default function Hero() {
       <div className="container-max w-full relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
-          {/* ── Text content ── */}
+          {/* ── Text content — visible immediately, no opacity:0 on LCP ── */}
           <div className="flex-1 text-center lg:text-left">
 
             {/* Label chip */}
-            <motion.div
-              variants={fadeUp(0)} initial="hidden" animate="show"
-              className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full"
-              style={{ background: "rgba(0,229,204,0.08)", border: "1px solid rgba(0,229,204,0.25)" }}
+            <div
+              className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full hero-fade-in"
+              style={{
+                background: "rgba(0,229,204,0.08)",
+                border: "1px solid rgba(0,229,204,0.25)",
+                animationDelay: "0ms",
+                opacity: noMotion ? 1 : undefined,
+              }}
             >
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--brand-teal)" }} />
               <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "var(--brand-teal)" }}>
-                Data Scientist & AI/ML Engineer
+                Data Scientist &amp; AI/ML Engineer
               </span>
-            </motion.div>
+            </div>
 
-            {/* Headline */}
-            <motion.h1
-              variants={fadeUp(0.1)} initial="hidden" animate="show"
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6"
+            {/* ── LCP ELEMENT — fully visible on server render, no animation delay ── */}
+            <h1
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6 hero-fade-in"
+              style={{ animationDelay: "80ms", opacity: noMotion ? 1 : undefined }}
             >
               Hi, I&apos;m{" "}
               <span className="gradient-text">Akash</span>
               <br />
               <span style={{ color: "var(--fg)", opacity: 0.85 }}>Singh</span>
-            </motion.h1>
+            </h1>
 
             {/* Subheadline */}
-            <motion.p
-              variants={fadeUp(0.2)} initial="hidden" animate="show"
-              className="text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8"
-              style={{ color: "var(--fg-muted)" }}
+            <p
+              className="text-lg leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8 hero-fade-in"
+              style={{ color: "var(--fg-muted)", animationDelay: "160ms", opacity: noMotion ? 1 : undefined }}
             >
               B.Sc. CS graduate building{" "}
               <span style={{ color: "var(--fg)", fontWeight: 600 }}>intelligent systems</span>{" "}
               with Python, ML &amp; full-stack web tech. I ship real projects —
               not just tutorials.
-            </motion.p>
+            </p>
 
             {/* CTAs */}
-            <motion.div
-              variants={fadeUp(0.3)} initial="hidden" animate="show"
-              className="flex flex-wrap gap-3 justify-center lg:justify-start mb-10"
+            <div
+              className="flex flex-wrap gap-3 justify-center lg:justify-start mb-10 hero-fade-in"
+              style={{ animationDelay: "240ms", opacity: noMotion ? 1 : undefined }}
             >
               <a
                 href="#projects"
-                className="group flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 hover:scale-105 transition-all duration-200 focus-ring"
+                className="group flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity duration-200 focus-ring"
                 style={{
                   background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))",
                   boxShadow: "0 0 30px -8px rgba(212,165,255,0.5)",
                 }}
               >
                 View My Work
-                <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+                <ArrowRight size={15} aria-hidden="true" />
               </a>
               <a
                 href="/assets/Akash_Singh_Resume.pdf"
                 download
-                className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 focus-ring hover:scale-105"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-opacity duration-200 focus-ring"
                 style={{
                   background: "var(--glass-bg)",
                   border: "1px solid var(--border-gold)",
@@ -167,69 +184,51 @@ export default function Hero() {
                 <Download size={14} aria-hidden="true" />
                 Download Resume
               </a>
-            </motion.div>
+            </div>
 
-            {/* ── Enhanced Social Icons ── */}
-            <motion.div
-              variants={fadeUp(0.4)} initial="hidden" animate="show"
-              className="flex flex-wrap items-center gap-2 justify-center lg:justify-start"
+            {/* Social links */}
+            <div
+              className="flex flex-wrap items-center gap-2 justify-center lg:justify-start hero-fade-in"
+              style={{ animationDelay: "320ms", opacity: noMotion ? 1 : undefined }}
             >
-              {SOCIAL_LINKS.map(({ href, label, icon, gradient, hoverGradient, borderColor, textColor, download: dl }, i) => (
-                <motion.a
+              {SOCIAL_LINKS.map(({ href, label, icon, gradient, hoverGradient, borderColor, textColor, download: dl }) => (
+                <a
                   key={label}
                   href={href}
                   download={dl || undefined}
                   target={!dl && href.startsWith("http") ? "_blank" : undefined}
                   rel={!dl && href.startsWith("http") ? "noopener noreferrer" : undefined}
                   aria-label={label}
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + i * 0.07, duration: 0.4, ease }}
-                  whileHover={{ scale: 1.05, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
                   className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors duration-200 focus-ring"
-                  style={{
-                    background: gradient,
-                    border: `1px solid ${borderColor}`,
-                    color: textColor,
-                  }}
+                  style={{ background: gradient, border: `1px solid ${borderColor}`, color: textColor }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = hoverGradient; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = gradient; }}
                 >
                   {icon}
                   <span>{label}</span>
-                </motion.a>
+                </a>
               ))}
-            </motion.div>
+            </div>
           </div>
 
-          {/* ── Solar System ── */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-shrink-0 flex items-center justify-center"
+          {/* ── Solar System — lazy loaded, deferred, never blocks LCP ── */}
+          <div
+            className="flex-shrink-0 flex items-center justify-center hero-fade-in"
+            style={{ animationDelay: "400ms", opacity: noMotion ? 1 : undefined }}
           >
             <SolarSystem />
-          </motion.div>
-
+          </div>
         </div>
 
         {/* Scroll hint */}
-        <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ delay: 1.8, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          aria-hidden
+        <div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 hero-fade-in"
+          aria-hidden="true"
+          style={{ animationDelay: "1200ms", opacity: noMotion ? 1 : undefined }}
         >
           <span className="text-xs tracking-widest uppercase" style={{ color: "var(--fg-subtle)" }}>Scroll</span>
-          <motion.div
-            animate={{ scaleY: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="w-px h-8"
-            style={{ background: "linear-gradient(to bottom, var(--brand-purple), transparent)" }}
-          />
-        </motion.div>
+          <div className="w-px h-8 scroll-line" style={{ background: "linear-gradient(to bottom, var(--brand-purple), transparent)" }} />
+        </div>
       </div>
     </section>
   );

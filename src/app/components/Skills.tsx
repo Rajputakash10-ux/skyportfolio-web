@@ -67,15 +67,20 @@ export default function Skills() {
                   <p className="text-xs text-fg-subtle mt-0.5">{skill.category}</p>
                 </div>
 
-                {/* Proficiency bar */}
+                {/* Proficiency bar — scaleX avoids layout reflow, GPU composited */}
                 <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
                   <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${skill.level}%` }}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 1, delay: i * 0.07 + 0.3, ease: [0.22, 1, 0.36, 1] }}
                     className="h-full rounded-full"
-                    style={{ background: gradient }}
+                    style={{
+                      background: gradient,
+                      width: `${skill.level}%`,
+                      transformOrigin: "left center",
+                      willChange: "transform",
+                    }}
                   />
                 </div>
 

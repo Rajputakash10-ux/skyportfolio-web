@@ -2,18 +2,25 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
+/* ── Load only the weights we actually use (400 + 700) ── */
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+  src: [
+    { path: "./fonts/GeistVF.woff", weight: "400", style: "normal" },
+    { path: "./fonts/GeistVF.woff", weight: "700", style: "normal" },
+  ],
   variable: "--font-geist-sans",
-  weight: "100 900",
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
 
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
-  weight: "100 900",
+  weight: "400",
   display: "swap",
+  preload: false, // mono only used in skill level badges — not critical
+  fallback: ["monospace"],
 });
 
 const siteUrl = "https://akashsingh.dev";
@@ -64,20 +71,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// Prevent flash of wrong theme before React hydrates
-const themeScript = `
-  (function() {
-    try {
-      var t = localStorage.getItem('theme');
-      if (t === 'light' || t === 'bold' || t === 'dark') {
-        document.documentElement.setAttribute('data-theme', t);
-      } else {
-        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-      }
-    } catch(e) {}
-  })();
-`;
+/* ── Anti-flash theme script — runs synchronously before paint ── */
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='bold'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{var d=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.setAttribute('data-theme',d?'dark':'light');}}catch(e){}})();`;
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -95,18 +90,20 @@ const structuredData = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    // Removed scroll-smooth — causes forced reflow on every scroll event
+    <html lang="en">
       <head>
-        {/* Anti-flash theme script — must run before paint */}
+        {/* Preconnect for EmailJS API — critical for contact form */}
+        <link rel="preconnect" href="https://api.emailjs.com" />
+        <link rel="dns-prefetch" href="https://api.emailjs.com" />
+        {/* Anti-flash theme — must execute before first paint, keep it tiny */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-bg text-fg`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-bg text-fg`}>
         {children}
       </body>
     </html>

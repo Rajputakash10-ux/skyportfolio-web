@@ -101,45 +101,6 @@ const ASTEROIDS = Array.from({ length: 28 }, (_, i) => ({
   opacity: Math.random() * 0.35 + 0.1,
 }));
 
-/* ── Inject CSS keyframes once ── */
-function injectKeyframes() {
-  if (typeof document === "undefined") return;
-  if (document.getElementById("solar-keyframes")) return;
-  const style = document.createElement("style");
-  style.id = "solar-keyframes";
-  style.textContent = `
-    @keyframes orbit { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-    @keyframes orbit-rev { from { transform: rotate(360deg) } to { transform: rotate(0deg) } }
-    @keyframes planet-spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-    @keyframes twinkle { 0%,100% { opacity: 0.2 } 50% { opacity: 1 } }
-    @keyframes dust-float {
-      0%   { transform: translate(0,0) scale(1); opacity: 0.15 }
-      50%  { transform: translate(6px,-8px) scale(1.2); opacity: 0.35 }
-      100% { transform: translate(-4px,4px) scale(0.9); opacity: 0.1 }
-    }
-    @keyframes sun-corona {
-      0%,100% { transform: scale(1); opacity: 0.4 }
-      50%      { transform: scale(1.15); opacity: 0.7 }
-    }
-    @keyframes moon-orbit { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-    @keyframes radar-sweep { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-    @keyframes energy-pulse {
-      0%   { transform: scale(0.5); opacity: 0.8 }
-      80%  { transform: scale(4);   opacity: 0 }
-      100% { transform: scale(4);   opacity: 0 }
-    }
-    @keyframes orbit-particle {
-      from { transform: rotate(0deg) }
-      to   { transform: rotate(360deg) }
-    }
-    @keyframes hud-blink { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
-    @keyframes sun-pulse {
-      0%,100% { box-shadow: 0 0 10px 4px rgba(255,200,50,0.8), 0 0 22px 8px rgba(255,140,0,0.4), 0 0 40px 16px rgba(255,80,0,0.15) }
-      50%      { box-shadow: 0 0 14px 6px rgba(255,220,80,1),   0 0 30px 12px rgba(255,160,20,0.5), 0 0 55px 22px rgba(255,100,0,0.2) }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 export default function SolarSystem() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -149,12 +110,14 @@ export default function SolarSystem() {
   const targetTilt = useRef({ x: 0, y: 0 });
   const currentTilt = useRef({ x: 0, y: 0 });
 
-  useEffect(() => { injectKeyframes(); }, []);
+  /* Smooth parallax tilt with lerp — rect cached to avoid forced reflow on every mousemove */
+  const cachedRect = useRef<DOMRect | null>(null);
 
-  /* Smooth parallax tilt with lerp */
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    const rect = containerRef.current?.getBoundingClientRect();
+    // Re-read rect only when it's stale (null = first time or after resize)
+    const rect = cachedRect.current ?? containerRef.current?.getBoundingClientRect();
     if (!rect) return;
+    cachedRect.current = rect;
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
     targetTilt.current = {
@@ -172,6 +135,9 @@ export default function SolarSystem() {
     if (!el) return;
     el.addEventListener("mousemove", handleMouseMove);
     el.addEventListener("mouseleave", handleMouseLeave);
+    // Invalidate cached rect on resize so we re-read it
+    const onResize = () => { cachedRect.current = null; };
+    window.addEventListener("resize", onResize, { passive: true });
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
     const tick = () => {
@@ -185,6 +151,7 @@ export default function SolarSystem() {
     return () => {
       el.removeEventListener("mousemove", handleMouseMove);
       el.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("resize", onResize);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, [handleMouseMove, handleMouseLeave]);

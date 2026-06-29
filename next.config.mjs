@@ -1,5 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Tree-shake lucide-react and framer-motion — only import what's used
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
+
+  // Compress responses
+  compress: true,
+
+  // Generate ETags for better caching
+  generateEtags: true,
+
+  // PoweredBy header leaks info — disable it
+  poweredByHeader: false,
+
+  images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 31536000, // 1 year
+  },
+
   async headers() {
     return [
       {
@@ -28,6 +47,19 @@ const nextConfig = {
               "form-action 'self'",
             ].join("; "),
           },
+        ],
+      },
+      // Aggressive caching for static assets
+      {
+        source: "/assets/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
     ];
