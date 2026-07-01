@@ -1,22 +1,43 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Tree-shake lucide-react and framer-motion — only import what's used
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 
-  // Compress responses
   compress: true,
-
-  // Generate ETags for better caching
   generateEtags: true,
-
-  // PoweredBy header leaks info — disable it
   poweredByHeader: false,
 
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 31536000, // 1 year
+    minimumCacheTTL: 31536000,
+  },
+
+  webpack(config) {
+    // Force framer-motion and emailjs into async chunks only
+    // Prevents them from being hoisted into the eager shared bundle
+    const existing = config.optimization.splitChunks?.cacheGroups ?? {};
+    config.optimization.splitChunks = {
+      ...config.optimization.splitChunks,
+      cacheGroups: {
+        ...existing,
+        framerMotion: {
+          test: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
+          name: "framer-motion",
+          chunks: "async",   // async only — never in initial bundle
+          priority: 30,
+          reuseExistingChunk: true,
+        },
+        emailjs: {
+          test: /[\\/]node_modules[\\/](@emailjs)[\\/]/,
+          name: "emailjs",
+          chunks: "async",
+          priority: 30,
+          reuseExistingChunk: true,
+        },
+      },
+    };
+    return config;
   },
 
   async headers() {

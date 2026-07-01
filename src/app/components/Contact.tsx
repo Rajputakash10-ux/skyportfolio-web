@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { m as motion } from "framer-motion";
-import emailjs from "@emailjs/browser";
 import { Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
 import SectionHeader from "@/app/components/ui/SectionHeader";
 
@@ -60,6 +59,8 @@ export default function Contact() {
     lastSubmitRef.current = now;
     setStatus("sending");
     try {
+      // Dynamic import — emailjs only loads when user actually submits
+      const emailjs = (await import("@emailjs/browser")).default;
       await emailjs.sendForm(EJS_SERVICE, EJS_TEMPLATE, formRef.current, EJS_PUBLIC);
       setStatus("sent");
       setForm({ name: "", email: "", message: "" });
