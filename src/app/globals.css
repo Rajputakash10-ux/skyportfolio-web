@@ -3,75 +3,209 @@
 @tailwind utilities;
 
 @layer base {
-  /* ── DARK MODE (default) ─────────────────────────────────── */
+  /* ─────────────────────────────────────────────────────────────
+     DARK THEME — Futuristic neon AI interface (default)
+  ───────────────────────────────────────────────────────────── */
   :root,
   [data-theme="dark"] {
-    --bg: #0D0D15;
-    --bg-secondary: #12121E;
-    --bg-tertiary: #17172A;
-    --fg: #F5F5F5;
-    --fg-muted: #B8B8B8;
-    --fg-subtle: #6A6A8A;
-    --brand-purple: #D4A5FF;
-    --brand-teal: #00E5CC;
-    --brand-gold: #FFB700;
-    --border: rgba(212, 165, 255, 0.12);
-    --border-hover: rgba(0, 229, 204, 0.35);
-    --border-gold: rgba(255, 183, 0, 0.3);
-    --glass-bg: rgba(18, 18, 30, 0.75);
-    --card-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 8px 24px rgba(0,0,0,0.4);
-    --scrollbar: rgba(212, 165, 255, 0.3);
-    --selection-bg: rgba(212, 165, 255, 0.25);
+    --bg:              #070709;
+    --bg-secondary:    #0d0d12;
+    --bg-tertiary:     #111118;
+    --fg:              #f0f0ff;
+    --fg-muted:        #a0a0c0;
+    --fg-subtle:       #50507a;
+
+    --accent-1:        #7c6aff;   /* electric blue-purple */
+    --accent-2:        #00d4ff;   /* cyan */
+    --accent-3:        #b44dff;   /* purple */
+
+    --border:          rgba(124, 106, 255, 0.14);
+    --border-hover:    rgba(0, 212, 255, 0.4);
+    --border-gold:     rgba(180, 77, 255, 0.25);
+
+    --glass-bg:        rgba(13, 13, 18, 0.72);
+    --card-bg:         rgba(17, 17, 24, 0.9);
+    --card-shadow:     0 1px 3px rgba(0,0,0,0.7), 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,106,255,0.08);
+
+    --glow-1:          rgba(124, 106, 255, 0.5);
+    --glow-2:          rgba(0, 212, 255, 0.5);
+    --glow-3:          rgba(180, 77, 255, 0.4);
+
+    --gradient-brand:  linear-gradient(135deg, #7c6aff 0%, #00d4ff 100%);
+    --gradient-brand2: linear-gradient(135deg, #b44dff 0%, #7c6aff 100%);
+    --gradient-subtle: linear-gradient(135deg, rgba(124,106,255,0.15), rgba(0,212,255,0.1));
+
+    --scrollbar:       rgba(124, 106, 255, 0.35);
+    --selection-bg:    rgba(124, 106, 255, 0.25);
+
+    /* Solar system */
+    --sol-orbit:       rgba(255, 255, 255, 0.07);
+    --sol-orbit-hover: rgba(0, 212, 255, 0.4);
+    --sol-hud:         rgba(0, 212, 255, 0.12);
+    --sol-hud-main:    rgba(0, 212, 255, 0.5);
+    --sol-hud-text:    rgba(0, 212, 255, 0.45);
+    --sol-radar:       rgba(0, 212, 255, 0.55);
+    --sol-radar-sweep: rgba(0, 212, 255, 0.07);
+    --sol-crosshair:   rgba(0, 212, 255, 0.3);
+    --sol-star:        rgba(255, 255, 255, 1);
+    --sol-star-opacity: 1;
+    --sol-dust:        rgba(180, 160, 255, 0.6);
+    --sol-asteroid:    rgba(160, 140, 120, 0.7);
+    --sol-vignette:    rgba(7, 7, 9, 0.85);
+    --sol-label-bg:    rgba(7, 7, 9, 0.88);
+    --sol-label-border:rgba(124, 106, 255, 0.35);
+    --sol-label-text:  #a090ff;
+    --sol-energy:      rgba(255, 180, 0, 0.6);
+    --sol-sun-glow-1:  rgba(255, 200, 50, 0.8);
+    --sol-sun-glow-2:  rgba(255, 140, 0, 0.4);
+    --sol-sun-glow-3:  rgba(255, 80, 0, 0.15);
+    --sol-planet-scale: 1;
   }
 
-  /* ── LIGHT MODE — full white, no colours ──────────────────── */
+  /* ─────────────────────────────────────────────────────────────
+     LIGHT THEME — Premium Apple/Vercel/Linear white interface
+  ───────────────────────────────────────────────────────────── */
   [data-theme="light"] {
-    --bg: #FFFFFF;
-    --bg-secondary: #FAFAFA;
-    --bg-tertiary: #F5F5F5;
-    --fg: #0D0D15;
-    --fg-muted: #3A3A4A;
-    --fg-subtle: #7A7A8A;
-    --brand-purple: #0D0D15;
-    --brand-teal: #0D0D15;
-    --brand-gold: #0D0D15;
-    --border: rgba(0, 0, 0, 0.1);
-    --border-hover: rgba(0, 0, 0, 0.3);
-    --border-gold: rgba(0, 0, 0, 0.12);
-    --glass-bg: rgba(255, 255, 255, 0.97);
-    --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.05);
-    --scrollbar: rgba(0, 0, 0, 0.2);
-    --selection-bg: rgba(0, 0, 0, 0.08);
+    --bg:              #fafafa;
+    --bg-secondary:    #ffffff;
+    --bg-tertiary:     #f4f4f6;
+
+    --fg:              #111118;
+    --fg-muted:        #44444f;
+    --fg-subtle:       #888899;
+
+    --accent-1:        #2563eb;   /* blue */
+    --accent-2:        #0891b2;   /* teal */
+    --accent-3:        #7c3aed;   /* violet */
+
+    --border:          rgba(0, 0, 0, 0.08);
+    --border-hover:    rgba(0, 0, 0, 0.22);
+    --border-gold:     rgba(0, 0, 0, 0.1);
+
+    --glass-bg:        rgba(255, 255, 255, 0.92);
+    --card-bg:         #ffffff;
+    --card-shadow:     0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05);
+
+    --glow-1:          rgba(37, 99, 235, 0.12);
+    --glow-2:          rgba(8, 145, 178, 0.1);
+    --glow-3:          rgba(124, 58, 237, 0.1);
+
+    --gradient-brand:  linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
+    --gradient-brand2: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+    --gradient-subtle: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(8,145,178,0.04));
+
+    --scrollbar:       rgba(0, 0, 0, 0.18);
+    --selection-bg:    rgba(37, 99, 235, 0.12);
+
+    /* Solar system — scientific minimal */
+    --sol-orbit:       rgba(0, 0, 0, 0.1);
+    --sol-orbit-hover: rgba(37, 99, 235, 0.35);
+    --sol-hud:         rgba(0, 0, 0, 0.07);
+    --sol-hud-main:    rgba(0, 0, 0, 0.25);
+    --sol-hud-text:    rgba(0, 0, 0, 0.3);
+    --sol-radar:       rgba(37, 99, 235, 0.35);
+    --sol-radar-sweep: rgba(37, 99, 235, 0.04);
+    --sol-crosshair:   rgba(0, 0, 0, 0.18);
+    --sol-star:        rgba(0, 0, 0, 0);
+    --sol-star-opacity: 0;
+    --sol-dust:        rgba(100, 120, 200, 0.15);
+    --sol-asteroid:    rgba(120, 110, 100, 0.5);
+    --sol-vignette:    rgba(250, 250, 250, 0.7);
+    --sol-label-bg:    rgba(255, 255, 255, 0.95);
+    --sol-label-border:rgba(0, 0, 0, 0.12);
+    --sol-label-text:  #2563eb;
+    --sol-energy:      rgba(234, 88, 12, 0.5);
+    --sol-sun-glow-1:  rgba(251, 146, 60, 0.6);
+    --sol-sun-glow-2:  rgba(234, 88, 12, 0.3);
+    --sol-sun-glow-3:  rgba(220, 60, 0, 0.08);
+    --sol-planet-scale: 1;
   }
 
-  /* ── BOLD CLASSIC MODE — pure black & white, zero colour ── */
-  [data-theme="bold"] {
-    --bg: #FFFFFF;
-    --bg-secondary: #F4F4F4;
-    --bg-tertiary: #E8E8E8;
-    --fg: #000000;
-    --fg-muted: #333333;
-    --fg-subtle: #777777;
-    --brand-purple: #000000;
-    --brand-teal: #000000;
-    --brand-gold: #000000;
-    --border: rgba(0, 0, 0, 0.15);
-    --border-hover: rgba(0, 0, 0, 0.5);
-    --border-gold: rgba(0, 0, 0, 0.2);
-    --glass-bg: rgba(255, 255, 255, 0.97);
-    --card-shadow: 0 1px 0 rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-    --scrollbar: rgba(0, 0, 0, 0.25);
-    --selection-bg: rgba(0, 0, 0, 0.1);
+  /* ─────────────────────────────────────────────────────────────
+     B&W THEME — Monochrome futuristic OS / Nothing OS aesthetic
+  ───────────────────────────────────────────────────────────── */
+  [data-theme="bw"] {
+    --bg:              #080808;
+    --bg-secondary:    #111111;
+    --bg-tertiary:     #1a1a1a;
+
+    --fg:              #f5f5f5;
+    --fg-muted:        #aaaaaa;
+    --fg-subtle:       #555555;
+
+    --accent-1:        #e0e0e0;
+    --accent-2:        #c0c0c0;
+    --accent-3:        #888888;
+
+    --border:          rgba(255, 255, 255, 0.1);
+    --border-hover:    rgba(255, 255, 255, 0.35);
+    --border-gold:     rgba(255, 255, 255, 0.12);
+
+    --glass-bg:        rgba(17, 17, 17, 0.85);
+    --card-bg:         rgba(20, 20, 20, 0.95);
+    --card-shadow:     0 1px 3px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+
+    --glow-1:          rgba(255, 255, 255, 0.2);
+    --glow-2:          rgba(200, 200, 200, 0.15);
+    --glow-3:          rgba(150, 150, 150, 0.12);
+
+    --gradient-brand:  linear-gradient(135deg, #e0e0e0 0%, #888888 100%);
+    --gradient-brand2: linear-gradient(135deg, #ffffff 0%, #aaaaaa 100%);
+    --gradient-subtle: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+
+    --scrollbar:       rgba(255, 255, 255, 0.2);
+    --selection-bg:    rgba(255, 255, 255, 0.12);
+
+    /* Solar system — monochrome sci-fi */
+    --sol-orbit:       rgba(255, 255, 255, 0.08);
+    --sol-orbit-hover: rgba(255, 255, 255, 0.35);
+    --sol-hud:         rgba(255, 255, 255, 0.08);
+    --sol-hud-main:    rgba(255, 255, 255, 0.4);
+    --sol-hud-text:    rgba(255, 255, 255, 0.35);
+    --sol-radar:       rgba(255, 255, 255, 0.45);
+    --sol-radar-sweep: rgba(255, 255, 255, 0.05);
+    --sol-crosshair:   rgba(255, 255, 255, 0.25);
+    --sol-star:        rgba(255, 255, 255, 1);
+    --sol-star-opacity: 1;
+    --sol-dust:        rgba(200, 200, 200, 0.3);
+    --sol-asteroid:    rgba(180, 180, 180, 0.5);
+    --sol-vignette:    rgba(8, 8, 8, 0.85);
+    --sol-label-bg:    rgba(8, 8, 8, 0.9);
+    --sol-label-border:rgba(255, 255, 255, 0.2);
+    --sol-label-text:  #e0e0e0;
+    --sol-energy:      rgba(255, 255, 255, 0.5);
+    --sol-sun-glow-1:  rgba(255, 255, 255, 0.9);
+    --sol-sun-glow-2:  rgba(220, 220, 220, 0.5);
+    --sol-sun-glow-3:  rgba(180, 180, 180, 0.2);
+    --sol-planet-scale: 1;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ── Universal transition on theme-sensitive properties ── */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition:
+      background-color 400ms ease-in-out,
+      background 400ms ease-in-out,
+      border-color 400ms ease-in-out,
+      color 400ms ease-in-out,
+      box-shadow 400ms ease-in-out,
+      opacity 400ms ease-in-out,
+      fill 400ms ease-in-out,
+      stroke 400ms ease-in-out;
+  }
+
+  /* Exclude layout/transform transitions from the universal rule */
+  * { transition-property: background-color, background, border-color, color, box-shadow, opacity, fill, stroke; }
 
   html {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar) transparent;
   }
 
-  /* Only enable smooth scroll if user hasn't requested reduced motion */
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
   }
@@ -79,7 +213,7 @@
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, var(--brand-purple), var(--brand-teal));
+    background: var(--scrollbar);
     border-radius: 2px;
   }
 
@@ -95,89 +229,72 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    /* Removed body transition — triggers composite+paint on every theme change */
   }
 
   h1, h2, h3, h4, h5, h6 { font-weight: 700; letter-spacing: -0.02em; }
 }
 
 @layer utilities {
-  /* Typography */
+  /* ── Typography ── */
   .gradient-text {
-    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-teal) 100%);
+    background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .gradient-text-gold {
-    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-gold) 100%);
+    background: var(--gradient-brand2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .gradient-text-subtle {
-    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-teal) 100%);
+    background: var(--gradient-brand);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Layout */
+  /* ── Layout ── */
   .section-padding { @apply py-24 px-6 md:px-10 lg:px-16; }
-  .container-max { @apply max-w-6xl mx-auto w-full; }
+  .container-max   { @apply max-w-6xl mx-auto w-full; }
 
-  /* Glass */
+  /* ── Glass ── */
   .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border);
-    transition: background 0.3s ease, border-color 0.3s ease;
   }
 
-  /* Cards */
+  /* ── Cards ── */
   .card {
-    @apply rounded-2xl glass;
+    @apply rounded-2xl;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
     box-shadow: var(--card-shadow);
   }
 
-  /* Section label */
+  /* ── Section label ── */
   .section-label {
     @apply text-xs font-semibold tracking-[0.2em] uppercase;
-    color: var(--brand-teal);
+    color: var(--accent-2);
     opacity: 0.9;
   }
 
-  /* Bold mode section label */
-  [data-theme="bold"] .section-label {
-    opacity: 1;
-    font-weight: 800;
-    color: #000000;
-    letter-spacing: 0.25em;
-  }
+  /* ── Glow effects ── */
+  .glow-purple { box-shadow: 0 0 60px -15px var(--glow-1); }
+  .glow-teal   { box-shadow: 0 0 60px -15px var(--glow-2); }
+  .glow-gold   { box-shadow: 0 0 60px -15px var(--glow-3); }
 
-  /* Bold mode headings — heavier weight */
-  [data-theme="bold"] h1,
-  [data-theme="bold"] h2,
-  [data-theme="bold"] h3 { font-weight: 900; }
-
-  /* Glow effects — none in bold mode */
-  .glow-purple { box-shadow: 0 0 60px -15px rgba(212,165,255,0.5); }
-  .glow-teal   { box-shadow: 0 0 60px -15px rgba(0,229,204,0.5); }
-  .glow-gold   { box-shadow: 0 0 60px -15px rgba(255,183,0,0.4); }
-  [data-theme="light"] .glow-purple { box-shadow: 0 0 40px -15px rgba(124,58,237,0.3); }
-  [data-theme="bold"] .glow-purple,
-  [data-theme="bold"] .glow-teal,
-  [data-theme="bold"] .glow-gold { box-shadow: none; }
-
-  /* Focus ring */
+  /* ── Focus ring ── */
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
-    --tw-ring-color: var(--brand-purple);
+    --tw-ring-color: var(--accent-1);
     --tw-ring-offset-color: var(--bg);
   }
 
-  /* Gradient border */
+  /* ── Gradient border ── */
   .gradient-border {
     position: relative;
     background: var(--bg-secondary);
@@ -189,7 +306,7 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, var(--brand-purple), var(--brand-teal));
+    background: var(--gradient-brand);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -197,135 +314,54 @@
     opacity: 0.5;
   }
 
-  /* Light — minimal hero grid on white */
-  [data-theme="light"] .hero-grid { opacity: 0.08; }
+  /* ── Hero grid ── */
+  .hero-grid { opacity: 0.12; }
+  [data-theme="light"] .hero-grid { opacity: 0.06; }
+  [data-theme="bw"]    .hero-grid { opacity: 0.08; }
 
-  /* Light — solid white glass, no blur, no tint */
+  /* ── Light theme overrides ── */
   [data-theme="light"] .glass {
-    background: #FFFFFF;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-color: rgba(0, 0, 0, 0.07);
   }
-
-  /* Light — card: flat white, thin black border */
   [data-theme="light"] .card {
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.04);
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.05);
   }
-
-  /* Light — strip gradient-text to plain dark */
-  [data-theme="light"] .gradient-text,
-  [data-theme="light"] .gradient-text-gold,
-  [data-theme="light"] .gradient-text-subtle {
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: #0D0D15;
-    background-clip: unset;
-    color: #0D0D15;
-  }
-
-  /* Light — kill all glows */
   [data-theme="light"] .glow-purple,
   [data-theme="light"] .glow-teal,
-  [data-theme="light"] .glow-gold { box-shadow: none; }
+  [data-theme="light"] .glow-gold { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  [data-theme="light"] .animate-pulse-slow { opacity: 0.3; }
+  [data-theme="light"] .section-label { color: var(--accent-1); opacity: 0.7; }
 
-  /* Light — hide ambient colour blobs */
-  [data-theme="light"] .animate-pulse-slow { display: none; }
-
-  /* Light — section label dark */
-  [data-theme="light"] .section-label {
-    color: #0D0D15;
-    opacity: 0.6;
+  /* ── B&W theme overrides ── */
+  [data-theme="bw"] .glass {
+    background: rgba(17, 17, 17, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  [data-theme="bw"] .card {
+    background: rgba(20, 20, 20, 0.95);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.6);
+  }
+  [data-theme="bw"] .glow-purple { box-shadow: 0 0 40px -15px rgba(255,255,255,0.2); }
+  [data-theme="bw"] .glow-teal   { box-shadow: 0 0 40px -15px rgba(255,255,255,0.15); }
+  [data-theme="bw"] .glow-gold   { box-shadow: 0 0 40px -15px rgba(255,255,255,0.12); }
+  [data-theme="bw"] h1,
+  [data-theme="bw"] h2,
+  [data-theme="bw"] h3 { font-weight: 800; letter-spacing: -0.03em; }
+  [data-theme="bw"] .section-label {
+    color: var(--fg-muted);
+    letter-spacing: 0.25em;
+    font-weight: 800;
   }
 
-  /* Light — focus ring dark */
-  [data-theme="light"] .focus-ring {
-    --tw-ring-color: #0D0D15;
-    --tw-ring-offset-color: #FFFFFF;
-  }
-
-  /* Light — gradient-border becomes thin black line */
-  [data-theme="light"] .gradient-border::before {
-    background: #0D0D15;
-    opacity: 0.12;
-  }
-
-  /* Bold — sharp black grid, no colour glow */
-  [data-theme="bold"] .hero-grid { opacity: 0.07; }
-
-  /* Bold — strip all gradient-text to plain black */
-  [data-theme="bold"] .gradient-text,
-  [data-theme="bold"] .gradient-text-gold,
-  [data-theme="bold"] .gradient-text-subtle {
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: #000000;
-    background-clip: unset;
-    color: #000000;
-  }
-
-  /* Bold — glass becomes a clean white card with black border */
-  [data-theme="bold"] .glass {
-    background: #FFFFFF;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-color: rgba(0,0,0,0.12);
-  }
-
-  /* Bold — card gets a crisp black border */
-  [data-theme="bold"] .card {
-    border: 1px solid rgba(0,0,0,0.12);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
-  }
-
-  /* Bold — scrollbar goes black */
-  [data-theme="bold"]::-webkit-scrollbar-thumb,
-  [data-theme="bold"] ::-webkit-scrollbar-thumb {
-    background: #000000;
-  }
-
-  /* Bold — kill all ambient glows and decorative blobs */
-  [data-theme="bold"] .animate-pulse-slow { display: none; }
-
-  /* Bold — focus ring becomes black */
-  [data-theme="bold"] .focus-ring {
-    --tw-ring-color: #000000;
-    --tw-ring-offset-color: #FFFFFF;
-  }
-
-  /* Bold — gradient-border becomes a clean black border */
-  [data-theme="bold"] .gradient-border::before {
-    background: #000000;
-    opacity: 0.15;
-  }
-
-  /* ── SolarSystem keyframes — static CSS, replaces runtime injectKeyframes() ── */
-  @keyframes orbit      { from { transform: rotate(0deg)   } to { transform: rotate(360deg)  } }
-  @keyframes orbit-rev  { from { transform: rotate(360deg) } to { transform: rotate(0deg)    } }
-  @keyframes twinkle    { 0%,100% { opacity: 0.2 } 50% { opacity: 1 } }
-  @keyframes dust-float {
-    0%   { transform: translate(0,0) scale(1);       opacity: 0.15 }
-    50%  { transform: translate(6px,-8px) scale(1.2); opacity: 0.35 }
-    100% { transform: translate(-4px,4px) scale(0.9); opacity: 0.1  }
-  }
-  @keyframes sun-corona {
-    0%,100% { transform: scale(1);    opacity: 0.4 }
-    50%     { transform: scale(1.15); opacity: 0.7 }
-  }
-  @keyframes moon-orbit   { from { transform: rotate(0deg)   } to { transform: rotate(360deg) } }
-  @keyframes radar-sweep  { from { transform: rotate(0deg)   } to { transform: rotate(360deg) } }
-  @keyframes energy-pulse {
-    0%   { transform: scale(0.5); opacity: 0.8 }
-    80%  { transform: scale(4);   opacity: 0   }
-    100% { transform: scale(4);   opacity: 0   }
-  }
-  @keyframes sun-pulse {
-    0%,100% { box-shadow: 0 0 10px 4px rgba(255,200,50,0.8), 0 0 22px 8px rgba(255,140,0,0.4),  0 0 40px 16px rgba(255,80,0,0.15) }
-    50%     { box-shadow: 0 0 14px 6px rgba(255,220,80,1),   0 0 30px 12px rgba(255,160,20,0.5), 0 0 55px 22px rgba(255,100,0,0.2) }
-  }
-
-  /* ── Navbar entrance — replaces framer-motion header animation ── */
+  /* ── Navbar entrance ── */
   .navbar-enter {
     animation: navSlideDown 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
   }
@@ -334,7 +370,6 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Drawer links stagger-in when drawer opens */
   .drawer-link {
     opacity: 0;
     animation: drawerLinkIn 0.25s ease forwards;
@@ -344,34 +379,42 @@
     to   { opacity: 1; transform: translateX(0); }
   }
 
-  /* ── Hero entrance animations — GPU-only (opacity + transform) ── */
-  /* Start visible so LCP element is never hidden on first paint */
+  /* ── Hero entrance ── */
   .hero-fade-in {
     opacity: 0;
     transform: translateY(16px);
     animation: heroFadeUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
   }
-
   @keyframes heroFadeUp {
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Reduced motion — skip all decorative animations */
-  @media (prefers-reduced-motion: reduce) {
-    .hero-fade-in,
-    .scroll-line {
-      animation: none !important;
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .animate-pulse,
-    .animate-pulse-slow,
-    .animate-ping {
-      animation: none !important;
-    }
+  /* ── Solar system keyframes ── */
+  @keyframes orbit      { from { transform: rotate(0deg)   } to { transform: rotate(360deg)  } }
+  @keyframes orbit-rev  { from { transform: rotate(360deg) } to { transform: rotate(0deg)    } }
+  @keyframes twinkle    { 0%,100% { opacity: 0.2 } 50% { opacity: 1 } }
+  @keyframes dust-float {
+    0%   { transform: translate(0,0) scale(1);        opacity: 0.15 }
+    50%  { transform: translate(6px,-8px) scale(1.2); opacity: 0.35 }
+    100% { transform: translate(-4px,4px) scale(0.9); opacity: 0.1  }
+  }
+  @keyframes sun-corona {
+    0%,100% { transform: scale(1);    opacity: 0.4 }
+    50%     { transform: scale(1.15); opacity: 0.7 }
+  }
+  @keyframes moon-orbit  { from { transform: rotate(0deg)   } to { transform: rotate(360deg) } }
+  @keyframes radar-sweep { from { transform: rotate(0deg)   } to { transform: rotate(360deg) } }
+  @keyframes energy-pulse {
+    0%   { transform: scale(0.5); opacity: 0.8 }
+    80%  { transform: scale(4);   opacity: 0   }
+    100% { transform: scale(4);   opacity: 0   }
+  }
+  @keyframes sun-pulse {
+    0%,100% { box-shadow: 0 0 10px 4px var(--sol-sun-glow-1), 0 0 22px 8px var(--sol-sun-glow-2), 0 0 40px 16px var(--sol-sun-glow-3) }
+    50%     { box-shadow: 0 0 14px 6px var(--sol-sun-glow-1), 0 0 30px 12px var(--sol-sun-glow-2), 0 0 55px 22px var(--sol-sun-glow-3) }
   }
 
-  /* Scroll indicator line pulse */
+  /* ── Scroll indicator ── */
   @keyframes scrollPulse {
     0%, 100% { opacity: 0.4; transform: scaleY(1); }
     50%       { opacity: 1;   transform: scaleY(1.3); }
@@ -379,5 +422,17 @@
   .scroll-line {
     animation: scrollPulse 2s ease-in-out infinite;
     transform-origin: top;
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-fade-in, .scroll-line {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .animate-pulse, .animate-pulse-slow, .animate-ping {
+      animation: none !important;
+    }
   }
 }

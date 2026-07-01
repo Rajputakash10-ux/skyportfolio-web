@@ -207,7 +207,7 @@ export default function SolarSystem() {
               top: `${s.y}%`,
               width: s.size,
               height: s.size,
-              background: "white",
+              background: "var(--sol-star)",
               opacity: s.opacity,
               animation: `twinkle ${s.twinkleDuration}s ${s.twinkleDelay}s ease-in-out infinite`,
             }}
@@ -224,7 +224,7 @@ export default function SolarSystem() {
               top: `${d.y}%`,
               width: d.size,
               height: d.size,
-              background: "rgba(180,160,255,0.6)",
+              background: "var(--sol-dust)",
               opacity: d.opacity,
               animation: `dust-float ${d.duration}s ${d.delay}s ease-in-out infinite`,
             }}
@@ -238,10 +238,10 @@ export default function SolarSystem() {
               left: cx - p.orbitR, top: cx - p.orbitR,
               width: p.orbitR * 2, height: p.orbitR * 2,
               border: hoveredPlanet === p.id
-                ? "1px solid rgba(0,229,204,0.4)"
-                : "1px solid rgba(255,255,255,0.07)",
+                ? "1px solid var(--sol-orbit-hover)"
+                : "1px solid var(--sol-orbit)",
               boxShadow: hoveredPlanet === p.id
-                ? `0 0 6px rgba(0,229,204,0.15)`
+                ? "0 0 6px var(--sol-orbit-hover)"
                 : "none",
               transition: "border-color 0.3s, box-shadow 0.3s",
             }}
@@ -305,7 +305,7 @@ export default function SolarSystem() {
             style={{
               left: cx - 10, top: cx - 10,
               width: 20, height: 20,
-              border: "1px solid rgba(255,180,0,0.6)",
+              border: "1px solid var(--sol-energy)",
               animation: `energy-pulse 9s ${delay}s ease-out infinite`,
               zIndex: 19,
             }}
@@ -334,9 +334,9 @@ export default function SolarSystem() {
                 left: cx + a.r * Math.cos(rad) - a.size / 2,
                 top:  cx + a.r * Math.sin(rad) - a.size / 2,
                 width: a.size, height: a.size,
-                background: "rgba(160,140,120,0.7)",
+                background: "var(--sol-asteroid)",
                 opacity: a.opacity,
-                boxShadow: "0 0 2px rgba(200,180,140,0.4)",
+                boxShadow: "0 0 2px var(--sol-asteroid)",
               }}
             />
           );
@@ -347,7 +347,7 @@ export default function SolarSystem() {
           style={{
             left: 4, top: 4,
             width: SIZE - 8, height: SIZE - 8,
-            border: "1px solid rgba(0,229,204,0.12)",
+            border: "1px solid var(--sol-hud)",
           }}
         />
         {Array.from({ length: 36 }).map((_, i) => {
@@ -365,7 +365,7 @@ export default function SolarSystem() {
             <svg key={i} className="absolute inset-0 pointer-events-none"
               width={SIZE} height={SIZE} style={{ overflow: "visible" }}>
               <line x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke={isMain ? "rgba(0,229,204,0.5)" : "rgba(0,229,204,0.2)"}
+                stroke={isMain ? "var(--sol-hud-main)" : "var(--sol-hud)"}
                 strokeWidth={isMain ? 1.2 : 0.7} />
             </svg>
           );
@@ -383,7 +383,7 @@ export default function SolarSystem() {
                 transform: "translate(-50%,-50%)",
                 fontSize: 7,
                 fontFamily: "monospace",
-                color: "rgba(0,229,204,0.45)",
+                color: "var(--sol-hud-text)",
                 letterSpacing: "0.05em",
               }}
             >{l}</div>
@@ -406,7 +406,7 @@ export default function SolarSystem() {
             left: -1,
             width: 2,
             height: SIZE / 2 - 10,
-            background: "linear-gradient(to top, rgba(0,229,204,0.55), transparent)",
+            background: "linear-gradient(to top, var(--sol-radar), transparent)",
             transformOrigin: "bottom center",
           }} />
           {/* Sweep arc fade */}
@@ -417,18 +417,18 @@ export default function SolarSystem() {
             width: (SIZE / 2 - 10) * 2,
             height: (SIZE / 2 - 10) * 2,
             borderRadius: "50%",
-            background: "conic-gradient(from -15deg, transparent 0deg, rgba(0,229,204,0.07) 15deg, transparent 25deg)",
+            background: "conic-gradient(from -15deg, transparent 0deg, var(--sol-radar-sweep) 15deg, transparent 25deg)",
             pointerEvents: "none",
           }} />
         </div>
 
         {/* ── Crosshair at center ── */}
         <svg className="absolute inset-0 pointer-events-none" width={SIZE} height={SIZE}>
-          <line x1={cx - 14} y1={cx} x2={cx - 6} y2={cx} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
-          <line x1={cx + 6}  y1={cx} x2={cx + 14} y2={cx} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
-          <line x1={cx} y1={cx - 14} x2={cx} y2={cx - 6} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
-          <line x1={cx} y1={cx + 6}  x2={cx} y2={cx + 14} stroke="rgba(0,229,204,0.3)" strokeWidth="0.8" />
-          <circle cx={cx} cy={cx} r="3" fill="none" stroke="rgba(0,229,204,0.25)" strokeWidth="0.8" />
+          <line x1={cx - 14} y1={cx} x2={cx - 6} y2={cx} stroke="var(--sol-crosshair)" strokeWidth="0.8" />
+          <line x1={cx + 6}  y1={cx} x2={cx + 14} y2={cx} stroke="var(--sol-crosshair)" strokeWidth="0.8" />
+          <line x1={cx} y1={cx - 14} x2={cx} y2={cx - 6} stroke="var(--sol-crosshair)" strokeWidth="0.8" />
+          <line x1={cx} y1={cx + 6}  x2={cx} y2={cx + 14} stroke="var(--sol-crosshair)" strokeWidth="0.8" />
+          <circle cx={cx} cy={cx} r="3" fill="none" stroke="var(--sol-crosshair)" strokeWidth="0.8" />
         </svg>
 
         {/* ── Planets ── */}
@@ -561,9 +561,9 @@ export default function SolarSystem() {
                         top: p.size + 6,
                         left: "50%",
                         transform: "translateX(-50%)",
-                        background: "rgba(13,13,21,0.85)",
-                        border: "1px solid rgba(212,165,255,0.3)",
-                        color: "#D4A5FF",
+                        background: "var(--sol-label-bg)",
+                        border: "1px solid var(--sol-label-border)",
+                        color: "var(--sol-label-text)",
                         backdropFilter: "blur(8px)",
                         zIndex: 50,
                       }}
@@ -581,7 +581,7 @@ export default function SolarSystem() {
         <div
           className="absolute inset-0 rounded-full pointer-events-none"
           style={{
-            background: "radial-gradient(circle at center, transparent 35%, rgba(13,13,21,0.4) 75%, rgba(13,13,21,0.85) 100%)",
+            background: "radial-gradient(circle at center, transparent 35%, color-mix(in srgb, var(--sol-vignette) 47%, transparent) 75%, var(--sol-vignette) 100%)",
             zIndex: 30,
           }}
         />

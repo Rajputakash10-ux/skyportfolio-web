@@ -22,17 +22,16 @@ function LinkedInIcon() {
 }
 
 const CONTACT_INFO = [
-  { icon: Mail, label: "Email", value: "rajputakash1656@gmail.com", href: "mailto:rajputakash1656@gmail.com" },
-  { icon: MapPin, label: "Location", value: "Mumbai, India", href: undefined },
-  { icon: GitHubIcon, label: "GitHub", value: "Rajputakash10-ux", href: "https://github.com/Rajputakash10-ux" },
-  { icon: LinkedInIcon, label: "LinkedIn", value: "akash-rajput-9433aa368", href: "https://www.linkedin.com/in/akash-rajput-9433aa368/" },
+  { icon: Mail,        label: "Email",    value: "rajputakash1656@gmail.com",              href: "mailto:rajputakash1656@gmail.com" },
+  { icon: MapPin,      label: "Location", value: "Mumbai, India",                          href: undefined },
+  { icon: GitHubIcon,  label: "GitHub",   value: "Rajputakash10-ux",                       href: "https://github.com/Rajputakash10-ux" },
+  { icon: LinkedInIcon,label: "LinkedIn", value: "akash-rajput-9433aa368",                 href: "https://www.linkedin.com/in/akash-rajput-9433aa368/" },
 ];
 
 const EJS_SERVICE  = process.env.NEXT_PUBLIC_EJS_SERVICE  ?? "";
 const EJS_TEMPLATE = process.env.NEXT_PUBLIC_EJS_TEMPLATE ?? "";
 const EJS_PUBLIC   = process.env.NEXT_PUBLIC_EJS_PUBLIC   ?? "";
-
-const RATE_LIMIT_MS = 60_000; // 1 submission per minute
+const RATE_LIMIT_MS = 60_000;
 
 export default function Contact() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -43,23 +42,12 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRef.current) return;
-
     const now = Date.now();
-    if (now - lastSubmitRef.current < RATE_LIMIT_MS) {
-      setStatus("ratelimit");
-      return;
-    }
-
-    // Basic input length guards
-    if (form.name.length > 100 || form.email.length > 200 || form.message.length > 2000) {
-      setStatus("error");
-      return;
-    }
-
+    if (now - lastSubmitRef.current < RATE_LIMIT_MS) { setStatus("ratelimit"); return; }
+    if (form.name.length > 100 || form.email.length > 200 || form.message.length > 2000) { setStatus("error"); return; }
     lastSubmitRef.current = now;
     setStatus("sending");
     try {
-      // Dynamic import — emailjs only loads when user actually submits
       const emailjs = (await import("@emailjs/browser")).default;
       await emailjs.sendForm(EJS_SERVICE, EJS_TEMPLATE, formRef.current, EJS_PUBLIC);
       setStatus("sent");
@@ -73,11 +61,37 @@ export default function Contact() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const inputClass = "w-full rounded-xl px-4 py-3 text-sm text-fg placeholder:text-fg-subtle focus:outline-none transition-all duration-200"
-    + " bg-bg border focus:ring-1 focus:ring-[#D4A5FF]/30";
+  const inputStyle = {
+    background: "var(--bg)",
+    border: "1px solid var(--border)",
+    color: "var(--fg)",
+    borderRadius: "0.75rem",
+    padding: "0.75rem 1rem",
+    fontSize: "0.875rem",
+    width: "100%",
+    outline: "none",
+    transition: "border-color 0.2s ease",
+  } as React.CSSProperties;
+
+  const StatusCard = ({ icon, title, message, action }: { icon: React.ReactNode; title: string; message: React.ReactNode; action: string }) => (
+    <div className="card p-8 flex flex-col items-center justify-center gap-4 min-h-[320px] text-center">
+      {icon}
+      <div>
+        <p className="text-lg font-semibold mb-1" style={{ color: "var(--fg)" }}>{title}</p>
+        <p className="text-sm" style={{ color: "var(--fg-muted)" }}>{message}</p>
+      </div>
+      <button
+        onClick={() => setStatus("idle")}
+        className="text-xs underline underline-offset-2 transition-colors focus-ring rounded"
+        style={{ color: "var(--fg-muted)" }}
+      >
+        {action}
+      </button>
+    </div>
+  );
 
   return (
-    <section id="contact" className="section-padding">
+    <section id="contact" className="section-padding" style={{ background: "var(--bg)" }}>
       <div className="container-max">
         <SectionHeader
           label="Get in touch"
@@ -97,25 +111,31 @@ export default function Contact() {
             {CONTACT_INFO.map(({ icon: Icon, label, value, href }, i) => (
               <div
                 key={label}
-                className="card p-4 flex items-center gap-4 transition-all duration-300"
-                style={{ borderColor: i % 2 === 0 ? "rgba(212,165,255,0.15)" : "rgba(0,229,204,0.15)" }}
+                className="card p-4 flex items-center gap-4"
+                style={{ borderColor: i % 2 === 0 ? "var(--border-hover)" : "var(--border-gold)" }}
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
+                  style={{ background: "var(--gradient-brand)" }}
                 >
                   <Icon size={15} className="text-white" aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] text-fg-subtle uppercase tracking-wider mb-0.5">{label}</p>
+                  <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "var(--fg-subtle)" }}>{label}</p>
                   {href ? (
-                    <a href={href} target={href.startsWith("http") ? "_blank" : undefined}
+                    <a
+                      href={href}
+                      target={href.startsWith("http") ? "_blank" : undefined}
                       rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="text-sm text-fg hover:text-[#00E5CC] transition-colors truncate block focus-ring rounded">
+                      className="text-sm truncate block focus-ring rounded transition-colors duration-200"
+                      style={{ color: "var(--fg)" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent-2)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = "var(--fg)"; }}
+                    >
                       {value}
                     </a>
                   ) : (
-                    <p className="text-sm text-fg truncate">{value}</p>
+                    <p className="text-sm truncate" style={{ color: "var(--fg)" }}>{value}</p>
                   )}
                 </div>
               </div>
@@ -131,77 +151,74 @@ export default function Contact() {
             className="lg:col-span-3"
           >
             {status === "ratelimit" ? (
-              <div className="card p-8 flex flex-col items-center justify-center gap-4 min-h-[320px] text-center">
-                <AlertCircle size={48} className="text-yellow-400" />
-                <div>
-                  <p className="text-lg font-semibold text-fg mb-1">Slow down!</p>
-                  <p className="text-sm text-fg-muted">Please wait a moment before sending another message.</p>
-                </div>
-                <button onClick={() => setStatus("idle")}
-                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded">
-                  Try again
-                </button>
-              </div>
+              <StatusCard
+                icon={<AlertCircle size={48} style={{ color: "var(--accent-3)" }} />}
+                title="Slow down!"
+                message="Please wait a moment before sending another message."
+                action="Try again"
+              />
             ) : status === "sent" ? (
-              <div className="card p-8 flex flex-col items-center justify-center gap-4 min-h-[320px] text-center">
-                <CheckCircle size={48} style={{ color: "#00E5CC" }} />
-                <div>
-                  <p className="text-lg font-semibold text-fg mb-1">Message sent!</p>
-                  <p className="text-sm text-fg-muted">I&apos;ll get back to you within 24 hours.</p>
-                </div>
-                <button onClick={() => setStatus("idle")}
-                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded">
-                  Send another message
-                </button>
-              </div>
+              <StatusCard
+                icon={<CheckCircle size={48} style={{ color: "var(--accent-2)" }} />}
+                title="Message sent!"
+                message="I'll get back to you within 24 hours."
+                action="Send another message"
+              />
             ) : status === "error" ? (
-              <div className="card p-8 flex flex-col items-center justify-center gap-4 min-h-[320px] text-center">
-                <AlertCircle size={48} className="text-red-400" />
-                <div>
-                  <p className="text-lg font-semibold text-fg mb-1">Something went wrong</p>
-                  <p className="text-sm text-fg-muted">Email me directly at<br />
-                    <a href="mailto:rajputakash1656@gmail.com" style={{ color: "#00E5CC" }} className="hover:underline">
-                      rajputakash1656@gmail.com
-                    </a>
-                  </p>
-                </div>
-                <button onClick={() => setStatus("idle")}
-                  className="text-xs text-fg-muted hover:text-fg underline underline-offset-2 transition-colors focus-ring rounded">
-                  Try again
-                </button>
-              </div>
+              <StatusCard
+                icon={<AlertCircle size={48} style={{ color: "var(--accent-3)" }} />}
+                title="Something went wrong"
+                message={<>Email me directly at<br /><a href="mailto:rajputakash1656@gmail.com" style={{ color: "var(--accent-2)" }} className="hover:underline">rajputakash1656@gmail.com</a></>}
+                action="Try again"
+              />
             ) : (
-              <form ref={formRef} onSubmit={handleSubmit} className="card p-6 space-y-4" noValidate
-                style={{ borderColor: "rgba(212,165,255,0.15)" }}>
+              <form
+                ref={formRef}
+                onSubmit={handleSubmit}
+                className="card p-6 space-y-4"
+                noValidate
+                style={{ borderColor: "var(--border)" }}
+              >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label htmlFor="from_name" className="section-label block">Name</label>
-                    <input id="from_name" type="text" name="from_name" required placeholder="Your name" value={form.name}
+                    <input
+                      id="from_name" type="text" name="from_name" required
+                      placeholder="Your name" value={form.name}
                       onChange={update("name")} maxLength={100}
-                      className={inputClass}
-                      style={{ borderColor: "rgba(212,165,255,0.15)" }} />
+                      style={inputStyle}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <label htmlFor="reply_to" className="section-label block">Email</label>
-                    <input id="reply_to" type="email" name="reply_to" required placeholder="your@email.com" value={form.email}
+                    <input
+                      id="reply_to" type="email" name="reply_to" required
+                      placeholder="your@email.com" value={form.email}
                       onChange={update("email")} maxLength={200}
-                      className={inputClass}
-                      style={{ borderColor: "rgba(212,165,255,0.15)" }} />
+                      style={inputStyle}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                    />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <label htmlFor="message" className="section-label block">Message</label>
-                  <textarea id="message" required name="message" rows={5} maxLength={2000}
+                  <textarea
+                    id="message" required name="message" rows={5} maxLength={2000}
                     placeholder="Tell me about your project or opportunity..."
                     value={form.message} onChange={update("message")}
-                    className={`${inputClass} resize-none`}
-                    style={{ borderColor: "rgba(212,165,255,0.15)" }} />
+                    style={{ ...inputStyle, resize: "none" }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                  />
                 </div>
                 <button
                   type="submit"
                   disabled={status === "sending"}
                   className="flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-85 hover:scale-105 transition-all duration-200 disabled:opacity-60 disabled:scale-100 disabled:cursor-wait focus-ring"
-                  style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
+                  style={{ background: "var(--gradient-brand)" }}
                 >
                   <Send size={14} aria-hidden="true" />
                   {status === "sending" ? "Sending..." : "Send Message"}

@@ -4,19 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Download, Mail, ArrowRight } from "lucide-react";
 
-// Lazy-load the heavy SolarSystem — not part of LCP, deferred safely
 const SolarSystem = dynamic(() => import("@/app/components/SolarSystem"), {
   ssr: false,
   loading: () => (
-    <div
-      className="flex-shrink-0"
-      style={{ width: 360, height: 360 }}
-      aria-hidden="true"
-    />
+    <div className="flex-shrink-0" style={{ width: 360, height: 360 }} aria-hidden="true" />
   ),
 });
 
-/* ── Static SVG icons — no client overhead ── */
 function GitHubIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -38,49 +32,35 @@ const SOCIAL_LINKS = [
     href: "https://github.com/Rajputakash10-ux",
     label: "GitHub",
     icon: <GitHubIcon />,
-    gradient: "linear-gradient(135deg, rgba(212,165,255,0.15), rgba(212,165,255,0.05))",
-    hoverGradient: "linear-gradient(135deg, rgba(212,165,255,0.3), rgba(212,165,255,0.1))",
-    borderColor: "rgba(212,165,255,0.25)",
-    textColor: "var(--brand-purple)",
+    accentVar: "--accent-1",
   },
   {
     href: "https://www.linkedin.com/in/akash-rajput-9433aa368/",
     label: "LinkedIn",
     icon: <LinkedInIcon />,
-    gradient: "linear-gradient(135deg, rgba(0,229,204,0.15), rgba(0,229,204,0.05))",
-    hoverGradient: "linear-gradient(135deg, rgba(0,229,204,0.3), rgba(0,229,204,0.1))",
-    borderColor: "rgba(0,229,204,0.25)",
-    textColor: "var(--brand-teal)",
+    accentVar: "--accent-2",
   },
   {
     href: "mailto:rajputakash1656@gmail.com",
     label: "Email",
     icon: <Mail size={18} aria-hidden="true" />,
-    gradient: "linear-gradient(135deg, rgba(255,183,0,0.15), rgba(255,183,0,0.05))",
-    hoverGradient: "linear-gradient(135deg, rgba(255,183,0,0.3), rgba(255,183,0,0.1))",
-    borderColor: "rgba(255,183,0,0.25)",
-    textColor: "var(--brand-gold)",
+    accentVar: "--accent-3",
   },
   {
     href: "/assets/Akash_Singh_Resume.pdf",
     label: "Resume",
     download: true,
     icon: <Download size={18} aria-hidden="true" />,
-    gradient: "linear-gradient(135deg, rgba(212,165,255,0.1), rgba(0,229,204,0.1))",
-    hoverGradient: "linear-gradient(135deg, rgba(212,165,255,0.25), rgba(0,229,204,0.2))",
-    borderColor: "rgba(212,165,255,0.2)",
-    textColor: "var(--fg-muted)",
+    accentVar: "--fg-muted",
   },
 ];
 
 export default function Hero() {
-  // Animations start after first paint — content is visible immediately
   const [ready, setReady] = useState(false);
   const reducedMotion = useRef(false);
 
   useEffect(() => {
     reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // rAF ensures we're past first paint before starting animations
     const id = requestAnimationFrame(() => setReady(true));
     return () => cancelAnimationFrame(id);
   }, []);
@@ -90,7 +70,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center section-padding overflow-hidden">
 
-      {/* Grid background — pure CSS, no JS */}
+      {/* Grid background */}
       <div
         className="hero-grid absolute inset-0 pointer-events-none"
         aria-hidden="true"
@@ -101,39 +81,51 @@ export default function Hero() {
         }}
       />
 
-      {/* Ambient glows — CSS only, no JS animation cost */}
+      {/* Ambient glows */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-1/3 left-[15%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow"
-          style={{ background: "radial-gradient(circle, rgba(212,165,255,0.12), transparent 70%)" }} />
-        <div className="absolute top-1/2 right-[10%] w-80 h-80 rounded-full blur-[100px] animate-pulse-slow"
-          style={{ background: "radial-gradient(circle, rgba(0,229,204,0.1), transparent 70%)", animationDelay: "1.5s" }} />
-        <div className="absolute bottom-1/4 left-1/2 w-64 h-64 rounded-full blur-[80px]"
-          style={{ background: "radial-gradient(circle, rgba(255,183,0,0.07), transparent 70%)" }} />
+        <div
+          className="absolute top-1/3 left-[15%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow"
+          style={{ background: `radial-gradient(circle, var(--glow-1), transparent 70%)`, opacity: 0.4 }}
+        />
+        <div
+          className="absolute top-1/2 right-[10%] w-80 h-80 rounded-full blur-[100px] animate-pulse-slow"
+          style={{ background: `radial-gradient(circle, var(--glow-2), transparent 70%)`, opacity: 0.3, animationDelay: "1.5s" }}
+        />
+        <div
+          className="absolute bottom-1/4 left-1/2 w-64 h-64 rounded-full blur-[80px]"
+          style={{ background: `radial-gradient(circle, var(--glow-3), transparent 70%)`, opacity: 0.2 }}
+        />
       </div>
 
       <div className="container-max w-full relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
-          {/* ── Text content — visible immediately, no opacity:0 on LCP ── */}
+          {/* Text content */}
           <div className="flex-1 text-center lg:text-left">
 
             {/* Label chip */}
             <div
               className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full hero-fade-in"
               style={{
-                background: "rgba(0,229,204,0.08)",
-                border: "1px solid rgba(0,229,204,0.25)",
+                background: "var(--gradient-subtle)",
+                border: "1px solid var(--border-hover)",
                 animationDelay: "0ms",
                 opacity: noMotion ? 1 : undefined,
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "var(--brand-teal)" }} />
-              <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "var(--brand-teal)" }}>
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ background: "var(--accent-2)" }}
+              />
+              <span
+                className="text-xs font-semibold tracking-widest uppercase"
+                style={{ color: "var(--accent-2)" }}
+              >
                 Data Scientist &amp; AI/ML Engineer
               </span>
             </div>
 
-            {/* ── LCP ELEMENT — fully visible on server render, no animation delay ── */}
+            {/* Heading */}
             <h1
               className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6 hero-fade-in"
               style={{ animationDelay: "80ms", opacity: noMotion ? 1 : undefined }}
@@ -164,8 +156,8 @@ export default function Hero() {
                 href="#projects"
                 className="group flex items-center gap-2 px-6 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity duration-200 focus-ring"
                 style={{
-                  background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))",
-                  boxShadow: "0 0 30px -8px rgba(212,165,255,0.5)",
+                  background: "var(--gradient-brand)",
+                  boxShadow: "0 0 30px -8px var(--glow-1)",
                 }}
               >
                 View My Work
@@ -174,7 +166,7 @@ export default function Hero() {
               <a
                 href="/assets/Akash_Singh_Resume.pdf"
                 download
-                className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-opacity duration-200 focus-ring"
+                className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 focus-ring"
                 style={{
                   background: "var(--glass-bg)",
                   border: "1px solid var(--border-gold)",
@@ -191,7 +183,7 @@ export default function Hero() {
               className="flex flex-wrap items-center gap-2 justify-center lg:justify-start hero-fade-in"
               style={{ animationDelay: "320ms", opacity: noMotion ? 1 : undefined }}
             >
-              {SOCIAL_LINKS.map(({ href, label, icon, gradient, hoverGradient, borderColor, textColor, download: dl }) => (
+              {SOCIAL_LINKS.map(({ href, label, icon, accentVar, download: dl }) => (
                 <a
                   key={label}
                   href={href}
@@ -199,10 +191,14 @@ export default function Hero() {
                   target={!dl && href.startsWith("http") ? "_blank" : undefined}
                   rel={!dl && href.startsWith("http") ? "noopener noreferrer" : undefined}
                   aria-label={label}
-                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors duration-200 focus-ring"
-                  style={{ background: gradient, border: `1px solid ${borderColor}`, color: textColor }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = hoverGradient; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = gradient; }}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 focus-ring"
+                  style={{
+                    background: "var(--gradient-subtle)",
+                    border: "1px solid var(--border)",
+                    color: `var(${accentVar})`,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
                 >
                   {icon}
                   <span>{label}</span>
@@ -211,7 +207,7 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* ── Solar System — lazy loaded, deferred, never blocks LCP ── */}
+          {/* Solar System */}
           <div
             className="flex-shrink-0 flex items-center justify-center hero-fade-in"
             style={{ animationDelay: "400ms", opacity: noMotion ? 1 : undefined }}
@@ -227,7 +223,10 @@ export default function Hero() {
           style={{ animationDelay: "1200ms", opacity: noMotion ? 1 : undefined }}
         >
           <span className="text-xs tracking-widest uppercase" style={{ color: "var(--fg-subtle)" }}>Scroll</span>
-          <div className="w-px h-8 scroll-line" style={{ background: "linear-gradient(to bottom, var(--brand-purple), transparent)" }} />
+          <div
+            className="w-px h-8 scroll-line"
+            style={{ background: "linear-gradient(to bottom, var(--accent-1), transparent)" }}
+          />
         </div>
       </div>
     </section>

@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-export type Theme = "dark" | "light" | "bold";
+export type Theme = "dark" | "light" | "bw";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>("dark");
 
-  // On mount — read from localStorage or system preference
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
-    if (stored && ["dark", "light", "bold"].includes(stored)) {
+    if (stored && ["dark", "light", "bw"].includes(stored)) {
       applyTheme(stored);
       setTheme(stored);
     } else {

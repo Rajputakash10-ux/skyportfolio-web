@@ -13,7 +13,7 @@ const HIGHLIGHTS = [
 
 export default function About() {
   return (
-    <section id="about" className="section-padding bg-bg-secondary">
+    <section id="about" className="section-padding" style={{ background: "var(--bg-secondary)" }}>
       <div className="container-max">
         <SectionHeader label="Get to know me" title="About Me" align="center" />
 
@@ -26,15 +26,15 @@ export default function About() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-5"
           >
-            <p className="text-base text-fg-muted leading-relaxed">
-              I&apos;m a <span className="text-fg font-medium">B.Sc. Computer Science</span> graduate (2026)
+            <p className="text-base leading-relaxed" style={{ color: "var(--fg-muted)" }}>
+              I&apos;m a <span style={{ color: "var(--fg)", fontWeight: 500 }}>B.Sc. Computer Science</span> graduate (2026)
               passionate about building intelligent systems that solve real-world problems.
               My core focus is Python, Machine Learning, NLP, and full-stack web development.
             </p>
-            <p className="text-base text-fg-muted leading-relaxed">
+            <p className="text-base leading-relaxed" style={{ color: "var(--fg-muted)" }}>
               From deploying ML pipelines to building NLP chatbots and a live stock analysis
               platform, I combine technical depth with a ship-fast mindset. I&apos;m currently
-              seeking a full-time <span className="text-fg font-medium">Data Science role</span> where
+              seeking a full-time <span style={{ color: "var(--fg)", fontWeight: 500 }}>Data Science role</span> where
               I can go deeper into MLOps, model deployment, and real-time data systems.
             </p>
 
@@ -46,10 +46,13 @@ export default function About() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.08, duration: 0.5 }}
-                  className="flex items-start gap-3 text-sm text-fg-muted"
+                  className="flex items-start gap-3 text-sm"
+                  style={{ color: "var(--fg-muted)" }}
                 >
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))" }} />
+                  <span
+                    className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: "var(--gradient-brand)" }}
+                  />
                   {item}
                 </motion.li>
               ))}
@@ -59,7 +62,7 @@ export default function About() {
               <a
                 href="#projects"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
-                style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))" }}
+                style={{ background: "var(--gradient-brand)" }}
               >
                 View My Projects →
               </a>
@@ -83,11 +86,11 @@ export default function About() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.07, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="card p-5 flex flex-col gap-1 transition-all duration-300"
-                  style={{ borderColor: i % 2 === 0 ? "rgba(212,165,255,0.2)" : "rgba(255,183,0,0.2)" }}
+                  className="card p-5 flex flex-col gap-1"
+                  style={{ borderColor: i % 2 === 0 ? "var(--border-hover)" : "var(--border-gold)" }}
                 >
                   <span className="text-3xl font-bold leading-none gradient-text">{stat.value}</span>
-                  <span className="text-xs text-fg-muted leading-snug">{stat.label}</span>
+                  <span className="text-xs leading-snug" style={{ color: "var(--fg-muted)" }}>{stat.label}</span>
                 </motion.div>
               ))}
             </div>
@@ -103,8 +106,10 @@ export default function About() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04, duration: 0.3 }}
-                    className="text-xs px-3 py-1.5 rounded-full text-fg-muted hover:text-fg transition-colors duration-200 cursor-default"
-                    style={{ border: "1px solid rgba(212,165,255,0.15)" }}
+                    className="text-xs px-3 py-1.5 rounded-full cursor-default transition-colors duration-200"
+                    style={{ border: "1px solid var(--border)", color: "var(--fg-muted)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--fg)"; e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--fg-muted)"; e.currentTarget.style.borderColor = "var(--border)"; }}
                   >
                     {tech}
                   </motion.span>
@@ -113,14 +118,14 @@ export default function About() {
             </div>
 
             {/* Availability badge */}
-            <div className="card p-4 flex items-center gap-3" style={{ borderColor: "rgba(0,229,204,0.2)" }}>
+            <div className="card p-4 flex items-center gap-3" style={{ borderColor: "var(--border-hover)" }}>
               <div className="relative flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--brand-teal)" }} />
-                <div className="absolute inset-0 rounded-full animate-ping opacity-60" style={{ background: "var(--brand-teal)" }} />
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: "var(--accent-2)" }} />
+                <div className="absolute inset-0 rounded-full animate-ping opacity-60" style={{ background: "var(--accent-2)" }} />
               </div>
               <div>
-                <p className="text-sm font-medium text-fg">Available for opportunities</p>
-                <p className="text-xs text-fg-muted">Open to full-time Data Science / ML roles</p>
+                <p className="text-sm font-medium" style={{ color: "var(--fg)" }}>Available for opportunities</p>
+                <p className="text-xs" style={{ color: "var(--fg-muted)" }}>Open to full-time Data Science / ML roles</p>
               </div>
             </div>
           </motion.div>

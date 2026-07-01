@@ -27,14 +27,12 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  // Close drawer on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  // Lock body scroll when drawer open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -42,16 +40,20 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Header — CSS slide-down on mount via animation class ── */}
       <header
         className={`navbar-enter fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-          scrolled ? "glass border-b border-[var(--border)]" : "bg-transparent border-b border-transparent"
+          scrolled ? "glass border-b" : "bg-transparent border-b border-transparent"
         }`}
+        style={scrolled ? { borderBottomColor: "var(--border)" } : undefined}
       >
         <nav className="container-max flex items-center justify-between px-6 md:px-10 lg:px-16 py-4">
           {/* Logo */}
-          <a href="#" className="text-base font-bold tracking-tight focus-ring rounded gradient-text" aria-label="Akash Singh — home">
-            AS<span className="text-fg-subtle">/</span>
+          <a
+            href="#"
+            className="text-base font-bold tracking-tight focus-ring rounded gradient-text"
+            aria-label="Akash Singh — home"
+          >
+            AS<span style={{ color: "var(--fg-subtle)" }}>/</span>
           </a>
 
           {/* Desktop links */}
@@ -63,16 +65,14 @@ export default function Navbar() {
                   <a
                     href={link.href}
                     role="menuitem"
-                    className={`relative px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 focus-ring ${
-                      isActive ? "text-fg" : "text-fg-muted hover:text-fg"
-                    }`}
+                    className="relative px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 focus-ring"
+                    style={{ color: isActive ? "var(--fg)" : "var(--fg-muted)" }}
                   >
-                    {/* CSS-only active pill — no framer-motion layoutId needed */}
                     <span
                       className="absolute inset-0 rounded-lg transition-opacity duration-200"
                       style={{
-                        background: "rgba(212,165,255,0.08)",
-                        border: "1px solid rgba(212,165,255,0.2)",
+                        background: "var(--gradient-subtle)",
+                        border: "1px solid var(--border-hover)",
                         opacity: isActive ? 1 : 0,
                       }}
                     />
@@ -89,8 +89,12 @@ export default function Navbar() {
             <a
               href="/assets/Akash_Singh_Resume.pdf"
               download
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-white hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
-              style={{ background: "linear-gradient(135deg, var(--brand-purple), var(--brand-teal))", boxShadow: "0 0 20px -5px rgba(212,165,255,0.4)" }}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg hover:opacity-85 hover:scale-105 transition-all duration-200 focus-ring"
+              style={{
+                background: "var(--gradient-brand)",
+                color: "#ffffff",
+                boxShadow: "0 0 20px -5px var(--glow-1)",
+              }}
             >
               <Download size={14} aria-hidden="true" />
               Resume
@@ -100,12 +104,12 @@ export default function Navbar() {
           {/* Mobile toggle */}
           <button
             onClick={() => setOpen((v) => !v)}
-            className="md:hidden p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-white/5 transition-colors focus-ring"
+            className="md:hidden p-2 rounded-lg transition-colors focus-ring"
+            style={{ color: "var(--fg-muted)" }}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-drawer"
           >
-            {/* CSS cross/hamburger transition */}
             <span className="relative block w-5 h-5">
               <Menu
                 size={20}
@@ -122,15 +126,19 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ── Mobile backdrop — CSS fade ── */}
+      {/* Mobile backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-200"
-        style={{ opacity: open ? 1 : 0, pointerEvents: open ? "auto" : "none" }}
+        className="fixed inset-0 z-40 backdrop-blur-sm md:hidden transition-opacity duration-200"
+        style={{
+          background: "rgba(0,0,0,0.6)",
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? "auto" : "none",
+        }}
         onClick={() => setOpen(false)}
         aria-hidden="true"
       />
 
-      {/* ── Mobile drawer — CSS slide-in from right ── */}
+      {/* Mobile drawer */}
       <div
         id="mobile-drawer"
         ref={drawerRef}
@@ -144,11 +152,15 @@ export default function Navbar() {
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div
+          className="flex items-center justify-between px-6 py-5"
+          style={{ borderBottom: "1px solid var(--border)" }}
+        >
           <span className="font-bold gradient-text text-base">Menu</span>
           <button
             onClick={() => setOpen(false)}
-            className="p-1.5 rounded-lg text-fg-muted hover:text-fg hover:bg-white/5 transition-colors focus-ring"
+            className="p-1.5 rounded-lg transition-colors focus-ring"
+            style={{ color: "var(--fg-muted)" }}
             aria-label="Close menu"
           >
             <X size={18} />
@@ -161,21 +173,25 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-3 py-3 rounded-xl text-fg-muted hover:text-fg hover:bg-white/5 transition-colors text-sm focus-ring drawer-link"
-              style={{ animationDelay: `${i * 40}ms` }}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-colors focus-ring drawer-link"
+              style={{
+                color: "var(--fg-muted)",
+                animationDelay: `${i * 40}ms`,
+              }}
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="px-4 pb-8">
+        <div className="px-4 pb-8 space-y-3">
+          <ThemeToggle />
           <a
             href="/assets/Akash_Singh_Resume.pdf"
             download
             onClick={() => setOpen(false)}
-            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-white text-sm font-medium focus-ring"
-            style={{ background: "linear-gradient(135deg, #D4A5FF, #00E5CC)" }}
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-medium focus-ring"
+            style={{ background: "var(--gradient-brand)", color: "#ffffff" }}
           >
             <Download size={15} aria-hidden="true" />
             Download Resume

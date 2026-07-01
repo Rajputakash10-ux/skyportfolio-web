@@ -14,57 +14,6 @@ function GitHubIcon({ size = 16 }: { size?: number }) {
   );
 }
 
-const ACCENT = {
-  indigo: {
-    border: "rgba(212,165,255,0.25)",
-    hoverBorder: "rgba(212,165,255,0.6)",
-    tagBg: "rgba(212,165,255,0.1)",
-    tagText: "#D4A5FF",
-    gradient: "linear-gradient(135deg, rgba(212,165,255,0.14), rgba(0,229,204,0.08))",
-    spotlight: "rgba(212,165,255,0.12)",
-    glow: "rgba(212,165,255,0.35)",
-    topBar: "linear-gradient(90deg, #D4A5FF, #00E5CC)",
-    numColor: "rgba(212,165,255,0.12)",
-    numText: "rgba(212,165,255,0.5)",
-  },
-  violet: {
-    border: "rgba(255,183,0,0.2)",
-    hoverBorder: "rgba(255,183,0,0.55)",
-    tagBg: "rgba(255,183,0,0.1)",
-    tagText: "#FFB700",
-    gradient: "linear-gradient(135deg, rgba(255,183,0,0.12), rgba(212,165,255,0.08))",
-    spotlight: "rgba(255,183,0,0.1)",
-    glow: "rgba(255,183,0,0.3)",
-    topBar: "linear-gradient(90deg, #FFB700, #D4A5FF)",
-    numColor: "rgba(255,183,0,0.1)",
-    numText: "rgba(255,183,0,0.45)",
-  },
-  cyan: {
-    border: "rgba(0,229,204,0.2)",
-    hoverBorder: "rgba(0,229,204,0.55)",
-    tagBg: "rgba(0,229,204,0.1)",
-    tagText: "#00E5CC",
-    gradient: "linear-gradient(135deg, rgba(0,229,204,0.12), rgba(212,165,255,0.06))",
-    spotlight: "rgba(0,229,204,0.1)",
-    glow: "rgba(0,229,204,0.3)",
-    topBar: "linear-gradient(90deg, #00E5CC, #D4A5FF)",
-    numColor: "rgba(0,229,204,0.1)",
-    numText: "rgba(0,229,204,0.45)",
-  },
-  orange: {
-    border: "rgba(255,183,0,0.2)",
-    hoverBorder: "rgba(255,183,0,0.5)",
-    tagBg: "rgba(255,183,0,0.08)",
-    tagText: "#FFB700",
-    gradient: "linear-gradient(135deg, rgba(255,183,0,0.1), rgba(0,229,204,0.06))",
-    spotlight: "rgba(255,183,0,0.08)",
-    glow: "rgba(255,183,0,0.25)",
-    topBar: "linear-gradient(90deg, #FFB700, #00E5CC)",
-    numColor: "rgba(255,183,0,0.08)",
-    numText: "rgba(255,183,0,0.4)",
-  },
-};
-
 const FILTERS = ["All", "Featured", "NLP / AI", "MLOps", "Data Science", "Full-Stack + ML"] as const;
 type Filter = (typeof FILTERS)[number];
 
@@ -80,7 +29,7 @@ export default function Projects() {
   const featured = PROJECTS.filter((p) => p.featured);
 
   return (
-    <section id="projects" className="section-padding">
+    <section id="projects" className="section-padding" style={{ background: "var(--bg)" }}>
       <div className="container-max">
         <SectionHeader
           label="What I've built"
@@ -88,7 +37,7 @@ export default function Projects() {
           subtitle="Real-world systems built with production-grade thinking, not tutorial rewrites."
         />
 
-        {/* ── Stats bar ── */}
+        {/* Stats bar */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -97,18 +46,18 @@ export default function Projects() {
           className="flex flex-wrap items-center gap-6 mb-8 px-1"
         >
           {[
-            { icon: GitBranch, label: `${PROJECTS.length} Projects`, color: "#D4A5FF" },
-            { icon: Star,      label: `${featured.length} Featured`,  color: "#FFB700" },
-            { icon: Zap,       label: "Production-grade",             color: "#00E5CC" },
-          ].map(({ icon: Icon, label, color }) => (
-            <div key={label} className="flex items-center gap-2 text-xs text-fg-muted">
-              <Icon size={13} style={{ color }} aria-hidden="true" />
+            { icon: GitBranch, label: `${PROJECTS.length} Projects`, varName: "--accent-1" },
+            { icon: Star,      label: `${featured.length} Featured`,  varName: "--accent-3" },
+            { icon: Zap,       label: "Production-grade",             varName: "--accent-2" },
+          ].map(({ icon: Icon, label, varName }) => (
+            <div key={label} className="flex items-center gap-2 text-xs" style={{ color: "var(--fg-muted)" }}>
+              <Icon size={13} style={{ color: `var(${varName})` }} aria-hidden="true" />
               <span>{label}</span>
             </div>
           ))}
 
           {/* Divider */}
-          <div className="hidden sm:block flex-1 h-px" style={{ background: "rgba(212,165,255,0.1)" }} />
+          <div className="hidden sm:block flex-1 h-px" style={{ background: "var(--border)" }} />
 
           {/* Filter tabs */}
           <div className="flex flex-wrap gap-1.5">
@@ -120,13 +69,9 @@ export default function Projects() {
                   onClick={() => setActive(f)}
                   className="text-[11px] px-3 py-1.5 rounded-full font-medium transition-all duration-200 focus-ring"
                   style={{
-                    background: isActive
-                      ? "linear-gradient(135deg, rgba(212,165,255,0.25), rgba(0,229,204,0.15))"
-                      : "rgba(255,255,255,0.04)",
-                    border: isActive
-                      ? "1px solid rgba(212,165,255,0.4)"
-                      : "1px solid rgba(255,255,255,0.08)",
-                    color: isActive ? "#D4A5FF" : "var(--fg-muted)",
+                    background: isActive ? "var(--gradient-subtle)" : "transparent",
+                    border: isActive ? "1px solid var(--border-hover)" : "1px solid var(--border)",
+                    color: isActive ? "var(--accent-1)" : "var(--fg-muted)",
                   }}
                 >
                   {f}
@@ -136,7 +81,7 @@ export default function Projects() {
           </div>
         </motion.div>
 
-        {/* ── Project grid ── */}
+        {/* Project grid */}
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
@@ -145,7 +90,6 @@ export default function Projects() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Featured row — 2 col */}
             {(active === "All" || active === "Featured") && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
                 {PROJECTS.filter((p) => p.featured && (active === "All" || active === "Featured")).map((project, i) => (
@@ -154,7 +98,6 @@ export default function Projects() {
               </div>
             )}
 
-            {/* Rest / filtered grid */}
             <div className={`grid grid-cols-1 sm:grid-cols-2 gap-5 ${active === "All" ? "" : "lg:grid-cols-2"}`}>
               {(active === "All"
                 ? PROJECTS.filter((p) => !p.featured)
@@ -165,14 +108,14 @@ export default function Projects() {
             </div>
 
             {filtered.length === 0 && (
-              <div className="text-center py-20 text-fg-subtle text-sm">
+              <div className="text-center py-20 text-sm" style={{ color: "var(--fg-subtle)" }}>
                 No projects in this category yet.
               </div>
             )}
           </motion.div>
         </AnimatePresence>
 
-        {/* ── GitHub CTA ── */}
+        {/* GitHub CTA */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -186,18 +129,12 @@ export default function Projects() {
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 focus-ring hover:scale-105"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(212,165,255,0.2)",
+              background: "var(--glass-bg)",
+              border: "1px solid var(--border)",
               color: "var(--fg-muted)",
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(212,165,255,0.5)";
-              e.currentTarget.style.color = "var(--fg)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(212,165,255,0.2)";
-              e.currentTarget.style.color = "var(--fg-muted)";
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--fg)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--fg-muted)"; }}
           >
             <GitHubIcon size={15} />
             View all projects on GitHub
@@ -219,7 +156,6 @@ function ProjectCard({
   featured?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
-  const accent = ACCENT[project.accentColor as keyof typeof ACCENT] ?? ACCENT.indigo;
   const num = String(index + 1).padStart(2, "0");
 
   return (
@@ -228,30 +164,28 @@ function ProjectCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative rounded-2xl overflow-hidden transition-all duration-300 bg-bg-secondary ${featured ? "p-7" : "p-6"}`}
+      className={`group relative rounded-2xl overflow-hidden ${featured ? "p-7" : "p-6"}`}
       style={{
-        border: `1px solid ${hovered ? accent.hoverBorder : accent.border}`,
-        boxShadow: hovered ? `0 0 40px -12px ${accent.glow}` : "none",
-        transition: "border-color 0.3s, box-shadow 0.3s",
+        background: "var(--card-bg)",
+        border: `1px solid ${hovered ? "var(--border-hover)" : "var(--border)"}`,
+        boxShadow: hovered ? "0 0 40px -12px var(--glow-1)" : "var(--card-shadow)",
+        transition: "border-color 0.3s ease, box-shadow 0.3s ease",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Animated top border glow */}
+      {/* Top border glow */}
       <div
         className="absolute top-0 left-0 right-0 h-px transition-opacity duration-500"
-        style={{
-          background: accent.topBar,
-          opacity: hovered ? 1 : 0.3,
-        }}
+        style={{ background: "var(--gradient-brand)", opacity: hovered ? 1 : 0.3 }}
       />
 
-      {/* Corner spotlight on hover */}
+      {/* Corner spotlight */}
       <div
         className="absolute -top-20 -right-20 w-48 h-48 rounded-full pointer-events-none transition-opacity duration-500"
         style={{
-          background: `radial-gradient(circle, ${accent.spotlight}, transparent 70%)`,
-          opacity: hovered ? 1 : 0,
+          background: "radial-gradient(circle, var(--glow-1), transparent 70%)",
+          opacity: hovered ? 0.6 : 0,
         }}
       />
 
@@ -259,8 +193,8 @@ function ProjectCard({
       <div
         className="absolute inset-0 transition-opacity duration-500"
         style={{
-          background: accent.gradient,
-          opacity: hovered ? 1 : 0.6,
+          background: "var(--gradient-subtle)",
+          opacity: hovered ? 1 : 0.4,
         }}
       />
 
@@ -268,8 +202,8 @@ function ProjectCard({
       <div
         className="absolute bottom-3 right-4 text-7xl font-black pointer-events-none select-none leading-none transition-opacity duration-300"
         style={{
-          color: accent.numColor,
-          opacity: hovered ? 0.8 : 0.4,
+          color: "var(--border-hover)",
+          opacity: hovered ? 0.5 : 0.2,
           fontVariantNumeric: "tabular-nums",
         }}
       >
@@ -277,19 +211,27 @@ function ProjectCard({
       </div>
 
       <div className="relative z-10 flex flex-col h-full gap-4">
-        {/* Top row — category + featured pill + link */}
+        {/* Top row */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className="text-xs px-2.5 py-1 rounded-full border font-medium"
-              style={{ background: accent.tagBg, color: accent.tagText, borderColor: accent.border }}
+              style={{
+                background: "var(--gradient-subtle)",
+                color: "var(--accent-1)",
+                borderColor: "var(--border)",
+              }}
             >
               {project.category}
             </span>
             {project.featured && (
               <span
                 className="text-[10px] px-2 py-0.5 rounded-full font-semibold flex items-center gap-1"
-                style={{ background: "rgba(255,183,0,0.12)", color: "#FFB700", border: "1px solid rgba(255,183,0,0.25)" }}
+                style={{
+                  background: "var(--gradient-subtle)",
+                  color: "var(--accent-3)",
+                  border: "1px solid var(--border-gold)",
+                }}
               >
                 <Star size={9} aria-hidden="true" />
                 Featured
@@ -301,8 +243,11 @@ function ProjectCard({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`View ${project.title} on GitHub`}
-            className="flex-shrink-0 p-1.5 rounded-lg text-fg-subtle hover:text-fg transition-colors duration-200 focus-ring"
-            style={{ background: hovered ? "rgba(255,255,255,0.08)" : "transparent" }}
+            className="flex-shrink-0 p-1.5 rounded-lg transition-colors duration-200 focus-ring"
+            style={{
+              color: "var(--fg-subtle)",
+              background: hovered ? "var(--border)" : "transparent",
+            }}
           >
             <GitHubIcon size={15} />
           </a>
@@ -310,10 +255,13 @@ function ProjectCard({
 
         {/* Title + description */}
         <div>
-          <h3 className={`font-bold text-fg tracking-tight mb-2 ${featured ? "text-xl" : "text-lg"}`}>
+          <h3
+            className={`font-bold tracking-tight mb-2 ${featured ? "text-xl" : "text-lg"}`}
+            style={{ color: "var(--fg)" }}
+          >
             {project.title}
           </h3>
-          <p className="text-sm text-fg-muted leading-relaxed">{project.description}</p>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--fg-muted)" }}>{project.description}</p>
         </div>
 
         {/* Metrics */}
@@ -321,26 +269,31 @@ function ProjectCard({
           {project.metrics.map((m) => (
             <span
               key={m}
-              className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg text-fg-subtle"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+              className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg"
+              style={{
+                background: "var(--glass-bg)",
+                border: "1px solid var(--border)",
+                color: "var(--fg-subtle)",
+              }}
             >
-              <span
-                className="w-1 h-1 rounded-full flex-shrink-0"
-                style={{ background: accent.tagText }}
-              />
+              <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: "var(--accent-2)" }} />
               {m}
             </span>
           ))}
         </div>
 
-        {/* Tags + GitHub button row */}
+        {/* Tags + View Code */}
         <div className="flex items-end justify-between gap-3 flex-wrap">
           <div className="flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
               <span
                 key={tag}
                 className="text-xs px-2.5 py-0.5 rounded-full border"
-                style={{ background: accent.tagBg, color: accent.tagText, borderColor: accent.border }}
+                style={{
+                  background: "var(--gradient-subtle)",
+                  color: "var(--accent-2)",
+                  borderColor: "var(--border)",
+                }}
               >
                 {tag}
               </span>
@@ -353,11 +306,9 @@ function ProjectCard({
             rel="noopener noreferrer"
             className="flex-shrink-0 flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg font-medium transition-all duration-200 focus-ring hover:scale-105"
             style={{
-              background: hovered
-                ? `linear-gradient(135deg, ${accent.tagText}22, ${accent.tagText}11)`
-                : "rgba(255,255,255,0.05)",
-              border: `1px solid ${hovered ? accent.hoverBorder : "rgba(255,255,255,0.1)"}`,
-              color: hovered ? accent.tagText : "var(--fg-subtle)",
+              background: hovered ? "var(--gradient-subtle)" : "var(--glass-bg)",
+              border: `1px solid ${hovered ? "var(--border-hover)" : "var(--border)"}`,
+              color: hovered ? "var(--accent-1)" : "var(--fg-subtle)",
             }}
           >
             <GitHubIcon size={11} />

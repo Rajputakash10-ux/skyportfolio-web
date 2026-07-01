@@ -3,7 +3,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme, type Theme } from "@/hooks/useTheme";
 
-function ClassicIcon() {
+function BWIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1.2" />
@@ -15,20 +15,8 @@ function ClassicIcon() {
 const MODES: { id: Theme; icon: React.ReactNode; label: string }[] = [
   { id: "dark",  icon: <Moon size={13} />, label: "Dark"  },
   { id: "light", icon: <Sun  size={13} />, label: "Light" },
-  { id: "bold",  icon: <ClassicIcon />,    label: "B&W"   },
+  { id: "bw",    icon: <BWIcon />,         label: "B&W"   },
 ];
-
-const PILL_BG: Record<Theme, string> = {
-  dark:  "linear-gradient(135deg, #D4A5FF, #00E5CC)",
-  light: "#0D0D15",
-  bold:  "#000000",
-};
-
-const PILL_TEXT: Record<Theme, string> = {
-  dark:  "#0D0D15",
-  light: "#FFFFFF",
-  bold:  "#FFFFFF",
-};
 
 export default function ThemeToggle() {
   const { theme, toggle } = useTheme();
@@ -37,8 +25,8 @@ export default function ThemeToggle() {
     <div
       className="relative flex items-center rounded-full p-0.5 gap-0.5"
       style={{
-        background: theme === "bold" ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.06)",
-        border: theme === "bold" ? "1px solid rgba(0,0,0,0.15)" : "1px solid rgba(212,165,255,0.15)",
+        background: "var(--glass-bg)",
+        border: "1px solid var(--border)",
       }}
       role="group"
       aria-label="Theme switcher"
@@ -51,14 +39,16 @@ export default function ThemeToggle() {
             onClick={() => toggle(id)}
             aria-pressed={active}
             aria-label={`${label} mode`}
-            className="relative flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium focus-ring z-10 transition-colors duration-150"
-            style={{ color: active ? PILL_TEXT[theme] : "var(--fg-muted)" }}
+            className="relative flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium focus-ring z-10"
+            style={{
+              color: active ? (theme === "light" ? "#ffffff" : "var(--bg)") : "var(--fg-muted)",
+              transition: "color 300ms ease-in-out",
+            }}
           >
-            {/* CSS-only pill — no framer-motion */}
             {active && (
               <span
                 className="absolute inset-0 rounded-full"
-                style={{ background: PILL_BG[theme] }}
+                style={{ background: "var(--gradient-brand)" }}
               />
             )}
             <span className="relative flex items-center gap-1">
