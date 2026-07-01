@@ -99,11 +99,11 @@ export default function Hero() {
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div
           className="absolute top-1/3 left-[15%] w-96 h-96 rounded-full blur-[120px] animate-pulse-slow"
-          style={{ background: `radial-gradient(circle, var(--glow-1), transparent 70%)`, opacity: 0.4 }}
+          style={{ background: `radial-gradient(circle, var(--glow-1), transparent 70%)`, opacity: 0.4, willChange: "opacity" }}
         />
         <div
           className="absolute top-1/2 right-[10%] w-80 h-80 rounded-full blur-[100px] animate-pulse-slow"
-          style={{ background: `radial-gradient(circle, var(--glow-2), transparent 70%)`, opacity: 0.3, animationDelay: "1.5s" }}
+          style={{ background: `radial-gradient(circle, var(--glow-2), transparent 70%)`, opacity: 0.3, animationDelay: "1.5s", willChange: "opacity" }}
         />
         <div
           className="absolute bottom-1/4 left-1/2 w-64 h-64 rounded-full blur-[80px]"

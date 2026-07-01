@@ -9,8 +9,8 @@ const geistSans = localFont({
     { path: "./fonts/GeistVF.woff", weight: "700", style: "normal" },
   ],
   variable: "--font-geist-sans",
-  display: "swap",
-  preload: true,
+  display: "optional",
+  preload: false,
   fallback: ["system-ui", "sans-serif"],
 });
 
@@ -18,8 +18,8 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "400",
-  display: "swap",
-  preload: false, // mono only used in skill level badges — not critical
+  display: "optional",
+  preload: false,
   fallback: ["monospace"],
 });
 
@@ -93,9 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // Removed scroll-smooth — causes forced reflow on every scroll event
     <html lang="en">
       <head>
-        {/* Preconnect for EmailJS API — critical for contact form */}
-        <link rel="preconnect" href="https://api.emailjs.com" />
-        <link rel="dns-prefetch" href="https://api.emailjs.com" />
+        {/* EmailJS only loads on form submit — no preconnect needed */}
         {/* Anti-flash theme — must execute before first paint, keep it tiny */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script
