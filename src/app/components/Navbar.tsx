@@ -1,7 +1,21 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Download, X, Menu } from "lucide-react";
+const MenuIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+  </svg>
+);
+const XIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+  </svg>
+);
+const DownloadIcon = ({ size = 14 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+);
 import { NAV_LINKS } from "@/constants/data";
 import ThemeToggle from "@/app/components/ui/ThemeToggle";
 
@@ -96,7 +110,7 @@ export default function Navbar() {
                 boxShadow: "0 0 20px -5px var(--glow-1)",
               }}
             >
-              <Download size={14} aria-hidden="true" />
+              <DownloadIcon size={14} />
               Resume
             </a>
           </div>
@@ -111,16 +125,8 @@ export default function Navbar() {
             aria-controls="mobile-drawer"
           >
             <span className="relative block w-5 h-5">
-              <Menu
-                size={20}
-                className="absolute inset-0 transition-all duration-200"
-                style={{ opacity: open ? 0 : 1, transform: open ? "rotate(90deg)" : "rotate(0deg)" }}
-              />
-              <X
-                size={20}
-                className="absolute inset-0 transition-all duration-200"
-                style={{ opacity: open ? 1 : 0, transform: open ? "rotate(0deg)" : "rotate(-90deg)" }}
-              />
+              <span className="absolute inset-0 transition-all duration-200" style={{ opacity: open ? 0 : 1, transform: open ? "rotate(90deg)" : "rotate(0deg)" }}><MenuIcon /></span>
+              <span className="absolute inset-0 transition-all duration-200" style={{ opacity: open ? 1 : 0, transform: open ? "rotate(0deg)" : "rotate(-90deg)" }}><XIcon size={20} /></span>
             </span>
           </button>
         </nav>
@@ -163,7 +169,7 @@ export default function Navbar() {
             style={{ color: "var(--fg-muted)" }}
             aria-label="Close menu"
           >
-            <X size={18} />
+            <XIcon size={18} />
           </button>
         </div>
 
@@ -193,7 +199,7 @@ export default function Navbar() {
             className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-medium focus-ring"
             style={{ background: "var(--gradient-brand)", color: "#ffffff" }}
           >
-            <Download size={15} aria-hidden="true" />
+            <DownloadIcon size={15} />
             Download Resume
           </a>
         </div>

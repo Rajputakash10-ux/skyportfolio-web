@@ -2,7 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Download, Mail, ArrowRight } from "lucide-react";
+const DownloadIcon = ({ size = 14 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+);
+const MailIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+);
+const ArrowRightIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+  </svg>
+);
 
 const SolarSystem = dynamic(() => import("@/app/components/SolarSystem"), {
   ssr: false,
@@ -43,14 +57,14 @@ const SOCIAL_LINKS = [
   {
     href: "mailto:rajputakash1656@gmail.com",
     label: "Email",
-    icon: <Mail size={18} aria-hidden="true" />,
+    icon: <MailIcon />,
     accentVar: "--accent-3",
   },
   {
     href: "/assets/Akash_Singh_Resume.pdf",
     label: "Resume",
     download: true,
-    icon: <Download size={18} aria-hidden="true" />,
+    icon: <DownloadIcon size={18} />,
     accentVar: "--fg-muted",
   },
 ];
@@ -161,7 +175,7 @@ export default function Hero() {
                 }}
               >
                 View My Work
-                <ArrowRight size={15} aria-hidden="true" />
+                <ArrowRightIcon />
               </a>
               <a
                 href="/assets/Akash_Singh_Resume.pdf"
@@ -173,7 +187,7 @@ export default function Hero() {
                   color: "var(--fg-muted)",
                 }}
               >
-                <Download size={14} aria-hidden="true" />
+                <DownloadIcon size={14} />
                 Download Resume
               </a>
             </div>
